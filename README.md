@@ -1,7 +1,7 @@
-# Sistema de Gestion Documental IISEC
+# Sistema de Gestion Documental - IISEC
 Sistema web de gestión documental para el IISEC, permitiendo la migración de su inventario de Excel a una base de datos estructurada. El sistema facilitará la consulta, actualización y almacenamiento seguro de documentos PDF, con una interfaz accesible y capacidad para generar estadísticas según los requerimientos del instituto.
 
-# Sistema de Gestión Documental - IISEC
+#
 
 Este proyecto consiste en desarrollar un sistema de gestión documental web para el Instituto de Investigaciones Socio-Económicas (IISEC). El objetivo es migrar el inventario actual, que se encuentra en Excel, a una base de datos estructurada, permitiendo la consulta, actualización y almacenamiento seguro de documentos PDF.
 

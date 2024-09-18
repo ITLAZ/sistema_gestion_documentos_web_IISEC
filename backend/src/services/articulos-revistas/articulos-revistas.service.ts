@@ -5,7 +5,11 @@ import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 
 @Injectable()
 export class ArticulosRevistasService {
-  constructor(@InjectModel(ArticuloRevista.name) private articuloRevistaModel: Model<ArticuloRevista>) {}
+  constructor(
+    @InjectModel(ArticuloRevista.name) // Cambia 'ArticuloRevistaModel' por ArticuloRevista.name
+    private articuloRevistaModel: Model<ArticuloRevista>
+  ) {}
+  
 
   async create(articulo: ArticuloRevista): Promise<ArticuloRevista> {
     const nuevoArticulo = new this.articuloRevistaModel(articulo);
@@ -16,4 +20,5 @@ export class ArticulosRevistasService {
     return this.articuloRevistaModel.find().exec();
   }
 }
+
 

@@ -1,3 +1,6 @@
+/* eslint-disable */
+// @ts-nocheck
+
 use BibliotecaIISEC;
 
 db.createCollection("Libros", {
@@ -151,6 +154,33 @@ db.createCollection("DocumentosTrabajo", {
           bsonType: "string",
           description: "Debe ser una URL válida al PDF del documento"
         }
+      }
+    }
+  }
+});
+
+db.createCollection("Usuarios", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["usuario","nombre", "contrasenia", "theme"],
+      properties: {
+        usuario: {
+          bsonType: "string",
+          description: "Su nombre de usuario para hacer login"
+        },
+        nombre: {
+          bsonType: "string",
+          description: "nombre del propietario de la cuenta"
+        },
+        contrasenia: {
+          bsonType: "string",
+          description: "Debe ser su contrasenia que utilizaran para hacer login"
+        },
+        theme: {
+          bsonType: "int",
+          description: "Debe ser el codigo del tema que estan utilizando en su perfil"
+        },
       }
     }
   }

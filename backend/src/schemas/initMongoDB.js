@@ -185,3 +185,25 @@ db.createCollection("Usuarios", {
     }
   }
 });
+
+db.Libros.createIndex({ titulo: 1 })
+db.Libros.createIndex({ autores: 1 })
+db.Libros.createIndex({ anio_publicacion: 1 })
+
+db.ArticulosRevistas.createIndex({ titulo: 1 })
+db.ArticulosRevistas.createIndex({ autores: 1 })
+db.ArticulosRevistas.createIndex({ anio_revista: 1 })
+db.ArticulosRevistas.createIndex({ nombre_revista: 1 })
+
+db.CapitulosLibros.createIndex({ titulo_libro: 1 })
+db.CapitulosLibros.createIndex({ titulo_capitulo: 1 })
+db.CapitulosLibros.createIndex({ autores: 1 })
+db.CapitulosLibros.createIndex({ anio_publicacion: 1 })
+
+db.DocumentosTrabajo.createIndex({ titulo: 1 })
+db.DocumentosTrabajo.createIndex({ autores: 1 })
+db.DocumentosTrabajo.createIndex({ anio_publicacion: 1 })
+db.DocumentosTrabajo.createIndex({ institucion: 1 })
+
+db.Usuarios.createIndex({ usuario: 1 }, { unique: true }) // Para garantizar unicidad
+db.Usuarios.createIndex({ nombre: 1 })

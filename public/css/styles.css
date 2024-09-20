@@ -20,8 +20,8 @@ body {
   border-bottom: 2px solid #ddd;
   padding: 15px 20px;
 }
-
 .navbar-logo {
+  display: block;
   width: 30%;
 }
 
@@ -151,6 +151,13 @@ aside {
   overflow: hidden;
   white-space: normal;
 }
+.card .card-body .card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
 
 /* Estilos para el botón de acciones y el menú desplegable */
 .dropdown {
@@ -230,3 +237,4 @@ aside .advanced-search {
   outline: none;
   border-radius: 10px;
 }
+

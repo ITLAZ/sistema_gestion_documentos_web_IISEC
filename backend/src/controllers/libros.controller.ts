@@ -2,6 +2,7 @@
 import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
+import { Types } from 'mongoose';
 
 @Controller('libros')
 export class LibrosController {
@@ -24,6 +25,16 @@ export class LibrosController {
   async findByAutor(@Param('autor') autor: string): Promise<Libro[]> {
     return this.librosService.findByAutor(autor);
   }
+  
+  // Buscar un libro por su ID
+  @Get('id/:id')
+  async findById(@Param('id') id: string): Promise<Libro> {
+    // Validación de ObjectId
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.librosService.findById(id);
+  }
 
   // Crear un libro
   @Post()
@@ -31,10 +42,10 @@ export class LibrosController {
     return this.librosService.create(libro);
   }
 
-  // Actualizar un libro por su título
-  @Put(':titulo')
-  async update(@Param('titulo') titulo: string, @Body() libro: Partial<Libro>): Promise<Libro> {
-    return this.librosService.update(titulo, libro);
+  // Actualizar un libro por su id
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() libro: Partial<Libro>): Promise<Libro> {
+    return this.librosService.update(id, libro);
   }
 
 }

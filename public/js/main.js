@@ -1,21 +1,36 @@
 import { loadCards } from './handlers/card_handler.js';
-import { getBooks } from './services/api_service.js';
-import { loadNavbar } from './services/navbar_service.js'; 
+import { getBooks, getArticles, getChapters, getAllDocuments } from './services/api_service.js';
+import { loadNavbar } from './services/navbar_service.js';
 
 // Cargar el navbar inmediatamente
 loadNavbar(); 
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Obtener los documentos del backend
-        const documentsData = await getBooks();
-        
-        // Cargar las tarjetas con los datos del backend
-        loadCards(documentsData);
+document.addEventListener('DOMContentLoaded', () => {
+    const typeSelector = document.getElementById('type-selector');
 
-    } catch (error) {
-        console.error('Error al inicializar la aplicación:', error);
-    }
+    // Escuchar los cambios en el selector
+    typeSelector.addEventListener('change', async () => {
+        const selectedType = typeSelector.value;
+        let documentsData = [];
+
+        try {
+            if (selectedType === 'books') {
+                documentsData = await getBooks();
+            } else if (selectedType === 'articles') {
+                documentsData = await getArticles();
+            } else if (selectedType === 'chapters') {
+                documentsData = await getChapters();
+            } else {
+                documentsData = await getAllDocuments(); // Todos los documentos
+            }
+
+            // Cargar las tarjetas con los datos obtenidos
+            loadCards(documentsData);
+
+        } catch (error) {
+            console.error('Error al realizar la búsqueda:', error);
+        }
+    });
 });
 
 // Manejo de eventos globales para los dropdowns

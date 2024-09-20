@@ -12,6 +12,20 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Definir las rutas para redirección
+app.get('/buscador', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates', 'search.html'));
+});
+
+app.get('/agregar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','agregar.html'));
+});
+
+app.get('/reportes', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','report.html'));
+});
+
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

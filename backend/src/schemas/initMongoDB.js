@@ -207,3 +207,51 @@ db.DocumentosTrabajo.createIndex({ institucion: 1 })
 
 db.Usuarios.createIndex({ usuario: 1 }, { unique: true }) // Para garantizar unicidad
 db.Usuarios.createIndex({ nombre: 1 })
+
+db.Libros.insertMany([
+  {
+    portada: "https://example.com/portadas/libro1.jpg",
+    anio_publicacion: 2020,
+    titulo: "Introducción a la Inteligencia Artificial",
+    autores: ["Juan Pérez", "María García"],
+    editorial: "Editorial Ciencia",
+    abstract: "Este libro ofrece una visión general sobre los principios y aplicaciones de la inteligencia artificial.",
+    link_pdf: "https://example.com/pdfs/libro1.pdf"
+  },
+  {
+    portada: "https://example.com/portadas/libro2.jpg",
+    anio_publicacion: 2018,
+    titulo: "Desarrollo Web con Node.js",
+    autores: ["Carlos López"],
+    editorial: "Editorial Tech",
+    abstract: "Una guía completa para el desarrollo de aplicaciones web utilizando Node.js y sus herramientas más populares.",
+    link_pdf: "https://example.com/pdfs/libro2.pdf"
+  },
+  {
+    portada: "https://example.com/portadas/libro3.jpg",
+    anio_publicacion: 2022,
+    titulo: "Diseño de Bases de Datos",
+    autores: ["Ana Martínez", "Luis Rodríguez"],
+    editorial: "Editorial Data",
+    abstract: "Este libro cubre desde los fundamentos del diseño de bases de datos hasta técnicas avanzadas de modelado.",
+    link_pdf: "https://example.com/pdfs/libro3.pdf"
+  },
+  {
+    portada: "https://example.com/portadas/libro4.jpg",
+    anio_publicacion: 2019,
+    titulo: "Ciencia de Datos para Principiantes",
+    autores: ["Pedro Sánchez"],
+    editorial: "Editorial Stats",
+    abstract: "Introducción a la ciencia de datos, incluyendo técnicas de análisis y herramientas como Python y R.",
+    link_pdf: "https://example.com/pdfs/libro4.pdf"
+  },
+  {
+    portada: "https://example.com/portadas/libro5.jpg",
+    anio_publicacion: 2021,
+    titulo: "Programación en Python",
+    autores: ["Laura Fernández", "Jorge Ramírez"],
+    editorial: "Editorial Software",
+    abstract: "Un libro que enseña las bases de la programación en Python, desde lo básico hasta la creación de proyectos.",
+    link_pdf: "https://example.com/pdfs/libro5.pdf"
+  }
+]);

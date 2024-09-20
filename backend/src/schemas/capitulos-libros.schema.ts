@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({ collection: 'CapitulosLibros' })
 export class CapituloLibro extends Document {
   @Prop({ required: true })
   titulo_libro: string;

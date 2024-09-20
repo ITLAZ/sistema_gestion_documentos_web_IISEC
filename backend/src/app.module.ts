@@ -21,7 +21,7 @@ import { UsuariosService } from './services/Usuarios/Usuarios.service';
 @Module({
   imports: [
     // Conexión a la base de datos MongoDB
-    MongooseModule.forRoot('mongodb://localhost:27017'), 
+    MongooseModule.forRoot('mongodb://localhost:27017/BibliotecaIISEC'), 
  
     MongooseModule.forFeature([
       { name: ArticuloRevista.name, schema: ArticuloRevistaSchema },

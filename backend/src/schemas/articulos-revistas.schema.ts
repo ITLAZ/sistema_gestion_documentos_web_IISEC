@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({ collection: 'ArticulosRevistas' })
 export class ArticuloRevista extends Document {
   @Prop({ required: true })
   numero_articulo: string;

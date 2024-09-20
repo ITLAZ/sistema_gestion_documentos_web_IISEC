@@ -11,10 +11,18 @@ export class EstandarizacionService {
     editorial: string,
     anio: string
   ) {
-    // Abreviar los campos
-    const abreviaturaTitulo = titulo.replace(/\s+/g, '').substring(0, 5); // Tomamos los primeros 5 caracteres del título
-    const abreviaturaAutor = autores.split(' ')[0].substring(0, 4); // Tomamos los primeros 4 caracteres del primer apellido
-    const abreviaturaEditorial = editorial.split(' ')[0].substring(0, 4); // Tomamos los primeros 4 caracteres de la editorial
+    // Función para eliminar caracteres especiales y tildes
+    const normalizarTexto = (texto: string) => {
+      return texto
+        .normalize('NFD') // Descompone las letras con tildes
+        .replace(/[\u0300-\u036f]/g, '') // Elimina los acentos
+        .replace(/[^a-zA-Z0-9]/g, ''); // Elimina caracteres especiales y espacios
+    };
+
+    // Abreviar los campos y normalizar
+    const abreviaturaTitulo = normalizarTexto(titulo).substring(0, 5); // Tomamos los primeros 5 caracteres del título
+    const abreviaturaAutor = normalizarTexto(autores.split(' ')[0]).substring(0, 4); // Tomamos los primeros 4 caracteres del primer apellido
+    const abreviaturaEditorial = normalizarTexto(editorial.split(' ')[0]).substring(0, 4); // Tomamos los primeros 4 caracteres de la editorial
 
     // Formatear la fecha actual (YYYYMMDD)
     const fechaActual = new Date().toISOString().slice(0, 10).replace(/-/g, '');

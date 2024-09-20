@@ -21,9 +21,47 @@ export function loadCards(dataArray) {
 }
 
 function updateCardData(cardElement, data) {
-    cardElement.querySelector('#title').textContent = data.title;
-    cardElement.querySelector('#autors').textContent = data.autors;
-    cardElement.querySelector('#published').textContent = data.published;
-    cardElement.querySelector('#type').textContent = data.type;
-    cardElement.querySelector('#description').textContent = data.description;
+    const titleElement = cardElement.querySelector('#title');
+    const autorsElement = cardElement.querySelector('#autors');
+    const publishedElement = cardElement.querySelector('#published');
+    const typeElement = cardElement.querySelector('#type');
+    const descriptionElement = cardElement.querySelector('#description');
+    const coverElement = cardElement.querySelector('#cover');
+
+    // Verificar que los elementos existen antes de actualizar
+    if (titleElement) {
+        titleElement.textContent = data.titulo;
+    } else {
+        console.error('El elemento con id "title" no se encontró en card.html');
+    }
+
+    if (autorsElement) {
+        autorsElement.textContent = data.autores.join(', '); 
+    } else {
+        console.error('El elemento con id "autors" no se encontró en card.html');
+    }
+
+    if (publishedElement) {
+        publishedElement.textContent = data.anio_publicacion;
+    } else {
+        console.error('El elemento con id "published" no se encontró en card.html');
+    }
+
+    if (typeElement) {
+        typeElement.textContent = 'Libro'; 
+    } else {
+        console.error('El elemento con id "type" no se encontró en card.html');
+    }
+
+    if (descriptionElement) {
+        descriptionElement.textContent = data.abstract;
+    } else {
+        console.error('El elemento con id "description" no se encontró en card.html');
+    }
+
+    if (coverElement) {
+        coverElement.src = data.portada;
+    } else {
+        console.error('El elemento con id "cover" no se encontró en card.html');
+    }
 }

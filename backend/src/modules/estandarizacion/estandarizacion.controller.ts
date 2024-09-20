@@ -17,7 +17,7 @@ import {
     @Post('upload')
     @UseInterceptors(FileInterceptor('file', {
       storage: diskStorage({
-        destination: 'C:/Users/Samael/Documents/pruebasEstandarizacionSoft',
+        destination: 'C:/tmp',
         filename: (req, file, cb) => {
           const fileExtName = extname(file.originalname);
           const fileName = `temp-${Date.now()}${fileExtName}`;

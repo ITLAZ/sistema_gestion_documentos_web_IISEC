@@ -16,7 +16,7 @@ import { CapitulosLibrosModule } from './modules/capitulo-libros/capitulos-libro
 import { CapitulosLibrosService } from './services/capitulos-libros/capitulos-libros.service';
 import { LibrosService } from './services/libros/libros.service';
 import { DocumentosTrabajoService } from './services/documentos-trabajo/documentos-trabajo.service';
-import { UsuariosService } from './services/Usuarios/Usuarios.service';
+import { UsuariosService } from './services/usuarios/usuarios.service';
 import { EstandarizacionoNombreModule } from './modules/estandarizacion/estandarizacion.module';
 
 @Module({

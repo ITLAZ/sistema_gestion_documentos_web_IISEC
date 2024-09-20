@@ -19,6 +19,18 @@ export class ArticulosRevistasService {
   async findAll(): Promise<ArticuloRevista[]> {
     return this.articuloRevistaModel.find().exec();
   }
+
+  async findOneByTitulo(titulo: string): Promise<ArticuloRevista> {
+    return this.articuloRevistaModel.findOne({ titulo }).exec();
+  }
+
+  async findByTitulo(titulo: string): Promise<ArticuloRevista[]> {
+    return await this.articuloRevistaModel.find({ titulo: { $regex: titulo, $options: 'i' } }).exec();
+  }
+
+  async findByAutor(autor: string): Promise<ArticuloRevista[]> {
+    return await this.articuloRevistaModel.find({ autores: { $elemMatch: { $regex: autor, $options: 'i' } } }).exec();
+  }  
 }
 
 

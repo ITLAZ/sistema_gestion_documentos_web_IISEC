@@ -22,7 +22,7 @@ import { EstandarizacionoNombreModule } from './modules/estandarizacion/estandar
 @Module({
   imports: [
     // Conexión a la base de datos MongoDB
-    MongooseModule.forRoot('mongodb://localhost:8800'), 
+    MongooseModule.forRoot('mongodb://localhost:27017/BibliotecaIISEC'), 
  
     MongooseModule.forFeature([
       { name: ArticuloRevista.name, schema: ArticuloRevistaSchema },

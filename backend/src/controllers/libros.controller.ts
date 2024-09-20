@@ -12,11 +12,17 @@ export class LibrosController {
   async findAll(): Promise<Libro[]> {
     return this.librosService.findAll();
   }
+  
+  // Buscar libros por aproximación del título
+  @Get('titulo/:titulo')
+  async findByTitulo(@Param('titulo') titulo: string): Promise<Libro[]> {
+    return this.librosService.findByTitulo(titulo);
+  }
 
-  // Obtener un libro por su título
-  @Get(':titulo')
-  async findOne(@Param('titulo') titulo: string): Promise<Libro> {
-    return this.librosService.findOneByTitulo(titulo);
+  // Buscar libros por aproximación del autor
+  @Get('autor/:autor')
+  async findByAutor(@Param('autor') autor: string): Promise<Libro[]> {
+    return this.librosService.findByAutor(autor);
   }
 
   // Crear un libro

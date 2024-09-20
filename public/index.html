@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <aside>
+            <form class="advanced-search">
+                <div class="input-group selector">
+                    <h3>Tipo de Archivo:</h3>
+                    <select name="document-type" id="type-selector">
+                        <option value="all">Todos</option>
+                        <option value="books">Libros</option>
+                        <option value="articles">Artículos</option>
+                        <option value="chapters">Capítulos</option>
+                        <option value="work-documents">Documentos de Trabajo</option>
+                    </select>
+                </div>
+                <div class="input-group textfield">
+                    <h3>Búsqueda Avanzada:</h3>
+                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave...">
+                </div>
+                <div class="input-group date">
+                    <h3>Fecha de Publicación:</h3>
+                    <input type="date" name="publication-date" id="publication-date">
+                </div>
+            </form>
+        </aside>
+        <main>
+            <h2>Resultados Encontrados (0/0):</h2>
+            <div id="cards-container"></div>
+        </main> 
+    </div>
+</body>
+<script src="js/main.js" type="module"></script>
+
+
+</html>

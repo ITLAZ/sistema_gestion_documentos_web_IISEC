@@ -31,6 +31,8 @@ function updateCardData(cardElement, data) {
             data.tipo = 'artículo';
         } else if (data.titulo_capitulo && data.titulo_libro) {
             data.tipo = 'capítulo';
+        } else if (data.institucion && data.titulo && data.autores) {
+            data.tipo = 'documento_trabajo';
         } else {
             alert('El tipo de documento no está disponible.');
             console.error('El tipo de documento no está presente en los datos:', data);
@@ -42,7 +44,7 @@ function updateCardData(cardElement, data) {
         { id: 'title', value: data.titulo || 'Título no disponible' },
         { id: 'autors', value: data.autores ? data.autores.join(', ') : 'Autores no disponibles' },
         { id: 'published', value: data.anio_publicacion || data.anio_revista || 'Fecha no disponible' },
-        { id: 'editorial', value: data.editorial || 'Editorial no disponible' },
+        { id: 'editorial', value: data.editorial || data.institucion || 'Editorial no disponible' }, // Mostrar "institución" o "editorial"
         { id: 'description', value: data.abstract || 'Descripción no disponible' },
         { id: 'cover', value: data.portada || 'https://placehold.com/600x400', isImage: true }
     ];
@@ -66,6 +68,7 @@ function updateCardData(cardElement, data) {
         cardElement.querySelector('#nombre_revista').style.display = 'none';
         cardElement.querySelector('#numero_articulo').style.display = 'none';
         cardElement.querySelector('#titulo_libro').style.display = 'none';
+        cardElement.querySelector('#institucion').style.display = 'none';
     } else if (data.tipo === 'artículo') {
         cardElement.querySelector('#type').textContent = 'Artículo';
         cardElement.querySelector('#nombre_revista').style.display = 'block';
@@ -73,12 +76,21 @@ function updateCardData(cardElement, data) {
         cardElement.querySelector('#numero_articulo').style.display = 'block';
         cardElement.querySelector('#numero_articulo span').textContent = data.numero_articulo;
         cardElement.querySelector('#titulo_libro').style.display = 'none';
+        cardElement.querySelector('#institucion').style.display = 'none';
     } else if (data.tipo === 'capítulo') {
         cardElement.querySelector('#type').textContent = 'Capítulo';
         cardElement.querySelector('#titulo_libro').style.display = 'block';
         cardElement.querySelector('#titulo_libro span').textContent = data.titulo_libro;
         cardElement.querySelector('#nombre_revista').style.display = 'none';
         cardElement.querySelector('#numero_articulo').style.display = 'none';
+        cardElement.querySelector('#institucion').style.display = 'none';
+    } else if (data.tipo === 'documento_trabajo') {
+        cardElement.querySelector('#type').textContent = 'Documento de Trabajo';
+        cardElement.querySelector('#institucion').style.display = 'block';
+        cardElement.querySelector('#institucion span').textContent = data.institucion;
+        cardElement.querySelector('#nombre_revista').style.display = 'none';
+        cardElement.querySelector('#numero_articulo').style.display = 'none';
+        cardElement.querySelector('#titulo_libro').style.display = 'none';
     }
 }
 

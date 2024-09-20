@@ -16,7 +16,7 @@
                 <div class="input-group">
                     <h3>Tipo de Archivo:</h3>
                     <select name="document-type" id="type-selector">
-                        <option value="all">Todos</option>
+                        <option value="">Escoge una opción</option>
                         <option value="books">Libros</option>
                         <option value="articles">Artículos</option>
                         <option value="chapters">Capítulos</option>
@@ -31,15 +31,18 @@
                     <h3>Fecha de Publicación:</h3>
                     <input type="date" name="publication-date" id="publication-date">
                 </div>
+                <!-- Botón de búsqueda -->
+                <div class="input-group button">
+                    <button type="button" id="search-button">Buscar</button>
+                </div>
             </form>
         </aside>
         <main>
-            <h2>Resultados Encontrados (0/0):</h2>
+            <h2>Resultados Encontrados:</h2>
             <div id="cards-container"></div>
         </main> 
     </div>
 </body>
 <script src="js/main.js" type="module"></script>
-
 
 </html>

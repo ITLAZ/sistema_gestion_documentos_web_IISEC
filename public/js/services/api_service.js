@@ -4,11 +4,11 @@ export async function getBooks() {
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-        return await response.json(); // Retorna la respuesta como JSON
+        return await response.json(); 
     } catch (error) {
         console.error('Error al obtener los libros:', error);
         alert('Hubo un problema al obtener los libros. Por favor, intenta de nuevo más tarde.');
-        throw error; // Lanza el error para que pueda ser manejado en otras partes si es necesario
+        throw error; 
     }
 }
 
@@ -40,16 +40,16 @@ export async function getChapters() {
     }
 }
 
-export async function getAllDocuments() {
+export async function getWorkDocuments() {
     try {
-        const response = await fetch('/api/documents');
+        const response = await fetch('http://localhost:3000/documentos-trabajo');
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {
-        console.error('Error al obtener todos los documentos:', error);
-        alert('Hubo un problema al obtener los documentos. Por favor, intenta de nuevo más tarde.');
+        console.error('Error al obtener todos los documentos de trabajo:', error);
+        alert('Hubo un problema al obtener los documentos de trabajo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }

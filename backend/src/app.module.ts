@@ -17,6 +17,7 @@ import { CapitulosLibrosService } from './services/capitulos-libros/capitulos-li
 import { LibrosService } from './services/libros/libros.service';
 import { DocumentosTrabajoService } from './services/documentos-trabajo/documentos-trabajo.service';
 import { UsuariosService } from './services/Usuarios/Usuarios.service';
+import { EstandarizacionoNombreModule } from './modules/estandarizacion/estandarizacion.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { UsuariosService } from './services/Usuarios/Usuarios.service';
     CapitulosLibrosModule,
     LibrosModule,
     DocumentosTrabajoModule,
-    UsuariosModule
+    UsuariosModule,
+    EstandarizacionoNombreModule
   ],
   controllers: [AppController],
   providers: [

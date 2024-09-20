@@ -34,15 +34,15 @@ export class LibrosService {
   async findByAutor(autor: string): Promise<Libro[]> {
     return await this.libroModel.find({ autores: { $elemMatch: { $regex: autor, $options: 'i' } } }).exec();
   }  
-
-
-// Buscar un libro por su autor
-  async findOneByAutores(autores: string): Promise<Libro> {
-    return this.libroModel.findOne({ autores }).exec();
+  
+  // Buscar libros por su id
+  async findById(id: string): Promise<Libro> {
+    return this.libroModel.findById(id).exec();
   }
-  // Actualizar un libro por su título
-  async update(titulo: string, libro: Partial<Libro>): Promise<Libro> {
-    return this.libroModel.findOneAndUpdate({ titulo }, libro, { new: true }).exec();
+
+  // Actualizar un libro por su id
+  async update(id: string, libro: Partial<Libro>): Promise<Libro> {
+    return this.libroModel.findOneAndUpdate({ id }, libro, { new: true }).exec();
   }
 
 }

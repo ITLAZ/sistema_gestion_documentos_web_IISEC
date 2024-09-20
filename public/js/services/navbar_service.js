@@ -1,6 +1,6 @@
 export async function loadNavbar() {
     try {
-        const response = await fetch('/components/menu_navegacion.html'); // Verifica que esta ruta sea accesible
+        const response = await fetch('/components/menu_navegacion.html');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

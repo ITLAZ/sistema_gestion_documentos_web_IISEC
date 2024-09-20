@@ -1,6 +1,6 @@
 import { loadCards } from './handlers/card_handler.js';
-import { getDocuments } from './services/api_service.js';
-import { loadNavbar } from './services/navbar_service.js'; // Para cargar el menú de navegación
+import { getBooks } from './services/api_service.js';
+import { loadNavbar } from './services/navbar_service.js'; 
 
 // Cargar el navbar inmediatamente
 loadNavbar(); 
@@ -8,7 +8,7 @@ loadNavbar();
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Obtener los documentos del backend
-        const documentsData = await getDocuments();
+        const documentsData = await getBooks();
         
         // Cargar las tarjetas con los datos del backend
         loadCards(documentsData);

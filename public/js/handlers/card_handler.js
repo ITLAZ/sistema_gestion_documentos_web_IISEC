@@ -1,4 +1,4 @@
-import { getDocuments } from '../services/api_service.js';
+import { getBooks } from '../services/api_service.js'; //para futuro hacer el consumo
 
 export function loadCards(dataArray) {
     const cardsContainer = document.getElementById('cards-container');
@@ -11,7 +11,8 @@ export function loadCards(dataArray) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
 
-                updateCardData(tempDiv, data);
+                updateCardData(tempDiv, data); // Actualiza los datos de la tarjeta
+                addEventListenersToCard(tempDiv, data); // Añade los eventos a los botones
                 cardsContainer.appendChild(tempDiv.firstChild);
             })
             .catch(error => {
@@ -64,4 +65,22 @@ function updateCardData(cardElement, data) {
     } else {
         console.error('El elemento con id "cover" no se encontró en card.html');
     }
+}
+
+export function addEventListenersToCard(cardElement, data) {
+    const viewBtn = cardElement.querySelector('[data-action="view"]');
+    const editBtn = cardElement.querySelector('[data-action="edit"]');
+    const deleteBtn = cardElement.querySelector('[data-action="delete"]');
+
+    viewBtn.addEventListener('click', () => {
+        window.location.href = `view/${data._id}`; 
+    });
+
+    editBtn.addEventListener('click', () => {
+        window.location.href = `edit/${data._id}`; 
+    });
+
+    deleteBtn.addEventListener('click', () => {
+        window.location.href = `delete/${data._id}`; 
+    });
 }

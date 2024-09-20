@@ -13,6 +13,18 @@ export class ArticulosRevistasController {
     return this.articulosRevistasService.findAll();
   }
 
+  // Buscar articulos por aproximación del título
+  @Get('titulo/:titulo')
+  async findByTitulo(@Param('titulo') titulo: string): Promise<ArticuloRevista[]> {
+    return this.articulosRevistasService.findByTitulo(titulo);
+  }
+
+  // Buscar articulos por aproximación del autor
+  @Get('autor/:autor')
+  async findByAutor(@Param('autor') autor: string): Promise<ArticuloRevista[]> {
+    return this.articulosRevistasService.findByAutor(autor);
+  }
+
 
   // Crear un nuevo artículo
   @Post()

@@ -20,8 +20,8 @@ body {
   border-bottom: 2px solid #ddd;
   padding: 15px 20px;
 }
-
 .navbar-logo {
+  display: block;
   width: 30%;
 }
 
@@ -197,4 +197,12 @@ aside {
 
 .dropdown-content a:hover {
   background-color: #f1f1f1
+}
+
+.card .card-body .card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
 }

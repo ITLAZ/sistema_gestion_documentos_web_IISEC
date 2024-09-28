@@ -334,6 +334,33 @@ db.createCollection("InfoIISEC", {
   }
 });
 
+db.createCollection("Logs", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["id_usuario", "id_documento", "accion", "fecha"],
+      properties: {
+        id_usuario: {
+          bsonType: "objectId",  // Para que sea referenciable a la colección de Usuarios
+          description: "ID del usuario que realizó la acción"
+        },
+        id_documento: {
+          bsonType: "objectId",  // Para que sea referenciable a cualquier documento de otra colección
+          description: "ID del documento en cualquier otra colección sobre el cual se realizó la acción"
+        },
+        accion: {
+          bsonType: "string",
+          description: "Descripción de la acción realizada (crear, actualizar, eliminar, etc.)"
+        },
+        fecha: {
+          bsonType: "date",
+          description: "Fecha y hora en que se realizó la acción"
+        }
+      }
+    }
+  }
+});
+
 /*
 db.createCollection("RevistasLAJED", {
   validator: {

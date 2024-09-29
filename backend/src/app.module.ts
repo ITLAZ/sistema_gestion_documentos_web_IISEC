@@ -27,6 +27,7 @@ import { PoliciesBriefsModule } from './modules/policies-briefs/policies-briefs.
 import { IdeasReflexionesService } from './services/ideas-reflexiones/ideas-reflexiones.service';
 import { InfoIisecService } from './services/info-iisec/info-iisec.service';
 import { PoliciesBriefsService } from './services/policies-briefs/policies-briefs.service';
+import { FileUploadService } from './services/file-upload/file-upload.service';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { PoliciesBriefsService } from './services/policies-briefs/policies-brief
     IdeasReflexionesService,
     InfoIisecService,
     PoliciesBriefsService,
+    FileUploadService,
   ],
 })
 export class AppModule {}

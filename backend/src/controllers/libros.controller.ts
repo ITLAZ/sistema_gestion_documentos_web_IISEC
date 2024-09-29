@@ -1,51 +1,82 @@
-// controllers/libros.controller.ts
-import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileUploadService } from 'src/services/file-upload/file-upload.service';  
 import { Types } from 'mongoose';
+
+// Función para obtener las opciones de Multer
+const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
+  return fileUploadService.getMulterOptions(destination);
+};
 
 @Controller('libros')
 export class LibrosController {
-  constructor(private readonly librosService: LibrosService) {}
+  constructor(
+    private readonly librosService: LibrosService,
+    private readonly fileUploadService: FileUploadService
+  ) {}
 
-  // Obtener todos los libros
   @Get()
   async findAll(): Promise<Libro[]> {
     return this.librosService.findAll();
   }
-  
-  // Buscar libros por aproximación del título
+
   @Get('titulo/:titulo')
   async findByTitulo(@Param('titulo') titulo: string): Promise<Libro[]> {
     return this.librosService.findByTitulo(titulo);
   }
 
-  // Buscar libros por aproximación del autor
   @Get('autor/:autor')
   async findByAutor(@Param('autor') autor: string): Promise<Libro[]> {
     return this.librosService.findByAutor(autor);
   }
   
-  // Buscar un libro por su ID
   @Get('id/:id')
   async findById(@Param('id') id: string): Promise<Libro> {
-    // Validación de ObjectId
     if (!Types.ObjectId.isValid(id)) {
       throw new Error('ID no válido');
     }
     return this.librosService.findById(id);
   }
 
-  // Crear un libro
-  @Post()
-  async create(@Body() libro: Libro): Promise<Libro> {
-    return this.librosService.create(libro);
-  }
-
-  // Actualizar un libro por su id
   @Put(':id')
   async update(@Param('id') id: string, @Body() libro: Partial<Libro>): Promise<Libro> {
     return this.librosService.update(id, libro);
   }
 
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+  )
+  async create(
+    @Body() libro: Libro,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<Libro> {
+    if (!file || !libro) {
+      throw new BadRequestException('Faltan datos necesarios');
+    }
+
+    const procesado = this.fileUploadService.procesarArchivo(
+      file,
+      libro.titulo ?? 'Sin título',
+      libro.autores?.join(' ') ?? 'Autor desconocido',
+      libro.editorial ?? 'Editorial desconocida',
+      libro.anio_publicacion?.toString() ?? '0000',
+      'C:/tmp'
+    );
+
+    const nuevoLibro: Partial<Libro> = {
+      portada: libro.portada,
+      anio_publicacion: libro.anio_publicacion,
+      titulo: libro.titulo,
+      autores: libro.autores,
+      editorial: libro.editorial,
+      abstract: libro.abstract,
+      link_pdf: libro.link_pdf,
+      direccion_archivo: procesado.path,
+    };
+    
+    return this.librosService.create(nuevoLibro as Libro);
+  }
 }

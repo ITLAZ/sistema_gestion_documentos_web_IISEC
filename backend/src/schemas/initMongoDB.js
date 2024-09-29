@@ -338,7 +338,7 @@ db.createCollection("Logs", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["id_usuario", "id_documento", "accion", "fecha"],
+      required: ["id_usuario", "accion", "fecha"],
       properties: {
         id_usuario: {
           bsonType: "objectId",  // Para que sea referenciable a la colección de Usuarios

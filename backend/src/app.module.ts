@@ -28,6 +28,8 @@ import { IdeasReflexionesService } from './services/ideas-reflexiones/ideas-refl
 import { InfoIisecService } from './services/info-iisec/info-iisec.service';
 import { PoliciesBriefsService } from './services/policies-briefs/policies-briefs.service';
 import { FileUploadService } from './services/file-upload/file-upload.service';
+import { Log, LogSchema } from './schemas/logs.schema';
+import { LogsService } from './services/logs/logs.service';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { FileUploadService } from './services/file-upload/file-upload.service';
       { name: InfoIISEC.name, schema: InfoIISECSchema },
       { name: IdeaReflexion.name, schema: IdeaReflexionSchema },
       { name: PolicyBrief.name, schema: PolicyBriefSchema},
+      { name: Log.name, schema: LogSchema},
     ]),
 
     ArticulosRevistasModule,
@@ -67,6 +70,7 @@ import { FileUploadService } from './services/file-upload/file-upload.service';
     InfoIisecService,
     PoliciesBriefsService,
     FileUploadService,
+    LogsService
   ],
 })
 export class AppModule {}

@@ -1,13 +1,37 @@
-/* eslint-disable */
-// @ts-nocheck
-
 use BibliotecaIISEC;
+
+db.createCollection("Usuarios", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["usuario","nombre", "contrasenia", "theme"],
+      properties: {
+        usuario: {
+          bsonType: "string",
+          description: "Su nombre de usuario para hacer login"
+        },
+        nombre: {
+          bsonType: "string",
+          description: "nombre del propietario de la cuenta"
+        },
+        contrasenia: {
+          bsonType: "string",
+          description: "Debe ser su contrasenia que utilizaran para hacer login"
+        },
+        theme: {
+          bsonType: "int",
+          description: "Debe ser el codigo del tema que estan utilizando en su perfil"
+        },
+      }
+    }
+  }
+});
 
 db.createCollection("Libros", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["portada", "anio_publicacion", "titulo", "autores", "editorial", "link_pdf"],
+      required: ["portada", "anio_publicacion", "titulo", "autores"],
       properties: {
         portada: {
           bsonType: "string",
@@ -39,17 +63,23 @@ db.createCollection("Libros", {
         link_pdf: {
           bsonType: "string",
           description: "Debe ser una URL válida al PDF del libro"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
         }
       }
     }
   }
 });
 
+
+
 db.createCollection("ArticulosRevistas", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["numero_articulo", "titulo", "autores", "nombre_revista", "anio_revista", "editorial", "link_pdf"],
+      required: ["titulo", "autores", "nombre_revista", "anio_revista"],
       properties: {
         numero_articulo: {
           bsonType: "string",
@@ -78,9 +108,17 @@ db.createCollection("ArticulosRevistas", {
           bsonType: "string",
           description: "Debe ser el nombre de la editorial de la revista"
         },
+        abstract: {
+          bsonType: "string",
+          description: "Debe ser un breve resumen o descripción del libro (opcional)"
+        },
         link_pdf: {
           bsonType: "string",
           description: "Debe ser una URL válida al PDF del artículo"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
         }
       }
     }
@@ -91,11 +129,11 @@ db.createCollection("CapitulosLibros", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["titulo_libro", "titulo_capitulo", "autores", "anio_publicacion", "editorial", "link_pdf"],
+      required: ["titulo_libro", "titulo_capitulo", "autores", "anio_publicacion"],
       properties: {
-        titulo_libro: {
+        numero_identificacion: {
           bsonType: "string",
-          description: "Debe ser el título del libro"
+          description: "Identificador del capítulo de libro"
         },
         titulo_capitulo: {
           bsonType: "string",
@@ -108,6 +146,17 @@ db.createCollection("CapitulosLibros", {
           },
           description: "Debe ser un arreglo de autores del capítulo"
         },
+        titulo_libro: {
+          bsonType: "string",
+          description: "Debe ser el título del libro"
+        },
+        editores: {
+          bsonType: "array",
+          items: {
+            bsonType: "string"
+          },
+          description: "Debe ser un arreglo de editores del capítulo"
+        },
         anio_publicacion: {
           bsonType: "int",
           description: "Debe ser el año de publicación del capítulo"
@@ -119,6 +168,10 @@ db.createCollection("CapitulosLibros", {
         link_pdf: {
           bsonType: "string",
           description: "Debe ser una URL válida al PDF del capítulo"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
         }
       }
     }
@@ -129,8 +182,12 @@ db.createCollection("DocumentosTrabajo", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["titulo", "autores", "anio_publicacion", "institucion", "link_pdf"],
+      required: ["titulo", "autores", "anio_publicacion"],
       properties: {
+        numero_identificacion: {
+          bsonType: "string",
+          description: "Identificador del documento de trabajo"
+        },
         titulo: {
           bsonType: "string",
           description: "Debe ser el título del documento de trabajo"
@@ -146,45 +203,165 @@ db.createCollection("DocumentosTrabajo", {
           bsonType: "int",
           description: "Debe ser el año de publicación del documento"
         },
-        institucion: {
+        abstract: {
           bsonType: "string",
-          description: "Debe ser el nombre de la institución que publica el documento"
+          description: "Debe ser un breve resumen o descripción del libro (opcional)"
         },
         link_pdf: {
           bsonType: "string",
           description: "Debe ser una URL válida al PDF del documento"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
         }
       }
     }
   }
 });
 
-db.createCollection("Usuarios", {
+db.createCollection("IdeasReflexiones", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["usuario","nombre", "contrasenia", "theme"],
+      required: ["titulo", "autores", "anio_publicacion"],
       properties: {
-        usuario: {
-          bsonType: "string",
-          description: "Su nombre de usuario para hacer login"
+        autores: {
+          bsonType: "array",
+          items: {
+            bsonType: "string"
+          },
+          description: "Debe ser un arreglo de autores"
         },
-        nombre: {
-          bsonType: "string",
-          description: "nombre del propietario de la cuenta"
-        },
-        contrasenia: {
-          bsonType: "string",
-          description: "Debe ser su contrasenia que utilizaran para hacer login"
-        },
-        theme: {
+        anio_publicacion: {
           bsonType: "int",
-          description: "Debe ser el codigo del tema que estan utilizando en su perfil"
+          description: "Debe ser el año de publicación del documento"
         },
+        titulo: {
+          bsonType: "string",
+          description: "Debe ser el título del documento de trabajo"
+        },      
+        observaciones: {
+          bsonType: "string",
+          description: "Debe contener las observaciones del documento"
+        },
+        link_pdf: {
+          bsonType: "string",
+          description: "Debe ser una URL válida al PDF del documento"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
+        }
       }
     }
   }
 });
+
+db.createCollection("PoliciesBriefs", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["titulo", "autores", "anio_publicacion"],
+      properties: {
+        autores: {
+          bsonType: "array",
+          items: {
+            bsonType: "string"
+          },
+          description: "Debe ser un arreglo de autores"
+        },
+        anio_publicacion: {
+          bsonType: "int",
+          description: "Debe ser el año de publicación del documento"
+        },
+        titulo: {
+          bsonType: "string",
+          description: "Debe ser el título del documento de trabajo"
+        },      
+        mensaje_clave: {
+          bsonType: "string",
+          description: "Debe contener el mensaje clave del documento"
+        },
+        link_pdf: {
+          bsonType: "string",
+          description: "Debe ser una URL válida al PDF del documento"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
+        }
+      }
+    }
+  }
+});
+
+db.createCollection("InfoIISEC", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["titulo", "autores", "anio_publicacion"],
+      properties: {
+        autores: {
+          bsonType: "array",
+          items: {
+            bsonType: "string"
+          },
+          description: "Debe ser un arreglo de autores"
+        },
+        anio_publicacion: {
+          bsonType: "int",
+          description: "Debe ser el año de publicación del documento"
+        },
+        titulo: {
+          bsonType: "string",
+          description: "Debe ser el título del documento de trabajo"
+        },      
+        observaciones: {
+          bsonType: "string",
+          description: "Debe contener las observaciones del documento"
+        },
+        link_pdf: {
+          bsonType: "string",
+          description: "Debe ser una URL válida al PDF del documento"
+        },
+        direccion_archivo: {
+          bsonType: "string",
+          description: "Es la dirección donde se encuentra almacenado el archivo"
+        }
+      }
+    }
+  }
+});
+
+db.createCollection("Logs", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["id_usuario", "id_documento", "accion", "fecha"],
+      properties: {
+        id_usuario: {
+          bsonType: "objectId",  // Para que sea referenciable a la colección de Usuarios
+          description: "ID del usuario que realizó la acción"
+        },
+        id_documento: {
+          bsonType: "objectId",  // Para que sea referenciable a cualquier documento de otra colección
+          description: "ID del documento en cualquier otra colección sobre el cual se realizó la acción"
+        },
+        accion: {
+          bsonType: "string",
+          description: "Descripción de la acción realizada (crear, actualizar, eliminar, etc.)"
+        },
+        fecha: {
+          bsonType: "date",
+          description: "Fecha y hora en que se realizó la acción"
+        }
+      }
+    }
+  }
+});
+
+/* INDEXES */
 
 db.Libros.createIndex({ titulo: 1 })
 db.Libros.createIndex({ autores: 1 })
@@ -203,55 +380,6 @@ db.CapitulosLibros.createIndex({ anio_publicacion: 1 })
 db.DocumentosTrabajo.createIndex({ titulo: 1 })
 db.DocumentosTrabajo.createIndex({ autores: 1 })
 db.DocumentosTrabajo.createIndex({ anio_publicacion: 1 })
-db.DocumentosTrabajo.createIndex({ institucion: 1 })
 
 db.Usuarios.createIndex({ usuario: 1 }, { unique: true }) // Para garantizar unicidad
 db.Usuarios.createIndex({ nombre: 1 })
-
-db.Libros.insertMany([
-  {
-    portada: "https://example.com/portadas/libro1.jpg",
-    anio_publicacion: 2020,
-    titulo: "Introducción a la Inteligencia Artificial",
-    autores: ["Juan Pérez", "María García"],
-    editorial: "Editorial Ciencia",
-    abstract: "Este libro ofrece una visión general sobre los principios y aplicaciones de la inteligencia artificial.",
-    link_pdf: "https://example.com/pdfs/libro1.pdf"
-  },
-  {
-    portada: "https://example.com/portadas/libro2.jpg",
-    anio_publicacion: 2018,
-    titulo: "Desarrollo Web con Node.js",
-    autores: ["Carlos López"],
-    editorial: "Editorial Tech",
-    abstract: "Una guía completa para el desarrollo de aplicaciones web utilizando Node.js y sus herramientas más populares.",
-    link_pdf: "https://example.com/pdfs/libro2.pdf"
-  },
-  {
-    portada: "https://example.com/portadas/libro3.jpg",
-    anio_publicacion: 2022,
-    titulo: "Diseño de Bases de Datos",
-    autores: ["Ana Martínez", "Luis Rodríguez"],
-    editorial: "Editorial Data",
-    abstract: "Este libro cubre desde los fundamentos del diseño de bases de datos hasta técnicas avanzadas de modelado.",
-    link_pdf: "https://example.com/pdfs/libro3.pdf"
-  },
-  {
-    portada: "https://example.com/portadas/libro4.jpg",
-    anio_publicacion: 2019,
-    titulo: "Ciencia de Datos para Principiantes",
-    autores: ["Pedro Sánchez"],
-    editorial: "Editorial Stats",
-    abstract: "Introducción a la ciencia de datos, incluyendo técnicas de análisis y herramientas como Python y R.",
-    link_pdf: "https://example.com/pdfs/libro4.pdf"
-  },
-  {
-    portada: "https://example.com/portadas/libro5.jpg",
-    anio_publicacion: 2021,
-    titulo: "Programación en Python",
-    autores: ["Laura Fernández", "Jorge Ramírez"],
-    editorial: "Editorial Software",
-    abstract: "Un libro que enseña las bases de la programación en Python, desde lo básico hasta la creación de proyectos.",
-    link_pdf: "https://example.com/pdfs/libro5.pdf"
-  }
-]);

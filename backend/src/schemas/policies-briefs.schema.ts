@@ -1,11 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema({ collection: 'DocumentosTrabajo' })
-export class DocumentoTrabajo extends Document {
-  @Prop({ trim: true})
-  numero_identificacion: string;
-  
+@Schema({ collection: 'PoliciesBriefs' })
+export class PolicyBrief extends Document {
   @Prop({ required: true, trim: true})
   titulo: string;
 
@@ -16,7 +13,7 @@ export class DocumentoTrabajo extends Document {
   anio_publicacion: number;
 
   @Prop({ trim: true })
-  abstract: string;
+  mensaje_clave: string;
 
   @Prop({ trim: true })
   link_pdf: string;
@@ -25,4 +22,4 @@ export class DocumentoTrabajo extends Document {
   direccion_archivo: string;
 }
 
-export const DocumentoTrabajoSchema = SchemaFactory.createForClass(DocumentoTrabajo);
+export const PolicyBriefSchema = SchemaFactory.createForClass(PolicyBrief);

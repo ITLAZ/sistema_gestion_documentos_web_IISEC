@@ -10,7 +10,6 @@ export class ArticulosRevistasService {
     private articuloRevistaModel: Model<ArticuloRevista>
   ) {}
   
-
   async create(articulo: ArticuloRevista): Promise<ArticuloRevista> {
     const nuevoArticulo = new this.articuloRevistaModel(articulo);
     return nuevoArticulo.save();

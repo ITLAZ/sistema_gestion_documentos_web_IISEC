@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 @Schema({ collection: 'ArticulosRevistas' })
 export class ArticuloRevista extends Document {
-  @Prop({ required: true })
+  @Prop()
   numero_articulo: string;
 
   @Prop({ required: true, trim: true })
@@ -18,11 +18,17 @@ export class ArticuloRevista extends Document {
   @Prop({ required: true, min: 1900, max: new Date().getFullYear() })
   anio_revista: number;
 
-  @Prop({ required: true, trim: true })
+  @Prop({trim: true })
   editorial: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({trim: true })
+  abstract: string;
+
+  @Prop({trim: true })
   link_pdf: string;
+
+  @Prop({trim: true })
+  direccion_archivo: string;
 }
 
 export const ArticuloRevistaSchema = SchemaFactory.createForClass(ArticuloRevista);

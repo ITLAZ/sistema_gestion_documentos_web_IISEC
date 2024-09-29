@@ -79,4 +79,23 @@ export class LibrosController {
     
     return this.librosService.create(nuevoLibro as Libro);
   }
+
+  @Post('no-upload')
+  async createWithoutFile(@Body() libro: Libro): Promise<Libro> {
+    if (!libro) {
+      throw new BadRequestException('Faltan datos necesarios');
+    }
+
+    const nuevoLibro: Partial<Libro> = {
+      portada: libro.portada,
+      anio_publicacion: libro.anio_publicacion,
+      titulo: libro.titulo,
+      autores: libro.autores,
+      editorial: libro.editorial,
+      abstract: libro.abstract,
+      link_pdf: libro.link_pdf,
+    };
+
+    return this.librosService.create(nuevoLibro as Libro);
+  }
 }

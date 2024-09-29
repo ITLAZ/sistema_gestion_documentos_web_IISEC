@@ -238,3 +238,45 @@ aside .advanced-search {
   border-radius: 10px;
 }
 
+/* Reglas Login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 30px;
+  border: 2px solid #ddd;
+}
+
+.login-form img {
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 20px;
+  margin-bottom: 50px;
+}
+
+.input-group button{
+  margin-top: 50px;
+  background-color: #232954;
+  color: #fff;
+  font-size: 18px;
+  text-transform: uppercase;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.input-group button:hover {
+  background-color: #0056b3;
+}

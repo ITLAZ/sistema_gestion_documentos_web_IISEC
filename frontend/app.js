@@ -25,6 +25,10 @@ app.get('/reportes', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates','report.html'));
 });
 
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','login.html'));
+});
+
 
 // Start the server
 app.listen(port, () => {

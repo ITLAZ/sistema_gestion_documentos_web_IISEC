@@ -238,6 +238,23 @@ aside .advanced-search {
   border-radius: 10px;
 }
 
+.advanced-search .input-group button{
+  background-color: #ddd;
+  color: #232954;
+  font-size: 18px;
+  text-transform: uppercase;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.advanced-search .input-group button:hover {
+  background-color: #0056b3;
+  color: #f4f4f4;
+}
+
 /* Reglas Login */
 .login-container {
   display: flex;

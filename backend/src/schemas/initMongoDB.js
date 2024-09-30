@@ -258,7 +258,7 @@ db.createCollection("IdeasReflexiones", {
   }
 });
 
-db.createCollection("PoliciesBriefs", {
+db.createCollection("Usuarios", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
@@ -311,46 +311,7 @@ db.createCollection("InfoIISEC", {
         },
         anio_publicacion: {
           bsonType: "int",
-          description: "Debe ser el año de publicación del documento"
-        },
-        titulo: {
-          bsonType: "string",
-          description: "Debe ser el título del documento de trabajo"
-        },      
-        observaciones: {
-          bsonType: "string",
-          description: "Debe contener las observaciones del documento"
-        },
-        link_pdf: {
-          bsonType: "string",
-          description: "Debe ser una URL válida al PDF del documento"
-        },
-        direccion_archivo: {
-          bsonType: "string",
-          description: "Es la dirección donde se encuentra almacenado el archivo"
-        }
-      }
-    }
-  }
-});
-
-db.createCollection("Logs", {
-  validator: {
-    $jsonSchema: {
-      bsonType: "object",
-      required: ["id_usuario", "accion", "fecha"],
-      properties: {
-        id_usuario: {
-          bsonType: "objectId",  // Para que sea referenciable a la colección de Usuarios
-          description: "ID del usuario que realizó la acción"
-        },
-        id_documento: {
-          bsonType: "objectId",  // Para que sea referenciable a cualquier documento de otra colección
-          description: "ID del documento en cualquier otra colección sobre el cual se realizó la acción"
-        },
-        accion: {
-          bsonType: "string",
-          description: "Descripción de la acción realizada (crear, actualizar, eliminar, etc.)"
+          description: "Debe ser el codigo del tema que estan utilizando en su perfil"
         },
         fecha: {
           bsonType: "date",

@@ -14,15 +14,19 @@ app.get('/', (req, res) => {
 
 // Definir las rutas para redirección
 app.get('/buscador', (req, res) => {
-    res.send('<h1>Página del Buscador de Archivos</h1><p>Aquí puedes buscar archivos.</p>');
+    res.sendFile(path.join(__dirname, 'templates', 'search.html'));
 });
 
 app.get('/agregar', (req, res) => {
-    res.send('<h1>Página para Agregar Archivo</h1><p>Aquí puedes agregar un nuevo archivo.</p>');
+    res.sendFile(path.join(__dirname, 'templates','agregar.html'));
 });
 
 app.get('/reportes', (req, res) => {
-    res.send('<h1>Página de Reportes y Estadísticas</h1><p>Aquí puedes ver los reportes.</p>');
+    res.sendFile(path.join(__dirname, 'templates','report.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','login.html'));
 });
 
 

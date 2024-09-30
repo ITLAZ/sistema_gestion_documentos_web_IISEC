@@ -9,7 +9,7 @@ export function loadCards(dataArray) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
 
-                updateCardData(tempDiv, data); // Actualiza los datos de la tarjeta
+                updateCardData(tempDiv, data, documentType);// Actualiza los datos de la tarjeta
                 addEventListenersToCard(tempDiv, data); // Añade los eventos a los botones
                 cardsContainer.appendChild(tempDiv.firstChild);
             })
@@ -20,77 +20,95 @@ export function loadCards(dataArray) {
 }
 
 
-function updateCardData(cardElement, data) {
+function updateCardData(cardElement, data, documentType) {
     console.log('Datos recibidos para la tarjeta:', data); // Para verificar los datos recibidos
 
-    // Asignación del tipo basado en las propiedades
-    if (!data.tipo) {
-        if (data.portada && data.titulo && data.autores && data.anio_publicacion) {
-            data.tipo = 'libro';
-        } else if (data.numero_articulo && data.nombre_revista) {
-            data.tipo = 'artículo';
-        } else if (data.titulo_capitulo && data.titulo_libro) {
-            data.tipo = 'capítulo';
-        } else if (data.institucion && data.titulo && data.autores) {
-            data.tipo = 'documento_trabajo';
-        } else {
-            alert('El tipo de documento no está disponible.');
-            console.error('El tipo de documento no está presente en los datos:', data);
-            return; // Detener si no hay tipo
+    // Ocultar todos los campos opcionales al inicio
+    ['#editorial', '#numero_articulo', '#nombre_revista', '#editores', '#descripcion', '#observacion', '#msj_clave'].forEach(selector => {
+        const element = cardElement.querySelector(selector);
+        if (element) {
+            element.style.display = 'none';
         }
-    }
+    });
 
+    // Asignación de valores comunes a todos los documentos
     const fields = [
-        { id: 'title', value: data.titulo || 'Título no disponible' },
-        { id: 'autors', value: data.autores ? data.autores.join(', ') : 'Autores no disponibles' },
+        { id: 'title', value: data.titulo || data.titulo_capitulo || 'Título no disponible' },
+        { id: 'authors', value: data.autores ? data.autores.join(', ') : 'Autores no disponibles' },
         { id: 'published', value: data.anio_publicacion || data.anio_revista || 'Fecha no disponible' },
-        { id: 'editorial', value: data.editorial || data.institucion || 'Editorial no disponible' }, // Mostrar "institución" o "editorial"
-        { id: 'description', value: data.abstract || 'Descripción no disponible' },
-        { id: 'cover', value: data.portada || 'https://placehold.com/600x400', isImage: true }
+        //{ id: 'linkpdf', value: data.link_pdf || 'Enlace no disponible' }
     ];
 
+    // Para las imágenes de portada
+    const coverElement = cardElement.querySelector('#cover');
+    if (coverElement) {
+        coverElement.src = data.portada || 'https://placehold.com/600x400';
+    }
+
+    // Asignar los valores comunes
     fields.forEach(field => {
         const element = cardElement.querySelector(`#${field.id}`);
         if (element) {
-            if (field.isImage) {
-                element.src = field.value; 
-            } else {
-                element.textContent = field.value;
-            }
+            element.textContent = field.value;
         } else {
             console.error(`El elemento con id "${field.id}" no se encontró en card.html`);
         }
     });
 
-    // Muestra u oculta campos según el tipo de documento
-    if (data.tipo === 'libro') {
-        cardElement.querySelector('#type').textContent = 'Libro';
-        cardElement.querySelector('#nombre_revista').style.display = 'none';
-        cardElement.querySelector('#numero_articulo').style.display = 'none';
-        cardElement.querySelector('#titulo_libro').style.display = 'none';
-        cardElement.querySelector('#institucion').style.display = 'none';
-    } else if (data.tipo === 'artículo') {
-        cardElement.querySelector('#type').textContent = 'Artículo';
-        cardElement.querySelector('#nombre_revista').style.display = 'block';
-        cardElement.querySelector('#nombre_revista span').textContent = data.nombre_revista;
-        cardElement.querySelector('#numero_articulo').style.display = 'block';
-        cardElement.querySelector('#numero_articulo span').textContent = data.numero_articulo;
-        cardElement.querySelector('#titulo_libro').style.display = 'none';
-        cardElement.querySelector('#institucion').style.display = 'none';
-    } else if (data.tipo === 'capítulo') {
-        cardElement.querySelector('#type').textContent = 'Capítulo';
-        cardElement.querySelector('#titulo_libro').style.display = 'block';
-        cardElement.querySelector('#titulo_libro span').textContent = data.titulo_libro;
-        cardElement.querySelector('#nombre_revista').style.display = 'none';
-        cardElement.querySelector('#numero_articulo').style.display = 'none';
-        cardElement.querySelector('#institucion').style.display = 'none';
-    } else if (data.tipo === 'documento_trabajo') {
-        cardElement.querySelector('#type').textContent = 'Documento de Trabajo';
-        cardElement.querySelector('#institucion').style.display = 'block';
-        cardElement.querySelector('#institucion span').textContent = data.institucion;
-        cardElement.querySelector('#nombre_revista').style.display = 'none';
-        cardElement.querySelector('#numero_articulo').style.display = 'none';
-        cardElement.querySelector('#titulo_libro').style.display = 'none';
+    // Asignación específica según el tipo de documento usando `documentType`
+    switch (documentType) {
+        case 'books':
+            cardElement.querySelector('#type').textContent = 'Libro';
+            cardElement.querySelector('#editorial').style.display = 'block';
+            cardElement.querySelector('#editorial-text').textContent = data.editorial || 'Editorial no disponible';
+            cardElement.querySelector('#descripcion').style.display = 'block';
+            cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
+            break;
+
+        case 'articles':
+            cardElement.querySelector('#type').textContent = 'Artículo de Revista';
+            //cardElement.querySelector('#numero_articulo').style.display = 'block';
+            //cardElement.querySelector('#article-number').textContent = data.numero_articulo || 'Número de artículo no disponible';
+            cardElement.querySelector('#nombre_revista').style.display = 'block';
+            cardElement.querySelector('#revista').textContent = data.nombre_revista || 'Nombre de la revista no disponible';
+            cardElement.querySelector('#editorial').style.display = 'block';
+            cardElement.querySelector('#editorial-text').textContent = data.editorial || 'Editorial no disponible';
+            cardElement.querySelector('#descripcion').style.display = 'block';
+            cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
+                   
+            break;
+
+        case 'chapters':
+            cardElement.querySelector('#type').textContent = 'Capítulo de Libro';
+            cardElement.querySelector('#editores').style.display = 'block';
+            cardElement.querySelector('#editors').textContent = data.editores || 'Editores no disponibles';
+            cardElement.querySelector('#editorial').style.display = 'block';
+            cardElement.querySelector('#editorial-text').textContent = data.editorial || 'Editorial no disponible';
+            break;
+
+        case 'work-documents':
+            cardElement.querySelector('#type').textContent = 'Documento de Trabajo';
+            cardElement.querySelector('#descripcion').style.display = 'block';
+            cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
+            break;
+
+        case 'ideas-reflex':
+        case 'info-iisec':
+            cardElement.querySelector('#type').textContent = documentType === 'ideas-reflex' ? 'Ideas y Reflexiones' : 'Info IISEC';
+            cardElement.querySelector('#observacion').style.display = 'block';
+            cardElement.querySelector('#observation').textContent = data.observaciones || 'Observación no disponible';
+            break;
+
+        case 'policy-briefs':
+            cardElement.querySelector('#type').textContent = 'Policy and Briefs';
+            cardElement.querySelector('#msj_clave').style.display = 'block';
+            cardElement.querySelector('#msj_claves').textContent = data.mensaje_clave || 'Mensaje clave no disponible';
+            break;
+
+        default:
+            console.error('Tipo de documento desconocido:', documentType);
+            alert('El tipo de documento no está disponible.');
+            return; // Detener si no hay tipo
     }
 }
 

@@ -53,3 +53,46 @@ export async function getWorkDocuments() {
         throw error;
     }
 }
+
+
+export async function getIdeasReflexiones() {
+    try {
+        const response = await fetch('http://localhost:3000/ideas-reflexiones');
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error al obtener todas las ideas y reflexiones:', error);
+        alert('Hubo un problema al obtener las ideas y reflexiones. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+export async function getInfoiisec() {
+    try {
+        const response = await fetch('http://localhost:3000/info-iisec');
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error al obtener todos los info IISEC:', error);
+        alert('Hubo un problema al obtener los infoIISEC. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+export async function getPoliciesBriefs() {
+    try {
+        const response = await fetch('http://localhost:3000/policies-briefs');
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error al obtener todos los policies and briefs:', error);
+        alert('Hubo un problema al obtener los policies and briefs. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}

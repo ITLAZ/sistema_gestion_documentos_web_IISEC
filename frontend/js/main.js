@@ -1,5 +1,5 @@
 import { loadCards } from './handlers/card_handler.js';
-import { getBooks, getArticles, getChapters, getWorkDocuments } from './services/api_service.js';
+import { getBooks, getArticles, getChapters, getWorkDocuments, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs } from './services/api_service.js';
 import { loadNavbar } from './services/navbar_service.js';
 
 // Cargar el navbar inmediatamente
@@ -22,10 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 documentsData = await getChapters();
             } else if (selectedType === 'work-documents') {
                 documentsData = await getWorkDocuments();
+            } else if (selectedType === 'ideas-reflex') {
+                documentsData = await getIdeasReflexiones();
+            } else if (selectedType === 'info-iisec') {
+                documentsData = await getInfoiisec();
+            } else if (selectedType === 'policy-briefs') {
+                documentsData = await getPoliciesBriefs();
             }
 
             // Cargar las tarjetas con los datos obtenidos
-            loadCards(documentsData);
+            loadCards(documentsData, selectedType);
 
         } catch (error) {
             console.error('Error al realizar la búsqueda:', error);

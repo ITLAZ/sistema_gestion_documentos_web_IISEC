@@ -5,14 +5,44 @@ import { CapituloLibro } from 'src/schemas/capitulos-libros.schema';
 
 @Injectable()
 export class CapitulosLibrosService {
-  constructor(@InjectModel(CapituloLibro.name) private capituloLibro: Model<CapituloLibro>) {}
+  constructor(
+    @InjectModel(CapituloLibro.name) private CapituloLibroModel: Model<CapituloLibro>,
+  ) {}
 
-  async create(capitulo: CapituloLibro): Promise<CapituloLibro> {
-    const nuevoCapitulo = new this.capituloLibro(capitulo);
-    return nuevoCapitulo.save();
+  // Crear un CapituloLibro
+  async create(CapituloLibro: CapituloLibro): Promise<CapituloLibro> {
+    const nuevoCapituloLibro = new this.CapituloLibroModel(CapituloLibro);
+    return nuevoCapituloLibro.save();
   }
 
+  // Obtener todos los CapituloLibros
   async findAll(): Promise<CapituloLibro[]> {
-    return this.capituloLibro.find().exec();
+    return this.CapituloLibroModel.find().exec();
   }
+
+  // Buscar un CapituloLibro por su título
+  async findOneByTitulo(titulo: string): Promise<CapituloLibro> {
+    return this.CapituloLibroModel.findOne({ titulo }).exec();
+  }
+
+  // Buscar CapituloLibros por título con aproximación
+  async findByTitulo(titulo: string): Promise<CapituloLibro[]> {
+    return await this.CapituloLibroModel.find({ titulo: { $regex: titulo, $options: 'i' } }).exec();
+  }
+
+  // Buscar CapituloLibros por autor con aproximación
+  async findByAutor(autor: string): Promise<CapituloLibro[]> {
+    return await this.CapituloLibroModel.find({ autores: { $elemMatch: { $regex: autor, $options: 'i' } } }).exec();
+  }  
+  
+  // Buscar CapituloLibros por su id
+  async findById(id: string): Promise<CapituloLibro> {
+    return this.CapituloLibroModel.findById(id).exec();
+  }
+
+  // Actualizar un CapituloLibro por su id
+  async update(id: string, CapituloLibro: Partial<CapituloLibro>): Promise<CapituloLibro> {
+    return this.CapituloLibroModel.findOneAndUpdate({ id }, CapituloLibro, { new: true }).exec();
+  }
+
 }

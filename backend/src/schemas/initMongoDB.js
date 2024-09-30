@@ -258,7 +258,7 @@ db.createCollection("IdeasReflexiones", {
   }
 });
 
-db.createCollection("PolicyBrief", {
+db.createCollection("PoliciesBriefs", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
@@ -338,7 +338,7 @@ db.createCollection("Logs", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["id_usuario", "id_documento", "accion", "fecha"],
+      required: ["id_usuario", "accion", "fecha"],
       properties: {
         id_usuario: {
           bsonType: "objectId",  // Para que sea referenciable a la colección de Usuarios
@@ -360,59 +360,6 @@ db.createCollection("Logs", {
     }
   }
 });
-
-/*
-db.createCollection("RevistasLAJED", {
-  validator: {
-    $jsonSchema: {
-      bsonType: "object",
-      required: ["director", "editores", "numero_revista", "anio_publicacion"],
-      properties: {
-        director: {
-          bsonType: "string",
-          description: "Debe ser el nombre del director de la revista"
-        },
-        editores: {
-          bsonType: "array",
-          items: {
-            bsonType: "string"
-          },
-          description: "Debe ser un arreglo con los nombres de los editores"
-        },
-        numero_revista: {
-          bsonType: "string",
-          description: "Debe ser el número/edición de la revista"
-        },
-        editores_asistentes: {
-          bsonType: "array",
-          items: {
-            bsonType: "string"
-          },
-          description: "Debe ser un arreglo con los nombres de los editores asistentes"
-        },
-        anio_publicacion: {
-          bsonType: "int",
-          description: "Debe ser el año de publicación de la revista"
-        },
-        encargado_edicion_diagramacion: {
-          bsonType: "string",
-          description: "Debe ser el nombre del encargado de la edición y diagramación"
-        },
-        link_pdf: {
-          bsonType: "string",
-          description: "Debe ser una URL válida al PDF del documento"
-        },
-        direccion_archivo: {
-          bsonType: "string",
-          description: "Es la dirección donde se encuentra almacenado el archivo"
-        }
-      }
-    }
-  }
-}); 
-/*
-
-
 
 /* INDEXES */
 

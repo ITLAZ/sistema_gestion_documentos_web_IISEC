@@ -18,6 +18,20 @@ import { LibrosService } from './services/libros/libros.service';
 import { DocumentosTrabajoService } from './services/documentos-trabajo/documentos-trabajo.service';
 import { UsuariosService } from './services/usuarios/usuarios.service';
 import { EstandarizacionoNombreModule } from './modules/estandarizacion/estandarizacion.module';
+import { InfoIISEC, InfoIISECSchema } from './schemas/info-iisec.schema';
+import { IdeaReflexion, IdeaReflexionSchema } from './schemas/ideas-reflexiones.schema';
+import { PolicyBrief, PolicyBriefSchema } from './schemas/policies-briefs.schema';
+import { IdeasReflexionesModule } from './modules/ideas-reflexiones/ideas-reflexiones.module';
+import { InfoIisecModule } from './modules/info-iisec/info-iisec.module';
+import { PoliciesBriefsModule } from './modules/policies-briefs/policies-briefs.module';
+import { IdeasReflexionesService } from './services/ideas-reflexiones/ideas-reflexiones.service';
+import { InfoIisecService } from './services/info-iisec/info-iisec.service';
+import { PoliciesBriefsService } from './services/policies-briefs/policies-briefs.service';
+import { FileUploadService } from './services/file-upload/file-upload.service';
+import { Log, LogSchema } from './schemas/logs.schema';
+import { LogsService } from './services/logs/logs.service';
+import { AllTypesService } from './services/all-types/all-types.service';
+import { AllTypesController } from './controllers/all-types.controller';
 
 @Module({
   imports: [
@@ -30,6 +44,10 @@ import { EstandarizacionoNombreModule } from './modules/estandarizacion/estandar
       { name: Libro.name, schema: LibroSchema },
       { name: DocumentoTrabajo.name, schema: DocumentoTrabajoSchema },
       { name: Usuario.name, schema: UsuarioSchema },
+      { name: InfoIISEC.name, schema: InfoIISECSchema },
+      { name: IdeaReflexion.name, schema: IdeaReflexionSchema },
+      { name: PolicyBrief.name, schema: PolicyBriefSchema},
+      { name: Log.name, schema: LogSchema},
     ]),
 
     ArticulosRevistasModule,
@@ -37,16 +55,28 @@ import { EstandarizacionoNombreModule } from './modules/estandarizacion/estandar
     LibrosModule,
     DocumentosTrabajoModule,
     UsuariosModule,
-    EstandarizacionoNombreModule
+    EstandarizacionoNombreModule,
+    IdeasReflexionesModule,
+    InfoIisecModule,
+    PoliciesBriefsModule,
+  ], 
+  controllers: [
+    AppController,
+    AllTypesController
   ],
-  controllers: [AppController],
   providers: [
     AppService, 
     ArticulosRevistasService,
     CapitulosLibrosService,
     LibrosService,
     DocumentosTrabajoService,
-    UsuariosService
+    UsuariosService,
+    IdeasReflexionesService,
+    InfoIisecService,
+    PoliciesBriefsService,
+    FileUploadService,
+    LogsService,
+    AllTypesService
   ],
 })
 export class AppModule {}

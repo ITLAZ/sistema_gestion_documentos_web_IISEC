@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -11,6 +11,10 @@ export class EstandarizacionService {
     editorial: string,
     anio: string
   ) {
+
+    if (file.mimetype !== 'application/pdf') {
+      throw new BadRequestException('El archivo debe ser un PDF');
+    }
     // Función para eliminar caracteres especiales y tildes
     const normalizarTexto = (texto: string) => {
       return texto

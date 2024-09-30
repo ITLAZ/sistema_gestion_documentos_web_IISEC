@@ -30,6 +30,8 @@ import { PoliciesBriefsService } from './services/policies-briefs/policies-brief
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { Log, LogSchema } from './schemas/logs.schema';
 import { LogsService } from './services/logs/logs.service';
+import { AllTypesService } from './services/all-types/all-types.service';
+import { AllTypesController } from './controllers/all-types.controller';
 
 @Module({
   imports: [
@@ -58,7 +60,10 @@ import { LogsService } from './services/logs/logs.service';
     InfoIisecModule,
     PoliciesBriefsModule,
   ], 
-  controllers: [AppController],
+  controllers: [
+    AppController,
+    AllTypesController
+  ],
   providers: [
     AppService, 
     ArticulosRevistasService,
@@ -70,7 +75,8 @@ import { LogsService } from './services/logs/logs.service';
     InfoIisecService,
     PoliciesBriefsService,
     FileUploadService,
-    LogsService
+    LogsService,
+    AllTypesService
   ],
 })
 export class AppModule {}

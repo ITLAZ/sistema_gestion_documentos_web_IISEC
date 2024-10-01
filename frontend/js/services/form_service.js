@@ -29,12 +29,36 @@ document.addEventListener('DOMContentLoaded', () => {
         'pdf-upload-group': document.getElementById('pdf-upload').parentElement,
     };
 
+    // Definir el orden de los campos por tipo de documento
     const orderByType = {
         books: [
-            'cover-group', 'title-group', 'authors-group', 'editorial-group',
+            'cover-group', 'title-group', 'authors-group', 'editorial-group', 
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        // demás tipos de documentos...
+        articles: [
+            'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
+            'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+        ],
+        chapters: [
+            'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
+            'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+        ],
+        'work-documents': [
+            'numero_identificacion-group', 'title-group', 'authors-group', 
+            'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+        ],
+        'ideas-reflex': [
+            'title-group', 'authors-group', 'published-group', 'observacion-group', 
+            'linkpdf-group', 'pdf-upload-group'
+        ],
+        'info-iisec': [
+            'title-group', 'authors-group', 'published-group', 'observacion-group', 
+            'linkpdf-group', 'pdf-upload-group'
+        ],
+        'policy-briefs': [
+            'title-group', 'authors-group', 'published-group', 'msj_clave-group', 
+            'linkpdf-group', 'pdf-upload-group'
+        ]
     };
 
     // Mostrar/ocultar campos según el tipo de documento seleccionado
@@ -62,6 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
         form.appendChild(submitButton);
     });
 
+    // Llamar la función de visualización para preseleccionar "Libros" cuando se carga la página
+    typeSelector.dispatchEvent(new Event('change'));
+
     // Manejar el envío del formulario
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -87,24 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir libro con archivo
                     const result = await uploadBook(libroData, file);
-                    alert('Libro subido exitosamente!');
+                    alert('Libro subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const response = await fetch('http://localhost:3000/libros/sin-archivo', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(libroData)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Error: ${response.status} - ${response.statusText}`);
-                    }
-
-                    const result = await response.json();
-                    alert('Libro sin archivo subido exitosamente!');
+                    const result = await uploadBookWithoutFile(libroData);
+                    alert('Libro subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
             } catch (error) {

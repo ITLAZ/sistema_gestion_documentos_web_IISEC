@@ -15,7 +15,7 @@
                 <label for="type"><strong>Tipo de Documento:</strong></label>
                 <select id="type" name="type" class="form-control" required>
                     <option value="">--Seleccione el Tipo de Documento--</option>
-                    <option value="books">Libros</option>
+                    <option value="books" selected>Libros</option>
                     <option value="articles">Artículos de Revistas</option>
                     <option value="chapters">Capítulos de Libros</option>
                     <option value="work-documents">Documentos de Trabajo</option>
@@ -40,7 +40,7 @@
             <!-- Campo Año de Publicación -->
             <div class="form-group">
                 <label for="published"><strong>Año de Publicación:</strong></label>
-                <input type="number" id="published" name="published" class="form-control" placeholder="Año de Publicación" min="1900" max="2100" required>
+                <input type="number" id="published" name="published" class="form-control" placeholder="Año de Publicación" required>
             </div>
         
             <!-- Campo Portada (Solo para Libros, ingreso de URL) -->

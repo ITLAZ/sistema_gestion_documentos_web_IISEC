@@ -163,18 +163,23 @@ export async function uploadBookWithoutFile(libroData) {
     };
 
     try {
-        if (file) {
-            // Si hay un archivo, consumir el endpoint de subir libro con archivo
-            const result = await uploadBook(libroData, file);
-            alert('Libro subido exitosamente con archivo!');
-            console.log('Resultado:', result);
-        } else {
-            // Si no hay archivo, consumir otro endpoint
-            const result = await uploadBookWithoutFile(libroData);
-            alert('Libro subido exitosamente sin archivo!');
-            console.log('Resultado:', result);
+        const response = await fetch('http://localhost:3000/libros/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoLibro)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
+
+        return await response.json();
     } catch (error) {
-        console.error('Error al subir el libro:', error);
+        console.error('Error al subir el libro sin archivo:', error);
+        alert('Hubo un problema al subir el libro sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
     }
 }
+

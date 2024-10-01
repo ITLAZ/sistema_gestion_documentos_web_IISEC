@@ -146,21 +146,20 @@ export async function uploadBook(libroData, file) {
 
 export async function uploadBookWithoutFile(libroData) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
-    let autoresArray = libroData.autores;
-    if (typeof autoresArray === 'string') {
-        autoresArray = autoresArray.split(',').map(autor => autor.trim());
-    }
+    const autoresArray = Array.isArray(libroData.autores) ? libroData.autores : libroData.autores.split(',').map(autor => autor.trim());
 
     // Añadir los datos del libro
     const nuevoLibro = {
         portada: libroData.portada,
-        anio_publicacion: parseInt(libroData.anio_publicacion),
+        anio_publicacion: parseInt(libroData.anio_publicacion, 10),
         titulo: libroData.titulo,
         autores: autoresArray,
         editorial: libroData.editorial,
         abstract: libroData.abstract,
         link_pdf: libroData.link_pdf
     };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoLibro)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
         const response = await fetch('http://localhost:3000/libros/no-upload', {
@@ -182,4 +181,5 @@ export async function uploadBookWithoutFile(libroData) {
         throw error;
     }
 }
+
 

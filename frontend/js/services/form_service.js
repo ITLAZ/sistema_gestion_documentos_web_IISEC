@@ -1,5 +1,6 @@
 import { loadNavbar } from './navbar_service.js';
 import { uploadBook } from './api_service.js'; // Importar la función para subir libros
+import { uploadBookWithoutFile } from './api_service.js'; // Importar la función para subir libros
 
 // Cargar el navbar inmediatamente
 loadNavbar(); 
@@ -61,8 +62,33 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
+
+    // Función para limpiar los campos del formulario
+    const clearFields = () => {
+        // Limpia todos los campos de entrada y textarea del formulario
+        const inputs = form.querySelectorAll('input');
+        const textareas = form.querySelectorAll('textarea');
+
+        inputs.forEach(input => {
+            if (input.type !== 'submit' && input.type !== 'button') {
+                if (input.type === 'file') {
+                    // Para los campos de archivo, restablecer el valor a vacío
+                    input.value = null;
+                } else {
+                    input.value = '';
+                }
+            }
+        });
+
+        textareas.forEach(textarea => {
+            textarea.value = '';
+        });
+    };
+
+
     // Mostrar/ocultar campos según el tipo de documento seleccionado
     typeSelector.addEventListener('change', function () {
+        clearFields();
         const type = this.value;
 
         // Ocultar todos los campos inicialmente
@@ -99,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Recoger los datos del formulario para libros
             const libroData = {
                 portada: document.getElementById('cover').value,
-                anio_publicacion: document.getElementById('published').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
                 titulo: document.getElementById('title').value,
-                autores: document.getElementById('authors').value.split(','), // Convertir autores a un array
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
                 editorial: document.getElementById('editorial').value,
                 abstract: document.getElementById('abstract').value,
                 link_pdf: document.getElementById('linkpdf').value
@@ -109,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+            console.log('Datos enviados sin archivo:', libroData);
 
             try {
                 if (file) {
@@ -122,6 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Libro subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
+
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el libro:', error);
             }

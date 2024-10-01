@@ -1,4 +1,4 @@
-export function loadCards(dataArray) {
+export function loadCards(dataArray, documentType) {
     const cardsContainer = document.getElementById('cards-container');
     cardsContainer.innerHTML = ''; // Limpia el contenedor antes de añadir nuevas tarjetas
 

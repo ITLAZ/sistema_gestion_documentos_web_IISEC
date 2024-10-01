@@ -96,3 +96,85 @@ export async function getPoliciesBriefs() {
         throw error;
     }
 }
+
+
+export async function uploadBook(libroData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = libroData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del libro al formData
+    formData.append('portada', libroData.portada);
+    formData.append('anio_publicacion', parseInt(libroData.anio_publicacion));
+    formData.append('titulo', libroData.titulo);
+    
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+    formData.append('editorial', libroData.editorial);
+    formData.append('abstract', libroData.abstract);
+    formData.append('link_pdf', libroData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/libros/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el libro:', error);
+        alert('Hubo un problema al subir el libro. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+
+export async function uploadBookWithoutFile(libroData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = libroData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del libro
+    const nuevoLibro = {
+        portada: libroData.portada,
+        anio_publicacion: parseInt(libroData.anio_publicacion),
+        titulo: libroData.titulo,
+        autores: autoresArray,
+        editorial: libroData.editorial,
+        abstract: libroData.abstract,
+        link_pdf: libroData.link_pdf
+    };
+
+    try {
+        if (file) {
+            // Si hay un archivo, consumir el endpoint de subir libro con archivo
+            const result = await uploadBook(libroData, file);
+            alert('Libro subido exitosamente con archivo!');
+            console.log('Resultado:', result);
+        } else {
+            // Si no hay archivo, consumir otro endpoint
+            const result = await uploadBookWithoutFile(libroData);
+            alert('Libro subido exitosamente sin archivo!');
+            console.log('Resultado:', result);
+        }
+    } catch (error) {
+        console.error('Error al subir el libro:', error);
+    }
+}

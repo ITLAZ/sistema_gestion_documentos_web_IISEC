@@ -1,5 +1,5 @@
 import { loadCards } from './handlers/card_handler.js';
-import { getBooks, getArticles, getChapters, getWorkDocuments, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs } from './services/api_service.js';
+import { getBooks, getArticles, getChapters, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs } from './services/api_service.js';
 import { loadNavbar } from './services/navbar_service.js';
 
 // Cargar el navbar inmediatamente

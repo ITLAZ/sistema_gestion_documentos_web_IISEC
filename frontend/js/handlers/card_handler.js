@@ -8,8 +8,8 @@ export function loadCards(dataArray, documentType) {
             .then(html => {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
-
-                updateCardData(tempDiv, data, documentType);// Actualiza los datos de la tarjeta
+                
+                updateCardData(tempDiv, data, documentType); // Actualiza los datos de la tarjeta
                 addEventListenersToCard(tempDiv, data); // Añade los eventos a los botones
                 cardsContainer.appendChild(tempDiv.firstChild);
             })

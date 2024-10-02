@@ -5,13 +5,18 @@ import { loadNavbar } from './services/navbar_service.js';
 // Cargar el navbar inmediatamente
 loadNavbar(); 
 
+// Variables para la paginación y el tipo seleccionado
+let currentPage = 1;
+const itemsPerPage = 30;
+let totalDocuments = [];
+let selectedType = '';  // Variable global para almacenar el tipo de documento seleccionado
+
 document.addEventListener('DOMContentLoaded', () => {
     const typeSelector = document.getElementById('type-selector');
 
     // Escuchar los cambios en el selector
     typeSelector.addEventListener('change', async () => {
-        const selectedType = typeSelector.value;
-        let documentsData = [];
+        selectedType = typeSelector.value;
 
         try {
             if (selectedType === 'books') {
@@ -28,16 +33,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 documentsData = await getInfoiisec();
             } else if (selectedType === 'policy-briefs') {
                 documentsData = await getPoliciesBriefs();
-            }
+            } 
 
-            // Cargar las tarjetas con los datos obtenidos
-            loadCards(documentsData, selectedType);
-
+            totalDocuments = documentsData;
+            currentPage = 1; // Reiniciar a la primera página
+            renderPage();
         } catch (error) {
             console.error('Error al realizar la búsqueda:', error);
         }
     });
+
+    // Asignar eventos a los botones de paginación
+    document.getElementById('prev-page').addEventListener('click', prevPage);
+    document.getElementById('next-page').addEventListener('click', nextPage);
 });
+
+// Función para ir a la página siguiente
+function nextPage() {
+    if (currentPage * itemsPerPage < totalDocuments.length) {
+        currentPage++;
+        renderPage();
+    }
+}
+
+// Función para ir a la página anterior
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderPage();
+    }
+}
+
+// Función para renderizar la página actual
+function renderPage() {
+    const totalPages = Math.ceil(totalDocuments.length / itemsPerPage);
+    const paginationControls = document.getElementById('pagination-controls');
+
+    // Mostrar u ocultar los controles de paginación según el número de páginas
+    if (totalPages > 1) {
+        paginationControls.style.display = 'block'; // Mostrar los botones si hay más de una página
+    } else {
+        paginationControls.style.display = 'none'; // Ocultar los botones si solo hay una página
+    }
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const documentsToShow = totalDocuments.slice(start, end);
+
+    // Actualizar las tarjetas con los datos de la página actual
+    loadCards(documentsToShow, selectedType);
+
+    // Actualizar la información de paginación
+    document.getElementById('page-info').innerText = `Página ${currentPage} de ${totalPages}`;
+
+    // Desactivar botones si estamos en el límite
+    document.getElementById('prev-page').disabled = currentPage === 1;
+    document.getElementById('next-page').disabled = currentPage === totalPages;
+}
+
+
+
 
 //Busqueda 
 document.addEventListener('DOMContentLoaded', () => {

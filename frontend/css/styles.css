@@ -297,3 +297,34 @@ aside .advanced-search {
 .input-group button:hover {
   background-color: #0056b3;
 }
+
+
+/* Estilos de botones para paginacion*/
+
+#pagination-controls {
+  text-align: center; 
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Espacio entre los botones y la información de la página */
+}
+
+
+#prev-page,
+#next-page {
+    background-color:#3c4271; /* Azul */
+    color: white; /* Letras blancas */
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 5px;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+#prev-page:hover,
+#next-page:hover {
+    background-color: #3c4271; /* Un azul más oscuro para el hover */
+}

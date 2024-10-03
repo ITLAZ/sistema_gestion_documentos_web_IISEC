@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, InternalServerErrorException, Post } from '@nestjs/common';
 import { Usuario } from 'src/schemas/Usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
-import { UsuariosService } from 'src/services/Usuarios/Usuarios.service';
+import { UsuariosService } from 'src/services/usuarios/usuarios.service';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -22,33 +22,44 @@ export class UsuariosController {
         const nuevoUsuario = await this.usuariosService.create(createUserDto);
         return nuevoUsuario;
       } catch (error) {
-        throw new BadRequestException('No se pudo crear la cuenta de usuario');
+        throw new BadRequestException({
+          message: 'No se pudo crear la cuenta de usuario',
+          error: error.message,
+        });
       }
     }
 
     @Post('login')
     async login(@Body() body: { usuario: string, contrasenia: string }): Promise<{ message: string, id_usuario?: string }> {
-        const { usuario, contrasenia } = body;
-        const fecha = new Date();
+        try {
+            const { usuario, contrasenia } = body;
+            const fecha = new Date();
 
-        // Validar las credenciales del usuario
-        const idUsuario = await this.usuariosService.validarCredenciales(usuario, contrasenia);
-        
-        if (!idUsuario) {
-            throw new BadRequestException('Usuario o contraseña incorrectos');
+            // Validar las credenciales del usuario
+            const idUsuario = await this.usuariosService.validarCredenciales(usuario, contrasenia);
+            
+            if (!idUsuario) {
+                throw new BadRequestException('Usuario o contraseña incorrectos');
+            }
+
+            // Registrar la acción de login en la colección de logs
+            await this.logsService.createLog({
+                id_usuario: idUsuario,  // Usamos el ID del usuario retornado
+                accion: 'login',
+                fecha: fecha,
+            });
+
+            // Retorna un mensaje de éxito y el ID del usuario
+            return { message: 'Login exitoso', id_usuario: idUsuario };
+        } catch (error) {
+            // Devuelve el error exacto
+            if (error instanceof BadRequestException) {
+                throw new BadRequestException(error.message);
+            }
+            throw new InternalServerErrorException('Error interno del servidor');
         }
-        
-        
-        // Registrar la acción de login en la colección de logs
-        await this.logsService.createLog({
-            id_usuario: idUsuario,  // Usamos el ID del usuario retornado
-            accion: 'login',
-            fecha: fecha,
-        });
-
-        // Retorna un mensaje de éxito y el ID del usuario
-        return { message: 'Login exitoso', id_usuario: idUsuario };
     }
+
       
 
     @Post('logout')

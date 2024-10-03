@@ -2,17 +2,43 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Libro } from 'src/schemas/libros.schema';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class LibrosService {
   constructor(
     @InjectModel(Libro.name) private libroModel: Model<Libro>,
+    private readonly searchService: SearchService,
   ) {}
 
   // Crear un libro
   async create(libro: Libro): Promise<Libro> {
     const nuevoLibro = new this.libroModel(libro);
     return nuevoLibro.save();
+  }
+
+  async updateAllLibros(): Promise<void> {
+    try {
+      const libros = await this.libroModel.find().exec();
+  
+      // Crear un array de promesas para indexar los libros
+      const indexPromises = libros.map(libro => 
+        this.searchService.indexData('libros', {
+          id: libro._id,
+          titulo: libro.titulo,
+          autores: libro.autores,
+          abstract: libro.abstract,
+        })
+      );
+  
+      // Esperar a que todas las indexaciones se completen
+      await Promise.all(indexPromises);
+  
+      console.log(`${libros.length} libros han sido actualizados e indexados en Elasticsearch.`);
+    } catch (error) {
+      console.error('Error al actualizar libros:', error);
+      throw new Error('No se pudieron actualizar los libros en Elasticsearch.');
+    }
   }
 
   // Obtener todos los libros

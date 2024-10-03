@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/styles.css">
+    <title>Vista Detalladaa</title>
+</head>
+
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <aside class="document-details">
+            <div class="details">
+                <h2 class="info-title"><strong>Título:</strong> <span id="title">Título del Documento</span></h2>
+                <figure>
+                    <img id="cover" class="card-img-top" src="https://placehold.com/600x400" alt="Portada del Documento">
+                </figure>
+                <div class="info">
+                    <!-- Campo Título (Igual para todos los documentos) -->
+                    <p class="info-subtitle"><strong>Tipo de Documento:</strong> <span id="type">Tipo de
+                            Documento</span></p>
+                    <p class="info-text"><strong>Autor(es):</strong> <span id="authors">Autor(es)</span></p>
+                    <p class="info-text"><strong>Año de Publicación:</strong> <span id="published">Año de
+                            Publicación</span></p>
+
+                    <!-- Campo Editorial (Para Libros, Artículos de Revistas y Capítulos de Libros) -->
+                    <p class="info-text" id="editorial" style="display: none;"><strong>Editorial:</strong> <span
+                            id="editorial-text">Editorial</span></p>
+
+                    <!-- Campo Número de Artículo y Nombre de la Revista (Para Artículos de Revistas) -->
+                    <!-- 
+        <p class="info-text" id="numero_articulo" style="display: none;"><strong>Número de Artículo:</strong> <span id="article-number">Número del Artículo</span></p>
+        -->
+                    <p class="info-text" id="nombre_revista" style="display: none;"><strong>Nombre de la
+                            Revista:</strong> <span id="revista">Nombre de la Revista</span></p>
+
+                    <!-- Campo Editores (Para Capítulos de Libros) -->
+                    <p class="info-text" id="editores" style="display: none;"><strong>Editores:</strong> <span
+                            id="editors">Editores</span></p>
+
+                    <!-- Campo Descripción (Para Documentos de Trabajo, Articulos Libro y Libros) -->
+                    <div class="info-desc" id="descripcion" style="display: none;">
+                        <p class="info-text"><strong>Descripción:</strong> <span id="description">Descripción del
+                                documento.</span></p>
+                    </div>
+
+                    <!-- Campo Observacion (Para Ideas y Reflexiones y Info IISEC) -->
+                    <div class="info-obs" id="observacion" style="display: none;">
+                        <p class="info-text"><strong>Observación:</strong> <span id="observation">Observación del
+                                documento.</span></p>
+                    </div>
+
+                    <!-- Campo Mensaje Clave (Para Policy and Briefs) -->
+                    <div class="info-msj" id="msj_clave" style="display: none;">
+                        <p class="info-text"><strong>Mensaje Clave:</strong> <span id="msj_claves">Mensaje Clave del
+                                documento.</span></p>
+                    </div>
+
+                    <!-- Campo Link PDF (Igual para todos los documentos) -->
+                    <!--
+        <p class="info-text"><strong>Link PDF:</strong> <span id="linkpdf">Link PDF</span></p>
+        -->
+
+                </div>
+            </div>
+        </aside>
+        <main class="document-preview">
+            <div class="pdf-preview"></div>
+                <iframe src="path/to/your/document.pdf" width="100%" height="600px">
+                    Este navegador no soporta la visualización de PDFs. Por favor, descarga el PDF para verlo: 
+                    <a href="path/to/your/document.pdf">Descargar PDF</a>.
+                </iframe>
+            </div>
+        </main>
+    </div>
+</body>
+<script src="../js/main.js" type="module"></script>
+</html>

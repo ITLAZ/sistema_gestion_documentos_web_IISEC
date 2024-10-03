@@ -29,6 +29,9 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates','login.html'));
 });
 
+app.get('/preview', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','vistadoc.html'));
+});
 
 // Start the server
 app.listen(port, () => {

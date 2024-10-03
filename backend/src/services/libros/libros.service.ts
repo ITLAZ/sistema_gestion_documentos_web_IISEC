@@ -45,6 +45,11 @@ export class LibrosService {
     return this.libroModel.findOneAndUpdate({ id }, libro, { new: true }).exec();
   }
 
+   // Eliminar un libro por su id
+   async delete(id: string): Promise<Libro> {
+    return this.libroModel.findByIdAndDelete(id).exec();
+  }
+
 }
 
 

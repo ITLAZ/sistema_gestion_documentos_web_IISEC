@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             order.forEach(id => {
                 const field = fields[id];
                 if (field) {
-                    field.style.display = 'block';
+                    field.style.display = 'flex';
                     form.insertBefore(field, submitButton);
                 }
             });

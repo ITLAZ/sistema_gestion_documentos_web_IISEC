@@ -224,7 +224,7 @@ aside .advanced-search {
   border: #333 1px solid;
 }
 
-.input-group {
+.input-group, .form-group {
   display: flex;
   flex-direction: column;
   gap: 10px;

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -43,6 +43,14 @@ export class LibrosController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() libro: Partial<Libro>): Promise<Libro> {
     return this.librosService.update(id, libro);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<Libro> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.librosService.delete(id);
   }
 
   @Post('upload')

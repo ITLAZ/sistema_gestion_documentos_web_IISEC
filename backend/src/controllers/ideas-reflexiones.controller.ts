@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body } from '@nestjs/common';
 import { IdeasReflexionesService } from 'src/services/ideas-reflexiones/ideas-reflexiones.service';
 import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { Types } from 'mongoose';
@@ -34,6 +34,15 @@ export class IdeasReflexionesController {
     }
     return this.ideaReflexionesService.findById(id);
   }
+
+  // Eliminar un ideaReflexion por su id
+@Delete(':id')
+async delete(@Param('id') id: string): Promise<IdeaReflexion> {
+  if (!Types.ObjectId.isValid(id)) {
+    throw new Error('ID no válido');
+  }
+  return this.ideaReflexionesService.delete(id);
+}
 
   // Crear un ideaReflexion
   @Post()

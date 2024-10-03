@@ -1,4 +1,4 @@
-export function loadCards(dataArray, documentType) {
+export function loadCards(dataArray) {
     const cardsContainer = document.getElementById('cards-container');
     cardsContainer.innerHTML = ''; // Limpia el contenedor antes de añadir nuevas tarjetas
 
@@ -8,9 +8,10 @@ export function loadCards(dataArray, documentType) {
             .then(html => {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
-                
-                updateCardData(tempDiv, data, documentType); // Actualiza los datos de la tarjeta
-                addEventListenersToCard(tempDiv, data); // Añade los eventos a los botones
+
+                // Pasamos el documentType desde el objeto data
+                updateCardData(tempDiv, data, data.documentType);
+                addEventListenersToCard(tempDiv, data);
                 cardsContainer.appendChild(tempDiv.firstChild);
             })
             .catch(error => {

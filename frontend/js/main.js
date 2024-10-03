@@ -1,5 +1,5 @@
 import { loadCards } from './handlers/card_handler.js';
-import { getBooks, getArticles, getChapters, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs } from './services/api_service.js';
+import { getBooks, getArticles, getChapters, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs, getAllDocuments } from './services/api_service.js';
 import { loadNavbar } from './services/navbar_service.js';
 
 // Cargar el navbar inmediatamente
@@ -19,23 +19,54 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedType = typeSelector.value;
 
         try {
-            if (selectedType === 'books') {
+            let documentsData;
+            if (selectedType === 'all') {
+                documentsData = await getAllDocuments();
+
+                // Agregar documentType a cada elemento dependiendo de su origen
+                const libros = documentsData.libros.map(doc => ({ ...doc, documentType: 'books' }));
+                const articulosRevistas = documentsData.articulosRevistas.map(doc => ({ ...doc, documentType: 'articles' }));
+                const capitulosLibros = documentsData.capitulosLibros.map(doc => ({ ...doc, documentType: 'chapters' }));
+                const documentosTrabajo = documentsData.documentosTrabajo.map(doc => ({ ...doc, documentType: 'work-documents' }));
+                const ideasReflexiones = documentsData.ideasReflexiones.map(doc => ({ ...doc, documentType: 'ideas-reflex' }));
+                const policiesBriefs = documentsData.policiesBriefs.map(doc => ({ ...doc, documentType: 'policy-briefs' }));
+                const infoIISEC = documentsData.infoIISEC.map(doc => ({ ...doc, documentType: 'info-iisec' }));
+
+                // Combinar todos los documentos en un solo array
+                totalDocuments = [
+                    ...libros,
+                    ...articulosRevistas,
+                    ...capitulosLibros,
+                    ...documentosTrabajo,
+                    ...ideasReflexiones,
+                    ...policiesBriefs,
+                    ...infoIISEC
+                ];
+
+            } else if (selectedType === 'books') {
                 documentsData = await getBooks();
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'books' }));
             } else if (selectedType === 'articles') {
                 documentsData = await getArticles();
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'articles' }));
             } else if (selectedType === 'chapters') {
                 documentsData = await getChapters();
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'chapters' }));
             } else if (selectedType === 'work-documents') {
                 documentsData = await getWorkDocuments();
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'work-documents' }));
             } else if (selectedType === 'ideas-reflex') {
                 documentsData = await getIdeasReflexiones();
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'ideas-reflex' }));
             } else if (selectedType === 'info-iisec') {
                 documentsData = await getInfoiisec();
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'info-iisec' }));
             } else if (selectedType === 'policy-briefs') {
                 documentsData = await getPoliciesBriefs();
-            } 
+                totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'policy-briefs' }));
+            }
 
-            totalDocuments = documentsData;
+
             currentPage = 1; // Reiniciar a la primera página
             renderPage();
         } catch (error) {

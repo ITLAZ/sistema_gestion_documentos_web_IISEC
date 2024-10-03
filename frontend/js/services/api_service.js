@@ -183,3 +183,16 @@ export async function uploadBookWithoutFile(libroData) {
 }
 
 
+export async function getAllDocuments() {
+    try {
+        const response = await fetch('http://localhost:3000/all-types');
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error al obtener todos los documentos:', error);
+        alert('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}

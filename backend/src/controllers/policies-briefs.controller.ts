@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body } from '@nestjs/common';
 import { PoliciesBriefsService } from 'src/services/policies-briefs/policies-briefs.service';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
 import { Types } from 'mongoose';
@@ -34,6 +34,15 @@ export class PoliciesBriefsController {
     }
     return this.policiesBriefsService.findById(id);
   }
+
+  // Eliminar un policyBrief por su id
+@Delete(':id')
+async delete(@Param('id') id: string): Promise<PolicyBrief> {
+  if (!Types.ObjectId.isValid(id)) {
+    throw new Error('ID no válido');
+  }
+  return this.policiesBriefsService.delete(id);
+}
 
   // Crear un policyBrief
   @Post()

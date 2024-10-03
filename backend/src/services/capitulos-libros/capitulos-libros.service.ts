@@ -44,5 +44,9 @@ export class CapitulosLibrosService {
   async update(id: string, CapituloLibro: Partial<CapituloLibro>): Promise<CapituloLibro> {
     return this.CapituloLibroModel.findOneAndUpdate({ id }, CapituloLibro, { new: true }).exec();
   }
+  // Eliminar un capítulo por su id
+  async delete(id: string): Promise<CapituloLibro> {
+    return this.CapituloLibroModel.findByIdAndDelete(id).exec();
+  }
 
 }

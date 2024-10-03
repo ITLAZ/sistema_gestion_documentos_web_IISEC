@@ -45,4 +45,10 @@ export class DocumentosTrabajoService {
     return this.DocumentoTrabajoModel.findOneAndUpdate({ id }, DocumentoTrabajo, { new: true }).exec();
   }
 
+  // Eliminar un DocumentoTrabajo por su id
+  async delete(id: string): Promise<DocumentoTrabajo> {
+    return this.DocumentoTrabajoModel.findByIdAndDelete(id).exec();
+  }
+
+
 }

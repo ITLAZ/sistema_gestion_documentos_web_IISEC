@@ -44,4 +44,10 @@ export class PoliciesBriefsService {
   async update(id: string, PolicyBrief: Partial<PolicyBrief>): Promise<PolicyBrief> {
     return this.PolicyBriefModel.findOneAndUpdate({ id }, PolicyBrief, { new: true }).exec();
   }
+
+  // Eliminar un PolicyBrief por su id
+  async delete(id: string): Promise<PolicyBrief> {
+    return this.PolicyBriefModel.findByIdAndDelete(id).exec();
+  }
+
 }

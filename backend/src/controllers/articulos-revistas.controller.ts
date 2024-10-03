@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body } from '@nestjs/common';
 import { ArticulosRevistasService } from 'src/services/articulos-revistas/articulos-revistas.service';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
@@ -25,6 +25,14 @@ export class ArticulosRevistasController {
     return this.articulosRevistasService.findByAutor(autor);
   }
 
+  // Eliminar un artículo por su id
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<ArticuloRevista> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.articulosRevistasService.delete(id);
+  }
 
   // Crear un nuevo artículo
   @Post()

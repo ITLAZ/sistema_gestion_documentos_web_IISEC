@@ -30,6 +30,11 @@ export class ArticulosRevistasService {
   async findByAutor(autor: string): Promise<ArticuloRevista[]> {
     return await this.articuloRevistaModel.find({ autores: { $elemMatch: { $regex: autor, $options: 'i' } } }).exec();
   }  
+
+  async delete(id: string): Promise<ArticuloRevista> {
+    return this.articuloRevistaModel.findByIdAndDelete(id).exec();
+  }
+
 }
 
 

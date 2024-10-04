@@ -17,7 +17,7 @@
                     <option value="">--Seleccione el Tipo de Documento--</option>
                     <option value="libros" selected>Libros</option>
                     <option value="articulos-revistas">Artículos de Revistas</option>
-                    <option value="capitulos-libros">Capítulos de Libros</option>
+                    <option value="capitulos-capitulos">Capítulos de Libros</option>
                     <option value="documentos-trabajo">Documentos de Trabajo</option>
                     <option value="ideas-reflexiones">Ideas y Reflexiones</option>
                     <option value="info-iisec">Info IISEC</option>
@@ -53,6 +53,13 @@
             <div class="form-group" id="editorial-group" style="display: none;">
                 <label for="editorial"><strong>Editorial:</strong></label>
                 <input type="text" id="editorial" name="editorial" class="form-control" placeholder="Editorial">
+            </div>
+
+
+            <!-- Campo Editor(es) -->
+            <div class="form-group" id="editores-group" style="display: none;">
+                <label for="editors"><strong>Editor(es) (separados por comas):</strong></label>
+                <input type="text" id="editors" name="editors" class="form-control" placeholder="Editor(es)" required>
             </div>
         
             <!-- Campo Número de Artículo (Para Artículos de Revistas) -->
@@ -104,7 +111,7 @@
             <!-- Campo Link PDF (Igual para todos los documentos) -->
             <div class="form-group">
                 <label for="linkpdf"><strong>Link PDF:</strong></label>
-                <input type="url" id="linkpdf" name="linkpdf" class="form-control" placeholder="Link PDF" required>
+                <input type="url" id="linkpdf" name="linkpdf" class="form-control" placeholder="Link PDF">
             </div>
         
             <!-- Campo para Subir Documento PDF -->

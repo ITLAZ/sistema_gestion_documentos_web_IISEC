@@ -1,3 +1,5 @@
+import { handleDocumentDeletion } from './actions_handler.js'; 
+
 export function loadCards(dataArray) {
     const cardsContainer = document.getElementById('cards-container');
     cardsContainer.innerHTML = ''; // Limpia el contenedor antes de añadir nuevas tarjetas
@@ -79,7 +81,7 @@ function updateCardData(cardElement, data, documentType) {
                    
             break;
 
-        case 'capitulos-libros':
+        case 'capitulos-capitulos':
             cardElement.querySelector('#type').textContent = 'Capítulo de Libro';
             cardElement.querySelector('#editores').style.display = 'block';
             cardElement.querySelector('#editors').textContent = data.editores || 'Editores no disponibles';
@@ -131,10 +133,28 @@ export function addEventListenersToCard(cardElement, data) {
     });
 
     editBtn.addEventListener('click', () => {
+        // Guardar tipo de documento e ID en el Session Storage para la edición
+        sessionStorage.setItem('documentType', data.documentType);
+        sessionStorage.setItem('documentId', data._id);
+
         window.location.href = `/edit`;
     });
 
     deleteBtn.addEventListener('click', () => {
-        window.location.href = `/delete`;
+        // Guardar tipo de documento e ID en el Session Storage para la eliminación
+        sessionStorage.setItem('documentType', data.documentType);
+        sessionStorage.setItem('documentId', data._id);
+
+        // Recuperar los valores desde el Session Storage
+        const documentType = sessionStorage.getItem('documentType');
+        const documentId = sessionStorage.getItem('documentId');
+
+        // Llamar a la función para manejar la eliminación del documento
+        handleDocumentDeletion(documentType, documentId, cardElement);
+
+        // Elimina los datos del Session Storage si el documento se eliminó exitosamente
+        sessionStorage.removeItem('documentType');
+        sessionStorage.removeItem('documentId');
+
     });
 }

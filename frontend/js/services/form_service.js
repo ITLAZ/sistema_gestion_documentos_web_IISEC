@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
             'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        'capitulos-libros': [
+        'capitulos-capitulos': [
             'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
             'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],

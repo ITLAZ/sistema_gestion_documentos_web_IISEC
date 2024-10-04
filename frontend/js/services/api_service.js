@@ -28,7 +28,7 @@ export async function getArticles() {
 
 export async function getChapters() {
     try {
-        const response = await fetch('http://localhost:3000/capitulos-libros');
+        const response = await fetch('http://localhost:3000/capitulos-capitulos');
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
@@ -208,6 +208,23 @@ export async function getDocumentById(documentType, id) {
     } catch (error) {
         console.error(`Error al obtener los detalles del documento (${documentType}):`, error);
         alert(`Hubo un problema al obtener los detalles del documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        throw error;
+    }
+}
+
+
+export async function deleteDocumentById(documentType, id) {
+    try {
+        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error al eliminar el documento (${documentType}):`, error);
+        alert(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }

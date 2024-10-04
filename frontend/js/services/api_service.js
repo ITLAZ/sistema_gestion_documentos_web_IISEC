@@ -755,27 +755,27 @@ export async function uploadPolicyBriefWithoutFile(policyData) {
 }
 
 
-export const loginUser = async (usuario, contrasenia) => {
+export async function loginUser(usuario, contrasenia) {
     try {
         const response = await fetch('http://localhost:3000/usuarios/login', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ usuario, contrasenia }),
+            body: JSON.stringify({ usuario, contrasenia })
         });
 
         if (!response.ok) {
-            throw new Error('Error de autenticación');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error de autenticación');
         }
 
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         console.error('Error durante el login:', error);
         throw error;
     }
-};
+}
 
 export async function logoutUserApi(idUsuario) {
     try {

@@ -34,6 +34,7 @@ import { AllTypesService } from './services/all-types/all-types.service';
 import { AllTypesController } from './controllers/all-types.controller';
 import { SearchService } from './services/search/search.service';
 import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch';
+import { FileHandlerController } from './controllers/file-handler.controller';
 
 @Module({
   imports: [
@@ -68,7 +69,8 @@ import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch
   ], 
   controllers: [
     AppController,
-    AllTypesController
+    AllTypesController,
+    FileHandlerController,
   ],
   providers: [
     AppService, 

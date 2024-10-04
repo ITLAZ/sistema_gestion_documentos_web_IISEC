@@ -1,11 +1,20 @@
-import { Controller, Get, Post, Delete, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { PoliciesBriefsService } from 'src/services/policies-briefs/policies-briefs.service';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
 import { Types } from 'mongoose';
+import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
+  return fileUploadService.getMulterOptions(destination);
+};
 
 @Controller('policies-briefs')
 export class PoliciesBriefsController {
-  constructor(private readonly policiesBriefsService: PoliciesBriefsService) {}
+  constructor(
+    private readonly policiesBriefsService: PoliciesBriefsService,
+    private readonly fileUploadService: FileUploadService
+  ) {}
 
   // Obtener todos los policies-briefs
   @Get()
@@ -44,16 +53,63 @@ async delete(@Param('id') id: string): Promise<PolicyBrief> {
   return this.policiesBriefsService.delete(id);
 }
 
-  // Crear un policyBrief
-  @Post()
-  async create(@Body() policyBrief: PolicyBrief): Promise<PolicyBrief> {
-    return this.policiesBriefsService.create(policyBrief);
-  }
-
   // Actualizar un policyBrief por su id
   @Put(':id')
   async update(@Param('id') id: string, @Body() policyBrief: Partial<PolicyBrief>): Promise<PolicyBrief> {
     return this.policiesBriefsService.update(id, policyBrief);
   }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+  )
+  async create(
+    @Body() policyBrief: PolicyBrief,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<PolicyBrief> {
+    if (!file || !policyBrief) {
+      throw new BadRequestException('Faltan datos necesarios');
+    }
+
+    const procesado = this.fileUploadService.procesarArchivo(
+      file,
+      policyBrief.titulo ?? 'Sin título',
+      policyBrief.autores?.join(' ') ?? 'Autor desconocido',
+      policyBrief.anio_publicacion?.toString() ?? '0000',
+      'PB',
+      'C:/tmp'
+    );
+
+    const nuevoPolicyBrief: Partial<PolicyBrief> = {
+      titulo: policyBrief.titulo,
+      anio_publicacion: policyBrief.anio_publicacion,
+      autores: policyBrief.autores,
+      mensaje_clave: policyBrief.mensaje_clave,
+      link_pdf: policyBrief.link_pdf,
+      direccion_archivo: procesado.path,
+    };
+    
+    return this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
+  }
+
+
+  // Crear policyBrief-libro solo en bd
+  @Post('no-upload')
+  async createWithoutFile(@Body() policyBrief: PolicyBrief): Promise<PolicyBrief> {
+    if (!policyBrief) {
+      throw new BadRequestException('Faltan datos necesarios');
+    }
+
+    const nuevoPolicyBrief: Partial<PolicyBrief> = {
+      titulo: policyBrief.titulo,
+      anio_publicacion: policyBrief.anio_publicacion,
+      autores: policyBrief.autores,
+      mensaje_clave: policyBrief.mensaje_clave,
+      link_pdf: policyBrief.link_pdf,
+    };
+    
+    return this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
+  }
+
 
 }

@@ -341,11 +341,11 @@ db.createCollection("Logs", {
       required: ["id_usuario", "accion", "fecha"],
       properties: {
         id_usuario: {
-          bsonType: "objectId",  // Para que sea referenciable a la colección de Usuarios
+          bsonType: "string",  // Para que sea referenciable a la colección de Usuarios
           description: "ID del usuario que realizó la acción"
         },
         id_documento: {
-          bsonType: "objectId",  // Para que sea referenciable a cualquier documento de otra colección
+          bsonType: "string",  // Para que sea referenciable a cualquier documento de otra colección
           description: "ID del documento en cualquier otra colección sobre el cual se realizó la acción"
         },
         accion: {

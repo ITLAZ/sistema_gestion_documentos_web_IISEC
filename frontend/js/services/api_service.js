@@ -552,6 +552,7 @@ export async function uploadIdeaReflexion(ideaData, file) {
         throw error;
     }
 }
+
 // SUBIDA SIN ARCHIVO DE IDEAS Y REFLEXIONES
 export async function uploadIdeaReflexionWithoutFile(ideaData) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -589,4 +590,84 @@ export async function uploadIdeaReflexionWithoutFile(ideaData) {
     }
 }
 
+// SUBIDA DE ARCHIVOS INFO IISEC
+export async function uploadInfoIISEC(infoData, file) {
+    const formData = new FormData();
 
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = infoData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos de Info IISEC al formData
+    formData.append('titulo', infoData.titulo);
+    formData.append('anio_publicacion', parseInt(infoData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('observaciones', infoData.observaciones);
+    formData.append('link_pdf', infoData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/info-iisec/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento Info IISEC:', error);
+        alert('Hubo un problema al subir el documento Info IISEC. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE INFO IISEC
+export async function uploadInfoIISECWithoutFile(infoData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(infoData.autores) ? infoData.autores : infoData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos de Info IISEC
+    const nuevoInfoIISEC = {
+        titulo: infoData.titulo,
+        anio_publicacion: parseInt(infoData.anio_publicacion, 10),
+        autores: autoresArray,
+        observaciones: infoData.observaciones,
+        link_pdf: infoData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoInfoIISEC)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/info-iisec/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoInfoIISEC)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento Info IISEC sin archivo:', error);
+        alert('Hubo un problema al subir el documento Info IISEC sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}

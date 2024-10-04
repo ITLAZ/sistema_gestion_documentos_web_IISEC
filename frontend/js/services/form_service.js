@@ -15,10 +15,17 @@ import { uploadCapituloWithoutFile } from './api_service.js';
 import { uploadDocumentoTrabajo } from './api_service.js'; 
 import { uploadDocumentoTrabajoWithoutFile } from './api_service.js'; 
 
-//DOCUMENTOS DE TRABAJO
+//IDEAS Y REFLEXIONES
 import { uploadIdeaReflexion } from './api_service.js'; 
 import { uploadIdeaReflexionWithoutFile } from './api_service.js'; 
 
+//INFO IISEC
+import { uploadInfoIISEC } from './api_service.js'; 
+import { uploadInfoIISECWithoutFile } from './api_service.js'; 
+
+//POLICY AND BRIEFS
+import { uploadIdeaReflexion } from './api_service.js'; 
+import { uploadIdeaReflexionWithoutFile } from './api_service.js'; 
 
 // Cargar el navbar inmediatamente
 loadNavbar(); 
@@ -302,7 +309,38 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error al subir la idea o reflexión:', error);
             }
+        } else if (type === 'info-iisec') {
+    // Recoger los datos del formulario para Info IISEC
+    const infoData = {
+        titulo: document.getElementById('title').value,
+        anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+        autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+        observaciones: document.getElementById('observation').value,
+        link_pdf: document.getElementById('linkpdf').value
+    };
+
+    const fileInput = document.getElementById('pdf-upload');
+    const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+
+    try {
+        if (file) {
+            // Si hay un archivo, consumir el endpoint de subir Info IISEC con archivo
+            const result = await uploadInfoIISEC(infoData, file);
+            alert('Documento Info IISEC subido exitosamente con archivo!');
+            console.log('Resultado:', result);
+        } else {
+            // Si no hay archivo, consumir otro endpoint
+            const result = await uploadInfoIISECWithoutFile(infoData);
+            alert('Documento Info IISEC subido exitosamente sin archivo!');
+            console.log('Resultado:', result);
         }
+
+        clearFields();
+    } catch (error) {
+        console.error('Error al subir el documento Info IISEC:', error);
+    }
+}
+
         
         
         

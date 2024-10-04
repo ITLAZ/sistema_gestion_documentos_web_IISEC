@@ -34,7 +34,7 @@
             <!-- Campo Autor(es) -->
             <div class="form-group">
                 <label for="authors"><strong>Autor(es) (separados por comas):</strong></label>
-                <input type="text" id="authors" name="authors" class="form-control" placeholder="Autor(es)" required>
+                <input type="text" id="authors" name="authors" class="form-control" placeholder="Autor(es)" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]" required>
             </div>
         
             <!-- Campo Año de Publicación -->
@@ -59,7 +59,7 @@
             <!-- Campo Editor(es) -->
             <div class="form-group" id="editores-group" style="display: none;">
                 <label for="editores"><strong>Editor(es) (separados por comas):</strong></label>
-                <input type="text" id="editores" name="editores" class="form-control" placeholder="Editor(es)">
+                <input type="text" id="editores" name="editores" class="form-control" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]" placeholder="Editor(es)">
             </div>
         
             <!-- Campo Número de Artículo (Para Artículos de Revistas) -->

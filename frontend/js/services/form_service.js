@@ -35,6 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('document-form');
     const submitButton = form.querySelector('button[type="submit"]');
 
+
+    // Definir los campos obligatorios por tipo de documento
+    const requiredFieldsByType = {
+        'libros': ['title','authors','cover','published'],
+        'articulos-revistas': ['title','authors','revista', 'published'],
+        'capitulos-capitulos': ['title','authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
+        'documentos-trabajo': ['title', 'authors', 'published'],
+        'ideas-reflexiones': ['title', 'authors', 'published'],
+        'info-iisec': ['title', 'authors', 'published'],
+        'policies-briefs': ['title', 'authors', 'published']
+    };
+
+
     // Definir los campos y los grupos de formularios
     const fields = {
         'cover-group': document.getElementById('cover-group'),
@@ -141,11 +154,71 @@ document.addEventListener('DOMContentLoaded', () => {
     // Llamar la función de visualización para preseleccionar "Libros" cuando se carga la página
     typeSelector.dispatchEvent(new Event('change'));
 
+
+    const fileInput = document.getElementById('pdf-upload');
+
+    // Verificar el archivo seleccionado para asegurar que sea un PDF
+    fileInput.addEventListener('change', function () {
+        const file = fileInput.files[0];
+        if (file && file.type !== 'application/pdf') {
+            alert('Por favor, selecciona un archivo PDF.');
+            fileInput.value = ''; // Limpiar la selección del archivo
+        }
+    });
+
+    // Función para validar los campos obligatorios
+    const validateRequiredFields = (type) => {
+        const requiredFields = requiredFieldsByType[type];
+        const missingFields = [];
+
+        // Validar que los campos requeridos no estén vacíos
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && !field.value.trim()) {
+                missingFields.push(field.previousElementSibling.textContent); // Capturar la etiqueta de cada campo
+            }
+        });
+
+        // Mostrar alerta si faltan campos obligatorios
+        if (missingFields.length > 0) {
+            alert(`Por favor, completa los siguientes campos: \n${missingFields.join('\n')}`);
+            return false;
+        }
+
+        // Validar año de publicación
+        const publishedField = document.getElementById('published');
+        if (publishedField) {
+            const year = parseInt(publishedField.value, 10);
+            const currentYear = new Date().getFullYear();
+            if (year < 1900 || year > currentYear) {
+                alert(`El año de publicación debe estar entre 1900 y ${currentYear}.`);
+                return false;
+            }
+        }
+
+        // Validar que al menos se suba un link PDF o un archivo PDF
+        const linkPdfField = document.getElementById('linkpdf');
+        const fileInput = document.getElementById('pdf-upload');
+
+        if (!linkPdfField.value.trim() && (!fileInput.files || fileInput.files.length === 0)) {
+            alert('Debe proporcionar un link PDF o subir un archivo PDF.');
+            return false;
+        }
+
+        return true;
+    };
+
+
     // Manejar el envío del formulario
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const type = typeSelector.value;
+
+        // Validar los campos obligatorios según el tipo de documento seleccionado
+        if (!validateRequiredFields(type)) {
+            return; // No enviar el formulario si hay campos obligatorios faltantes o errores en la fecha
+        }
 
         if (type === 'libros') {
             // Recoger los datos del formulario para libros
@@ -159,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
 
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
             console.log('Datos enviados sin archivo:', libroData);
 
@@ -194,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
     
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
     
             try {
@@ -228,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
         
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
         
             try {
@@ -259,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
         
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
         
             try {
@@ -289,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
         
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
         
             try {
@@ -319,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
         
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
         
             try {
@@ -349,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 link_pdf: document.getElementById('linkpdf').value
             };
         
-            const fileInput = document.getElementById('pdf-upload');
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
         
             try {

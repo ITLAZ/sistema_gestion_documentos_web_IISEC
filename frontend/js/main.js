@@ -160,8 +160,8 @@ export async function loadDocumentDetails() {
         try {
             // Llamada al endpoint para obtener los datos del documento
             const documentData = await getDocumentById(documentType, id);
-            console.log('Error al obtener los detalles del documento:', documentData);
-            console.log('Error al obtener los detalles del documento:', documentType);
+            console.log('detalles del documento:', documentData);
+            console.log('detalles del documento:', documentType);
             displayDocumentDetails(documentData, documentType);
         } catch (error) {
             console.error('Error al obtener los detalles del documento:', error);
@@ -261,7 +261,7 @@ function displayDocumentDetails(data, documentType) {
             document.getElementById('titulo_libro').style.display = 'block';
             document.getElementById('titulo_libro_value').textContent = data.titulo_libro || 'Título del libro no disponible';
             document.getElementById('editores').style.display = 'block';
-            document.getElementById('editores').textContent = data.editores || 'Editores no disponibles';
+            document.getElementById('editores_value').textContent = data.editores || 'Editores no disponibles';
             document.getElementById('editorial').style.display = 'block';
             document.getElementById('editorial-text').textContent = data.editorial || 'Editorial no disponible';
             document.getElementById('descripcion').style.display = 'block';
@@ -297,18 +297,34 @@ function displayDocumentDetails(data, documentType) {
     const pdfIframe = document.getElementById('pdf-frame');
     const pdfDownloadLink = document.getElementById('pdf-download-link');
 
-    if (data.link_pdf) {
+    // Verificar si el link_pdf está disponible y termina en ".pdf"
+    if (data.link_pdf && data.link_pdf.trim().toLowerCase().endsWith('.pdf')) {
         pdfIframe.src = data.link_pdf;
         pdfDownloadLink.href = data.link_pdf;
+        pdfIframe.style.display = 'block';
     } else if (data.direccion_archivo) {
         const nombreArchivo = data.direccion_archivo.split('\\').pop(); // Obtener el nombre del archivo
         const archivoUrl = `http://localhost:3000/file-handler/file/${nombreArchivo}`;
         pdfIframe.src = archivoUrl;
         pdfDownloadLink.href = archivoUrl;
+        pdfIframe.style.display = 'block';
     } else {
-        pdfIframe.src = '';
-        pdfDownloadLink.href = '#';
+        // Mostrar el mensaje alternativo
+        pdfIframe.style.display = 'none';
+        const pdfPreviewContainer = document.querySelector('.pdf-preview');
+        
+        // Crear mensaje alternativo
+        const messageContainer = document.createElement('div');
+        messageContainer.innerHTML = `
+            <p>Lo sentimos, el documento no se encuentra actualmente disponible.</p>
+            <p>Puede ingresar al siguiente link para encontrarlo: <a href="${data.link_pdf || '#'}" target="_blank">${data.link_pdf || 'No disponible'}</a></p>
+        `;
+        
+        // Añadir el mensaje al contenedor
+        pdfPreviewContainer.appendChild(messageContainer);
     }
+
+
 
 }
 

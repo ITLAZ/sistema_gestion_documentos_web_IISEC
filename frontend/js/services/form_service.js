@@ -11,6 +11,22 @@ import { uploadArtWithoutFile } from './api_service.js';
 import { uploadCapitulo } from './api_service.js'; 
 import { uploadCapituloWithoutFile } from './api_service.js'; 
 
+//DOCUMENTOS DE TRABAJO
+import { uploadDocumentoTrabajo } from './api_service.js'; 
+import { uploadDocumentoTrabajoWithoutFile } from './api_service.js'; 
+
+//IDEAS Y REFLEXIONES
+import { uploadIdeaReflexion } from './api_service.js'; 
+import { uploadIdeaReflexionWithoutFile } from './api_service.js'; 
+
+//INFO IISEC
+import { uploadInfoIISEC } from './api_service.js'; 
+import { uploadInfoIISECWithoutFile } from './api_service.js'; 
+
+//POLICY AND BRIEFS
+import { uploadPolicyBrief } from './api_service.js'; 
+import { uploadPolicyBriefWithoutFile } from './api_service.js'; 
+
 // Cargar el navbar inmediatamente
 loadNavbar(); 
 
@@ -232,7 +248,127 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error al subir el capítulo de libro:', error);
             }
-        }
+        } else if (type === 'documentos-trabajo') {
+            // Recoger los datos del formulario para documentos de trabajo
+            const docData = {
+                numero_identificacion: document.getElementById('numero_identificacion').value,
+                titulo: document.getElementById('title').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                abstract: document.getElementById('abstract').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
         
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir documento con archivo
+                    const result = await uploadDocumentoTrabajo(docData, file);
+                    alert('Documento de trabajo subido exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadDocumentoTrabajoWithoutFile(docData);
+                    alert('Documento de trabajo subido exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir el documento de trabajo:', error);
+            }
+        } else if (type === 'ideas-reflexiones') {
+            // Recoger los datos del formulario para ideas y reflexiones
+            const ideaData = {
+                titulo: document.getElementById('title').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                observaciones: document.getElementById('observation').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+        
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir idea/reflexión con archivo
+                    const result = await uploadIdeaReflexion(ideaData, file);
+                    alert('Idea o reflexión subida exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadIdeaReflexionWithoutFile(ideaData);
+                    alert('Idea o reflexión subida exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir la idea o reflexión:', error);
+            }
+        } else if (type === 'info-iisec') {
+            // Recoger los datos del formulario para Info IISEC
+            const infoData = {
+                titulo: document.getElementById('title').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                observaciones: document.getElementById('observation').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+        
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir Info IISEC con archivo
+                    const result = await uploadInfoIISEC(infoData, file);
+                    alert('Documento Info IISEC subido exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadInfoIISECWithoutFile(infoData);
+                    alert('Documento Info IISEC subido exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir el documento Info IISEC:', error);
+            }
+        } else if (type === 'policies-briefs') {
+            // Recoger los datos del formulario para Policy Briefs
+            const policyData = {
+                titulo: document.getElementById('title').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                mensaje_clave: document.getElementById('msj_claves').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+        
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir Policy Brief con archivo
+                    const result = await uploadPolicyBrief(policyData, file);
+                    alert('Policy Brief subido exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadPolicyBriefWithoutFile(policyData);
+                    alert('Policy Brief subido exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir el Policy Brief:', error);
+            }
+        } 
     });
 });

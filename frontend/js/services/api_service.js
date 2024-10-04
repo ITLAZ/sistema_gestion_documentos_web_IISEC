@@ -424,3 +424,332 @@ export async function uploadCapituloWithoutFile(capituloData) {
     }
 }
 
+// SUBIDA DE ARCHIVOS DOCUMENTOS DE TRABAJO
+export async function uploadDocumentoTrabajo(docData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = docData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del documento al formData
+    formData.append('numero_identificacion', docData.numero_identificacion);
+    formData.append('titulo', docData.titulo);
+    formData.append('anio_publicacion', parseInt(docData.anio_publicacion, 10));
+    
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('abstract', docData.abstract);
+    formData.append('link_pdf', docData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/documentos-trabajo/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento de trabajo:', error);
+        alert('Hubo un problema al subir el documento de trabajo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE DOCUMENTOS DE TRABAJO
+export async function uploadDocumentoTrabajoWithoutFile(docData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(docData.autores) ? docData.autores : docData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos del documento
+    const nuevoDocumento = {
+        numero_identificacion: docData.numero_identificacion,
+        titulo: docData.titulo,
+        anio_publicacion: parseInt(docData.anio_publicacion, 10),
+        autores: autoresArray,
+        abstract: docData.abstract,
+        link_pdf: docData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoDocumento)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/documentos-trabajo/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoDocumento)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento de trabajo sin archivo:', error);
+        alert('Hubo un problema al subir el documento de trabajo sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA DE ARCHIVOS IDEAS Y REFLEXIONES
+export async function uploadIdeaReflexion(ideaData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = ideaData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos de la idea/reflexión al formData
+    formData.append('titulo', ideaData.titulo);
+    formData.append('anio_publicacion', parseInt(ideaData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('observaciones', ideaData.observaciones);
+    formData.append('link_pdf', ideaData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/ideas-reflexiones/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir la idea o reflexión:', error);
+        alert('Hubo un problema al subir la idea o reflexión. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE IDEAS Y REFLEXIONES
+export async function uploadIdeaReflexionWithoutFile(ideaData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(ideaData.autores) ? ideaData.autores : ideaData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos de la idea/reflexión
+    const nuevaIdeaReflexion = {
+        titulo: ideaData.titulo,
+        anio_publicacion: parseInt(ideaData.anio_publicacion, 10),
+        autores: autoresArray,
+        observaciones: ideaData.observaciones,
+        link_pdf: ideaData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevaIdeaReflexion)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/ideas-reflexiones/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevaIdeaReflexion)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir la idea o reflexión sin archivo:', error);
+        alert('Hubo un problema al subir la idea o reflexión sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA DE ARCHIVOS INFO IISEC
+export async function uploadInfoIISEC(infoData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = infoData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos de Info IISEC al formData
+    formData.append('titulo', infoData.titulo);
+    formData.append('anio_publicacion', parseInt(infoData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('observaciones', infoData.observaciones);
+    formData.append('link_pdf', infoData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/info-iisec/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento Info IISEC:', error);
+        alert('Hubo un problema al subir el documento Info IISEC. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE INFO IISEC
+export async function uploadInfoIISECWithoutFile(infoData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(infoData.autores) ? infoData.autores : infoData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos de Info IISEC
+    const nuevoInfoIISEC = {
+        titulo: infoData.titulo,
+        anio_publicacion: parseInt(infoData.anio_publicacion, 10),
+        autores: autoresArray,
+        observaciones: infoData.observaciones,
+        link_pdf: infoData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoInfoIISEC)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/info-iisec/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoInfoIISEC)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento Info IISEC sin archivo:', error);
+        alert('Hubo un problema al subir el documento Info IISEC sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA DE ARCHIVOS POLICY BRIEFS
+export async function uploadPolicyBrief(policyData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = policyData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del Policy Brief al formData
+    formData.append('titulo', policyData.titulo);
+    formData.append('anio_publicacion', parseInt(policyData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('mensaje_clave', policyData.mensaje_clave);
+    formData.append('link_pdf', policyData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/policies-briefs/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el Policy Brief:', error);
+        alert('Hubo un problema al subir el Policy Brief. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE POLICY BRIEFS
+export async function uploadPolicyBriefWithoutFile(policyData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(policyData.autores) ? policyData.autores : policyData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos del Policy Brief
+    const nuevoPolicyBrief = {
+        titulo: policyData.titulo,
+        anio_publicacion: parseInt(policyData.anio_publicacion, 10),
+        autores: autoresArray,
+        mensaje_clave: policyData.mensaje_clave,
+        link_pdf: policyData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoPolicyBrief)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/policies-briefs/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoPolicyBrief)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el Policy Brief sin archivo:', error);
+        alert('Hubo un problema al subir el Policy Brief sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}

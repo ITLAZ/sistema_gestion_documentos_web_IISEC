@@ -15,6 +15,10 @@ import { uploadCapituloWithoutFile } from './api_service.js';
 import { uploadDocumentoTrabajo } from './api_service.js'; 
 import { uploadDocumentoTrabajoWithoutFile } from './api_service.js'; 
 
+//DOCUMENTOS DE TRABAJO
+import { uploadIdeaReflexion } from './api_service.js'; 
+import { uploadIdeaReflexionWithoutFile } from './api_service.js'; 
+
 
 // Cargar el navbar inmediatamente
 loadNavbar(); 
@@ -268,7 +272,38 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error al subir el documento de trabajo:', error);
             }
+        } else if (type === 'ideas-reflexiones') {
+            // Recoger los datos del formulario para ideas y reflexiones
+            const ideaData = {
+                titulo: document.getElementById('title').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                observaciones: document.getElementById('observation').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+        
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir idea/reflexión con archivo
+                    const result = await uploadIdeaReflexion(ideaData, file);
+                    alert('Idea o reflexión subida exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadIdeaReflexionWithoutFile(ideaData);
+                    alert('Idea o reflexión subida exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir la idea o reflexión:', error);
+            }
         }
+        
         
         
     });

@@ -508,4 +508,85 @@ export async function uploadDocumentoTrabajoWithoutFile(docData) {
     }
 }
 
+// SUBIDA DE ARCHIVOS IDEAS Y REFLEXIONES
+export async function uploadIdeaReflexion(ideaData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = ideaData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos de la idea/reflexión al formData
+    formData.append('titulo', ideaData.titulo);
+    formData.append('anio_publicacion', parseInt(ideaData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('observaciones', ideaData.observaciones);
+    formData.append('link_pdf', ideaData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/ideas-reflexiones/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir la idea o reflexión:', error);
+        alert('Hubo un problema al subir la idea o reflexión. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+// SUBIDA SIN ARCHIVO DE IDEAS Y REFLEXIONES
+export async function uploadIdeaReflexionWithoutFile(ideaData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(ideaData.autores) ? ideaData.autores : ideaData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos de la idea/reflexión
+    const nuevaIdeaReflexion = {
+        titulo: ideaData.titulo,
+        anio_publicacion: parseInt(ideaData.anio_publicacion, 10),
+        autores: autoresArray,
+        observaciones: ideaData.observaciones,
+        link_pdf: ideaData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevaIdeaReflexion)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/ideas-reflexiones/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevaIdeaReflexion)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir la idea o reflexión sin archivo:', error);
+        alert('Hubo un problema al subir la idea o reflexión sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
 

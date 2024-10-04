@@ -18,7 +18,6 @@ export class FileUploadService {
     file: Express.Multer.File,
     titulo: string,
     autores: string,
-    editorial: string,
     anio: string,
     destinationPath: string // La ruta donde guardar el archivo
   ): any {
@@ -29,13 +28,12 @@ export class FileUploadService {
     // Abreviar los campos y normalizar
     const abreviaturaTitulo = this.normalizarTexto(titulo).substring(0, 5);
     const abreviaturaAutor = this.normalizarTexto(autores.split(' ')[0]).substring(0, 4);
-    const abreviaturaEditorial = this.normalizarTexto(editorial.split(' ')[0]).substring(0, 4);
 
     // Formatear la fecha actual (YYYYMMDD)
     const fechaActual = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
     // Construir el nombre del archivo estandarizado
-    const nombreEstandarizado = `Lib-${anio}${abreviaturaTitulo}${abreviaturaAutor}${abreviaturaEditorial}-${fechaActual}`;
+    const nombreEstandarizado = `Lib-${anio}${abreviaturaTitulo}${abreviaturaAutor}-${fechaActual}`;
 
     // Asegurarse de que el nombre tiene un máximo de 30 caracteres
     const nombreFinal = nombreEstandarizado.substring(0, 30);
@@ -53,7 +51,6 @@ export class FileUploadService {
       metadata: {
         titulo,
         autores,
-        editorial,
         anio,
       },
     };

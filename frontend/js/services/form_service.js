@@ -1,6 +1,15 @@
 import { loadNavbar } from './navbar_service.js';
+
 import { uploadBook } from './api_service.js'; // Importar la función para subir libros
 import { uploadBookWithoutFile } from './api_service.js'; // Importar la función para subir libros
+
+//REVISTAS
+import { uploadArt } from './api_service.js'; 
+import { uploadArtWithoutFile } from './api_service.js'; 
+
+//CAPITULOS
+import { uploadCapitulo } from './api_service.js'; 
+import { uploadCapituloWithoutFile } from './api_service.js'; 
 
 // Cargar el navbar inmediatamente
 loadNavbar(); 
@@ -29,26 +38,26 @@ document.addEventListener('DOMContentLoaded', () => {
         'linkpdf-group': document.getElementById('linkpdf').parentElement,
         'pdf-upload-group': document.getElementById('pdf-upload').parentElement,
     };
-
+    
     // Definir el orden de los campos por tipo de documento
     const orderByType = {
-        books: [
+        'libros': [
             'cover-group', 'title-group', 'authors-group', 'editorial-group', 
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        articles: [
+        'articulos-revistas': [
             'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
             'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        chapters: [
+        'capitulos-capitulos': [
             'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
             'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        'work-documents': [
+        'documentos-trabajo': [
             'numero_identificacion-group', 'title-group', 'authors-group', 
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        'ideas-reflex': [
+        'ideas-reflexiones': [
             'title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group', 'pdf-upload-group'
         ],
@@ -56,11 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group', 'pdf-upload-group'
         ],
-        'policy-briefs': [
+        'policies-briefs': [
             'title-group', 'authors-group', 'published-group', 'msj_clave-group', 
             'linkpdf-group', 'pdf-upload-group'
         ]
     };
+
 
 
     // Función para limpiar los campos del formulario
@@ -121,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const type = typeSelector.value;
 
-        if (type === 'books') {
+        if (type === 'libros') {
             // Recoger los datos del formulario para libros
             const libroData = {
                 portada: document.getElementById('cover').value,
@@ -154,6 +164,75 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error al subir el libro:', error);
             }
+
+        } else if (type === 'articulos-revistas') {
+            // Recoger los datos del formulario para artículos de revista
+            const artData = {
+                numero_articulo: document.getElementById('article-number').value,
+                titulo: document.getElementById('title').value,
+                anio_revista: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                nombre_revista: document.getElementById('revista').value,
+                editorial: document.getElementById('editorial').value,
+                abstract: document.getElementById('abstract').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+    
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+    
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir artículo con archivo
+                    const result = await uploadArt(artData, file);
+                    alert('Artículo de revista subido exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadArtWithoutFile(artData);
+                    alert('Artículo de revista subido exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+    
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir el artículo de revista:', error);
+            }
+
+        } else if (type === 'capitulos-capitulos') {
+            // Recoger los datos del formulario para capítulos de libros
+            const capituloData = {
+                numero_identificacion: document.getElementById('numero_identificacion').value,
+                titulo_libro: document.getElementById('titulo_libro').value,
+                titulo_capitulo: document.getElementById('titulo_capitulo').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                editores: document.getElementById('editores').value.split(',').map(editor => editor.trim()), // Convertir editores a un array y eliminar espacios
+                editorial: document.getElementById('editorial').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+        
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir capítulo con archivo
+                    const result = await uploadCapitulo(capituloData, file);
+                    alert('Capítulo de libro subido exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadCapituloWithoutFile(capituloData);
+                    alert('Capítulo de libro subido exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir el capítulo de libro:', error);
+            }
         }
+        
     });
 });

@@ -13,7 +13,28 @@ export class DocumentosTrabajoController {
     return this.documentosTrabajoService.findAll();
   }
 
-  // Eliminar un documento por su id
+  @Get('titulo/:titulo')
+  async findByTitulo(@Param('titulo') titulo: string): Promise<DocumentoTrabajo[]> {
+    return this.documentosTrabajoService.findByTitulo(titulo);
+  }
+
+  // Buscar documentoTrabajo por aproximación del autor  
+  @Get('autor/:autor')
+  async findByAutor(@Param('autor') autor: string): Promise<DocumentoTrabajo[]> {
+    return this.documentosTrabajoService.findByAutor(autor);
+  }
+  
+  // Buscar un documentoTrabajo por su ID
+  @Get('id/:id')
+  async findById(@Param('id') id: string): Promise<DocumentoTrabajo> {
+    // Validación de ObjectId
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.documentosTrabajoService.findById(id);
+  }
+
+  // Eliminar un documentoTrabajo por su id
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<DocumentoTrabajo> {
     if (!Types.ObjectId.isValid(id)) {
@@ -22,7 +43,7 @@ export class DocumentosTrabajoController {
     return this.documentosTrabajoService.delete(id);
   }
 
-  // Crear un nuevo documento
+  // Crear un nuevo documentoTrabajo
   @Post()
   async create(@Body() documento: DocumentoTrabajo): Promise<DocumentoTrabajo> {
     return this.documentosTrabajoService.create(documento);

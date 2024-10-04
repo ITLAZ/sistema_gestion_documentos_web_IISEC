@@ -13,6 +13,27 @@ export class CapitulosLibrosController {
     return this.capitulosLibrosService.findAll();
   }
 
+  @Get('titulo/:titulo')
+  async findByTitulo(@Param('titulo') titulo: string): Promise<CapituloLibro[]> {
+    return this.capitulosLibrosService.findByTitulo(titulo);
+  }
+
+  // Buscar documentoTrabajo por aproximación del autor  
+  @Get('autor/:autor')
+  async findByAutor(@Param('autor') autor: string): Promise<CapituloLibro[]> {
+    return this.capitulosLibrosService.findByAutor(autor);
+  }
+  
+  // Buscar un documentoTrabajo por su ID
+  @Get('id/:id')
+  async findById(@Param('id') id: string): Promise<CapituloLibro> {
+    // Validación de ObjectId
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.capitulosLibrosService.findById(id);
+  }
+
   // Eliminar un capítulo por su id
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<CapituloLibro> {

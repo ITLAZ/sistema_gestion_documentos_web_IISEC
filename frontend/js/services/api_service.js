@@ -753,3 +753,48 @@ export async function uploadPolicyBriefWithoutFile(policyData) {
         throw error;
     }
 }
+
+
+export const loginUser = async (usuario, contrasenia) => {
+    try {
+        const response = await fetch('http://localhost:3000/usuarios/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ usuario, contrasenia }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error de autenticación');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error durante el login:', error);
+        throw error;
+    }
+};
+
+export async function logoutUserApi(idUsuario) {
+    try {
+        const response = await fetch('http://localhost:3000/usuarios/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id_usuario: idUsuario })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al intentar cerrar sesión');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error en la solicitud de logout:', error);
+        throw error;
+    }
+}

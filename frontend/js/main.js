@@ -2,8 +2,28 @@ import { loadCards } from './handlers/card_handler.js';
 import { getBooks, getArticles, getChapters, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs, getAllDocuments, getDocumentById } from './services/api_service.js';
 import { loadNavbar } from './services/navbar_service.js';
 
+
+// Verificar si el usuario está autenticado
+(function verificarAutenticacion() {
+    // Función para obtener una cookie por su nombre
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    const idUsuario = getCookie('id_usuario');
+    if (!idUsuario) {
+        // Redirigir al login si no hay id_usuario en las cookies
+        window.location.href = '/login';
+    }
+})();
+
 // Cargar el navbar inmediatamente
 loadNavbar(); 
+
+
 
 // Variables para la paginación y el tipo seleccionado
 let currentPage = 1;

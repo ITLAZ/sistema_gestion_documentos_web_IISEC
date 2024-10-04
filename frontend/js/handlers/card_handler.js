@@ -58,7 +58,7 @@ function updateCardData(cardElement, data, documentType) {
 
     // Asignación específica según el tipo de documento usando `documentType`
     switch (documentType) {
-        case 'books':
+        case 'libros':
             cardElement.querySelector('#type').textContent = 'Libro';
             cardElement.querySelector('#editorial').style.display = 'block';
             cardElement.querySelector('#editorial-text').textContent = data.editorial || 'Editorial no disponible';
@@ -66,7 +66,7 @@ function updateCardData(cardElement, data, documentType) {
             cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
             break;
 
-        case 'articles':
+        case 'articulos-revistas':
             cardElement.querySelector('#type').textContent = 'Artículo de Revista';
             //cardElement.querySelector('#numero_articulo').style.display = 'block';
             //cardElement.querySelector('#article-number').textContent = data.numero_articulo || 'Número de artículo no disponible';
@@ -79,7 +79,7 @@ function updateCardData(cardElement, data, documentType) {
                    
             break;
 
-        case 'chapters':
+        case 'capitulos-libros':
             cardElement.querySelector('#type').textContent = 'Capítulo de Libro';
             cardElement.querySelector('#editores').style.display = 'block';
             cardElement.querySelector('#editors').textContent = data.editores || 'Editores no disponibles';
@@ -87,20 +87,20 @@ function updateCardData(cardElement, data, documentType) {
             cardElement.querySelector('#editorial-text').textContent = data.editorial || 'Editorial no disponible';
             break;
 
-        case 'work-documents':
+        case 'documentos-trabajo':
             cardElement.querySelector('#type').textContent = 'Documento de Trabajo';
             cardElement.querySelector('#descripcion').style.display = 'block';
             cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
             break;
 
-        case 'ideas-reflex':
+        case 'ideas-reflexiones':
         case 'info-iisec':
-            cardElement.querySelector('#type').textContent = documentType === 'ideas-reflex' ? 'Ideas y Reflexiones' : 'Info IISEC';
+            cardElement.querySelector('#type').textContent = documentType === 'ideas-reflexiones' ? 'Ideas y Reflexiones' : 'Info IISEC';
             cardElement.querySelector('#observacion').style.display = 'block';
             cardElement.querySelector('#observation').textContent = data.observaciones || 'Observación no disponible';
             break;
 
-        case 'policy-briefs':
+        case 'policies-briefs':
             cardElement.querySelector('#type').textContent = 'Policy and Briefs';
             cardElement.querySelector('#msj_clave').style.display = 'block';
             cardElement.querySelector('#msj_claves').textContent = data.mensaje_clave || 'Mensaje clave no disponible';
@@ -118,15 +118,23 @@ export function addEventListenersToCard(cardElement, data) {
     const editBtn = cardElement.querySelector('[data-action="edit"]');
     const deleteBtn = cardElement.querySelector('[data-action="delete"]');
 
-    viewBtn.addEventListener('click', () => {
-        window.location.href = `view/${data._id}`;
+    // Al hacer clic en "Ver Detalle"
+    viewBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Evitar el comportamiento por defecto del enlace
+
+        // Guardar el tipo de documento y el ID en el Session Storage
+        sessionStorage.setItem('documentType', data.documentType);
+        sessionStorage.setItem('documentId', data._id);
+
+        // Redirigir a la página de vista detallada
+        window.location.href = `/preview`;
     });
 
     editBtn.addEventListener('click', () => {
-        window.location.href = `edit/${data._id}`;
+        window.location.href = `/edit`;
     });
 
     deleteBtn.addEventListener('click', () => {
-        window.location.href = `delete/${data._id}`;
+        window.location.href = `/delete`;
     });
 }

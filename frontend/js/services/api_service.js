@@ -196,3 +196,18 @@ export async function getAllDocuments() {
         throw error;
     }
 }
+
+
+export async function getDocumentById(documentType, id) {
+    try {
+        const response = await fetch(`http://localhost:3000/${documentType}/id/${id}`);
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error al obtener los detalles del documento (${documentType}):`, error);
+        alert(`Hubo un problema al obtener los detalles del documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        throw error;
+    }
+}

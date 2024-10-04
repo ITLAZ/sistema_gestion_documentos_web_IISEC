@@ -29,26 +29,26 @@ document.addEventListener('DOMContentLoaded', () => {
         'linkpdf-group': document.getElementById('linkpdf').parentElement,
         'pdf-upload-group': document.getElementById('pdf-upload').parentElement,
     };
-
+    
     // Definir el orden de los campos por tipo de documento
     const orderByType = {
-        books: [
+        'libros': [
             'cover-group', 'title-group', 'authors-group', 'editorial-group', 
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        articles: [
+        'articulos-revistas': [
             'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
             'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        chapters: [
+        'capitulos-libros': [
             'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
             'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        'work-documents': [
+        'documentos-trabajo': [
             'numero_identificacion-group', 'title-group', 'authors-group', 
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        'ideas-reflex': [
+        'ideas-reflexiones': [
             'title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group', 'pdf-upload-group'
         ],
@@ -56,11 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group', 'pdf-upload-group'
         ],
-        'policy-briefs': [
+        'policies-briefs': [
             'title-group', 'authors-group', 'published-group', 'msj_clave-group', 
             'linkpdf-group', 'pdf-upload-group'
         ]
     };
+
 
 
     // Función para limpiar los campos del formulario
@@ -121,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const type = typeSelector.value;
 
-        if (type === 'books') {
+        if (type === 'libros') {
             // Recoger los datos del formulario para libros
             const libroData = {
                 portada: document.getElementById('cover').value,

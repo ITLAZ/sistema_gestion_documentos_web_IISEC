@@ -34,6 +34,16 @@ export class ArticulosRevistasController {
     return this.articulosRevistasService.findByAutor(autor);
   }
 
+  // Buscar un articulos por su ID
+  @Get('id/:id')
+  async findById(@Param('id') id: string): Promise<ArticuloRevista> {
+    // Validación de ObjectId
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.articulosRevistasService.findById(id);
+  }
+
   // Eliminar un artículo por su id
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<ArticuloRevista> {

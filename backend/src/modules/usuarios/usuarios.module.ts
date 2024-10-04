@@ -4,7 +4,7 @@ import { UsuariosController } from 'src/controllers/usuarios.controller';
 import { Log, LogSchema } from 'src/schemas/logs.schema';
 import { Usuario,UsuarioSchema } from 'src/schemas/Usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
-import { UsuariosService } from 'src/services/Usuarios/Usuarios.service';
+import { UsuariosService } from 'src/services/usuarios/usuarios.service';
 
 @Module({
   imports: [MongooseModule.forFeature([

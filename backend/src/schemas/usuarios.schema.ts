@@ -8,7 +8,7 @@ export class Usuario extends Document {
   usuario: string;
 
   @Prop({ required: true })
-  nombre: number;
+  nombre: string;
 
   @Prop({ required: true })
   contrasenia: string;

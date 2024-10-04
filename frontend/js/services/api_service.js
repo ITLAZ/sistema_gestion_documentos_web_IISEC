@@ -671,3 +671,85 @@ export async function uploadInfoIISECWithoutFile(infoData) {
         throw error;
     }
 }
+
+// SUBIDA DE ARCHIVOS POLICY BRIEFS
+export async function uploadPolicyBrief(policyData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = policyData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del Policy Brief al formData
+    formData.append('titulo', policyData.titulo);
+    formData.append('anio_publicacion', parseInt(policyData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('mensaje_clave', policyData.mensaje_clave);
+    formData.append('link_pdf', policyData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/policies-briefs/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el Policy Brief:', error);
+        alert('Hubo un problema al subir el Policy Brief. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE POLICY BRIEFS
+export async function uploadPolicyBriefWithoutFile(policyData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(policyData.autores) ? policyData.autores : policyData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos del Policy Brief
+    const nuevoPolicyBrief = {
+        titulo: policyData.titulo,
+        anio_publicacion: parseInt(policyData.anio_publicacion, 10),
+        autores: autoresArray,
+        mensaje_clave: policyData.mensaje_clave,
+        link_pdf: policyData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoPolicyBrief)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/policies-briefs/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoPolicyBrief)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el Policy Brief sin archivo:', error);
+        alert('Hubo un problema al subir el Policy Brief sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}

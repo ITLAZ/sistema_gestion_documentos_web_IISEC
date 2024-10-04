@@ -31,6 +31,11 @@ export class ArticulosRevistasService {
     return await this.articuloRevistaModel.find({ autores: { $elemMatch: { $regex: autor, $options: 'i' } } }).exec();
   }  
 
+  // Actualizar un ArticuloRevista por su id
+  async update(id: string, ArticuloRevista: Partial<ArticuloRevista>): Promise<ArticuloRevista> {
+    return this.articuloRevistaModel.findOneAndUpdate({ id }, ArticuloRevista, { new: true }).exec();
+  }
+
   async delete(id: string): Promise<ArticuloRevista> {
     return this.articuloRevistaModel.findByIdAndDelete(id).exec();
   }

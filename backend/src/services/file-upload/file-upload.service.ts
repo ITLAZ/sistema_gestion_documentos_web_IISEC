@@ -19,6 +19,7 @@ export class FileUploadService {
     titulo: string,
     autores: string,
     anio: string,
+    tipo: string,
     destinationPath: string // La ruta donde guardar el archivo
   ): any {
     if (file.mimetype !== 'application/pdf') {
@@ -33,7 +34,7 @@ export class FileUploadService {
     const fechaActual = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
     // Construir el nombre del archivo estandarizado
-    const nombreEstandarizado = `Lib-${anio}${abreviaturaTitulo}${abreviaturaAutor}-${fechaActual}`;
+    const nombreEstandarizado = `${tipo}$-${anio}${abreviaturaTitulo}${abreviaturaAutor}-${fechaActual}`;
 
     // Asegurarse de que el nombre tiene un máximo de 30 caracteres
     const nombreFinal = nombreEstandarizado.substring(0, 30);
@@ -52,6 +53,7 @@ export class FileUploadService {
         titulo,
         autores,
         anio,
+        tipo
       },
     };
   }

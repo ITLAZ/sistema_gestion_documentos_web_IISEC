@@ -89,8 +89,8 @@ export class LibrosController {
       file,
       libro.titulo ?? 'Sin título',
       libro.autores?.join(' ') ?? 'Autor desconocido',
-      libro.editorial ?? 'Editorial desconocida',
       libro.anio_publicacion?.toString() ?? '0000',
+      'Lib',
       'C:/tmp'
     );
 

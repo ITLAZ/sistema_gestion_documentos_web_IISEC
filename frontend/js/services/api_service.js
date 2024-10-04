@@ -424,3 +424,88 @@ export async function uploadCapituloWithoutFile(capituloData) {
     }
 }
 
+// SUBIDA DE ARCHIVOS DOCUMENTOS DE TRABAJO
+export async function uploadDocumentoTrabajo(docData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = docData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del documento al formData
+    formData.append('numero_identificacion', docData.numero_identificacion);
+    formData.append('titulo', docData.titulo);
+    formData.append('anio_publicacion', parseInt(docData.anio_publicacion, 10));
+    
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    formData.append('abstract', docData.abstract);
+    formData.append('link_pdf', docData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/documentos-trabajo/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento de trabajo:', error);
+        alert('Hubo un problema al subir el documento de trabajo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+// SUBIDA SIN ARCHIVO DE DOCUMENTOS DE TRABAJO
+export async function uploadDocumentoTrabajoWithoutFile(docData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(docData.autores) ? docData.autores : docData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos del documento
+    const nuevoDocumento = {
+        numero_identificacion: docData.numero_identificacion,
+        titulo: docData.titulo,
+        anio_publicacion: parseInt(docData.anio_publicacion, 10),
+        autores: autoresArray,
+        abstract: docData.abstract,
+        link_pdf: docData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoDocumento)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/documentos-trabajo/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoDocumento)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el documento de trabajo sin archivo:', error);
+        alert('Hubo un problema al subir el documento de trabajo sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+

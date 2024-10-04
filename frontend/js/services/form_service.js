@@ -11,6 +11,11 @@ import { uploadArtWithoutFile } from './api_service.js';
 import { uploadCapitulo } from './api_service.js'; 
 import { uploadCapituloWithoutFile } from './api_service.js'; 
 
+//DOCUMENTOS DE TRABAJO
+import { uploadDocumentoTrabajo } from './api_service.js'; 
+import { uploadDocumentoTrabajoWithoutFile } from './api_service.js'; 
+
+
 // Cargar el navbar inmediatamente
 loadNavbar(); 
 
@@ -232,7 +237,39 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error al subir el capítulo de libro:', error);
             }
+        } else if (type === 'documentos-trabajo') {
+            // Recoger los datos del formulario para documentos de trabajo
+            const docData = {
+                numero_identificacion: document.getElementById('numero_identificacion').value,
+                titulo: document.getElementById('title').value,
+                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                abstract: document.getElementById('abstract').value,
+                link_pdf: document.getElementById('linkpdf').value
+            };
+        
+            const fileInput = document.getElementById('pdf-upload');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
+        
+            try {
+                if (file) {
+                    // Si hay un archivo, consumir el endpoint de subir documento con archivo
+                    const result = await uploadDocumentoTrabajo(docData, file);
+                    alert('Documento de trabajo subido exitosamente con archivo!');
+                    console.log('Resultado:', result);
+                } else {
+                    // Si no hay archivo, consumir otro endpoint
+                    const result = await uploadDocumentoTrabajoWithoutFile(docData);
+                    alert('Documento de trabajo subido exitosamente sin archivo!');
+                    console.log('Resultado:', result);
+                }
+        
+                clearFields();
+            } catch (error) {
+                console.error('Error al subir el documento de trabajo:', error);
+            }
         }
+        
         
     });
 });

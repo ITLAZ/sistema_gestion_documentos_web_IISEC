@@ -228,3 +228,199 @@ export async function deleteDocumentById(documentType, id) {
         throw error;
     }
 }
+
+
+
+///SUBIDA DE ARCHIVOS ARTICULOS REVISTA
+export async function uploadArt(artData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = artData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Añadir los datos del artículo al formData
+    formData.append('numero_articulo', artData.numero_articulo);
+    formData.append('titulo', artData.titulo);
+    formData.append('anio_revista', parseInt(artData.anio_revista, 10));
+    
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+    formData.append('nombre_revista', artData.nombre_revista);
+    formData.append('editorial', artData.editorial);
+    formData.append('abstract', artData.abstract);
+    formData.append('link_pdf', artData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/articulos-revistas/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el artículo de revista:', error);
+        alert('Hubo un problema al subir el artículo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+
+// SUBIDA SIN ARCHIVO DE ARTICULOS REVISTA
+export async function uploadArtWithoutFile(artData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(artData.autores) ? artData.autores : artData.autores.split(',').map(autor => autor.trim());
+
+    // Añadir los datos del artículo
+    const nuevoArticulo = {
+        numero_articulo: artData.numero_articulo,
+        titulo: artData.titulo,
+        anio_revista: parseInt(artData.anio_revista, 10),
+        autores: autoresArray,
+        nombre_revista: artData.nombre_revista,
+        editorial: artData.editorial,
+        abstract: artData.abstract,
+        link_pdf: artData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoArticulo)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/articulos-revistas/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoArticulo)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el artículo sin archivo:', error);
+        alert('Hubo un problema al subir el artículo sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+
+// SUBIDA DE ARCHIVOS CAPÍTULOS DE LIBROS
+export async function uploadCapitulo(capituloData, file) {
+    const formData = new FormData();
+
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    let autoresArray = capituloData.autores;
+    if (typeof autoresArray === 'string') {
+        autoresArray = autoresArray.split(',').map(autor => autor.trim());
+    }
+
+    // Verificar si editores es una cadena, y convertirla a un array si es necesario
+    let editoresArray = capituloData.editores;
+    if (typeof editoresArray === 'string') {
+        editoresArray = editoresArray.split(',').map(editor => editor.trim());
+    }
+
+    // Añadir los datos del capítulo al formData
+    formData.append('numero_identificacion', capituloData.numero_identificacion);
+    formData.append('titulo_libro', capituloData.titulo_libro);
+    formData.append('titulo_capitulo', capituloData.titulo_capitulo);
+    formData.append('anio_publicacion', parseInt(capituloData.anio_publicacion, 10));
+
+    // Añadir cada autor al FormData si existe un array de autores
+    if (Array.isArray(autoresArray)) {
+        autoresArray.forEach((autor, index) => {
+            formData.append(`autores[${index}]`, autor);
+        });
+    }
+
+    // Añadir cada editor al FormData si existe un array de editores
+    if (Array.isArray(editoresArray)) {
+        editoresArray.forEach((editor, index) => {
+            formData.append(`editores[${index}]`, editor);
+        });
+    }
+
+    formData.append('editorial', capituloData.editorial);
+    formData.append('link_pdf', capituloData.link_pdf);
+
+    // Añadir el archivo PDF al formData
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('http://localhost:3000/capitulos-capitulos/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el capítulo de libro:', error);
+        alert('Hubo un problema al subir el capítulo de libro. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+
+
+// SUBIDA SIN ARCHIVO DE CAPÍTULOS DE LIBROS
+export async function uploadCapituloWithoutFile(capituloData) {
+    // Verificar si autores es una cadena, y convertirla a un array si es necesario
+    const autoresArray = Array.isArray(capituloData.autores) ? capituloData.autores : capituloData.autores.split(',').map(autor => autor.trim());
+
+    // Verificar si editores es una cadena, y convertirla a un array si es necesario
+    const editoresArray = Array.isArray(capituloData.editores) ? capituloData.editores : capituloData.editores.split(',').map(editor => editor.trim());
+
+    // Añadir los datos del capítulo
+    const nuevoCapitulo = {
+        numero_identificacion: capituloData.numero_identificacion,
+        titulo_libro: capituloData.titulo_libro,
+        titulo_capitulo: capituloData.titulo_capitulo,
+        anio_publicacion: parseInt(capituloData.anio_publicacion, 10),
+        autores: autoresArray,
+        editores: editoresArray,
+        editorial: capituloData.editorial,
+        link_pdf: capituloData.link_pdf
+    };
+
+    console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoCapitulo)); // Log para ver los datos que se enviarán en formato JSON
+
+    try {
+        const response = await fetch('http://localhost:3000/capitulos-capitulos/no-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoCapitulo)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir el capítulo de libro sin archivo:', error);
+        alert('Hubo un problema al subir el capítulo de libro sin archivo. Por favor, intenta de nuevo más tarde.');
+        throw error;
+    }
+}
+

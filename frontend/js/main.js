@@ -241,7 +241,7 @@ function displayDocumentDetails(data, documentType) {
             document.getElementById('titulo_libro').style.display = 'block';
             document.getElementById('titulo_libro_value').textContent = data.titulo_libro || 'Título del libro no disponible';
             document.getElementById('editores').style.display = 'block';
-            document.getElementById('editors').textContent = data.editores || 'Editores no disponibles';
+            document.getElementById('editores').textContent = data.editores || 'Editores no disponibles';
             document.getElementById('editorial').style.display = 'block';
             document.getElementById('editorial-text').textContent = data.editorial || 'Editorial no disponible';
             document.getElementById('descripcion').style.display = 'block';

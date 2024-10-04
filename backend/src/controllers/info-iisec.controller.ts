@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body } from '@nestjs/common';
 import { InfoIisecService } from 'src/services/info-iisec/info-iisec.service';
 import { InfoIISEC } from 'src/schemas/info-iisec.schema';
 import { Types } from 'mongoose';
@@ -34,6 +34,15 @@ export class InfoIisecController {
     }
     return this.infoIisecService.findById(id);
   }
+
+  // Eliminar un InfoIISEC por su id
+@Delete(':id')
+async delete(@Param('id') id: string): Promise<InfoIISEC> {
+  if (!Types.ObjectId.isValid(id)) {
+    throw new Error('ID no válido');
+  }
+  return this.infoIisecService.delete(id);
+}
 
   // Crear un infoIISEC
   @Post()

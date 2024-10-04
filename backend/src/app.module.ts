@@ -29,9 +29,11 @@ import { InfoIisecService } from './services/info-iisec/info-iisec.service';
 import { PoliciesBriefsService } from './services/policies-briefs/policies-briefs.service';
 import { FileUploadService } from './services/file-upload/file-upload.service';
 import { Log, LogSchema } from './schemas/logs.schema';
-import { LogsService } from './services/logs/logs.service';
+import { LogsService } from './services/logs_service/logs.service';
 import { AllTypesService } from './services/all-types/all-types.service';
 import { AllTypesController } from './controllers/all-types.controller';
+import { SearchService } from './services/search/search.service';
+import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Module({
   imports: [
@@ -49,6 +51,10 @@ import { AllTypesController } from './controllers/all-types.controller';
       { name: PolicyBrief.name, schema: PolicyBriefSchema},
       { name: Log.name, schema: LogSchema},
     ]),
+
+    ElasticsearchModule.register({
+      node: 'http://localhost:9200', // Asegúrate de que esta sea la URL correcta de tu instancia de Elasticsearch.
+    }),
 
     ArticulosRevistasModule,
     CapitulosLibrosModule,
@@ -76,7 +82,8 @@ import { AllTypesController } from './controllers/all-types.controller';
     PoliciesBriefsService,
     FileUploadService,
     LogsService,
-    AllTypesService
+    AllTypesService,
+    SearchService,
   ],
 })
 export class AppModule {}

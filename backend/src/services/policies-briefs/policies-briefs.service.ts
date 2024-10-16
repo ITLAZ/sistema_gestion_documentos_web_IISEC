@@ -42,7 +42,7 @@ export class PoliciesBriefsService {
 
   // Actualizar un PolicyBrief por su id
   async update(id: string, PolicyBrief: Partial<PolicyBrief>): Promise<PolicyBrief> {
-    return this.PolicyBriefModel.findOneAndUpdate({ id }, PolicyBrief, { new: true }).exec();
+    return this.PolicyBriefModel.findOneAndUpdate({ _id: id }, PolicyBrief, { new: true }).exec();
   }
 
   // Eliminar un PolicyBrief por su id

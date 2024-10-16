@@ -42,7 +42,7 @@ export class CapitulosLibrosService {
 
   // Actualizar un CapituloLibro por su id
   async update(id: string, CapituloLibro: Partial<CapituloLibro>): Promise<CapituloLibro> {
-    return this.CapituloLibroModel.findOneAndUpdate({ id }, CapituloLibro, { new: true }).exec();
+    return this.CapituloLibroModel.findOneAndUpdate({ _id: id }, CapituloLibro, { new: true }).exec();
   }
   // Eliminar un capítulo por su id
   async delete(id: string): Promise<CapituloLibro> {

@@ -46,7 +46,7 @@ export class InfoIisecService {
 
   // Actualizar un InfoIISEC por su id
   async update(id: string, InfoIISEC: Partial<InfoIISEC>): Promise<InfoIISEC> {
-    return this.InfoIISECModel.findOneAndUpdate({ id }, InfoIISEC, {
+    return this.InfoIISECModel.findOneAndUpdate({ _id: id }, InfoIISEC, {
       new: true,
     }).exec();
   }

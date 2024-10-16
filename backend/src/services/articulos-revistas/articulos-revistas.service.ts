@@ -37,7 +37,7 @@ export class ArticulosRevistasService {
 
   // Actualizar un ArticuloRevista por su id
   async update(id: string, ArticuloRevista: Partial<ArticuloRevista>): Promise<ArticuloRevista> {
-    return this.articuloRevistaModel.findOneAndUpdate({ id }, ArticuloRevista, { new: true }).exec();
+    return this.articuloRevistaModel.findOneAndUpdate({ _id: id }, ArticuloRevista, { new: true }).exec();
   }
 
   async delete(id: string): Promise<ArticuloRevista> {

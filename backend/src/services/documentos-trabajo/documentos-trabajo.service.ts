@@ -42,7 +42,7 @@ export class DocumentosTrabajoService {
 
   // Actualizar un DocumentoTrabajo por su id
   async update(id: string, DocumentoTrabajo: Partial<DocumentoTrabajo>): Promise<DocumentoTrabajo> {
-    return this.DocumentoTrabajoModel.findOneAndUpdate({ id }, DocumentoTrabajo, { new: true }).exec();
+    return this.DocumentoTrabajoModel.findOneAndUpdate({ _id: id }, DocumentoTrabajo, { new: true }).exec();
   }
 
   // Eliminar un DocumentoTrabajo por su id

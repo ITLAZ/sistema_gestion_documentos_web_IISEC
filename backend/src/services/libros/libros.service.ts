@@ -68,7 +68,7 @@ export class LibrosService {
 
   // Actualizar un libro por su id
   async update(id: string, libro: Partial<Libro>): Promise<Libro> {
-    return this.libroModel.findOneAndUpdate({ id }, libro, { new: true }).exec();
+    return this.libroModel.findOneAndUpdate({ _id: id }, libro, { new: true }).exec();
   }
 
    // Eliminar un libro por su id

@@ -50,7 +50,7 @@ export class IdeasReflexionesService {
     id: string,
     IdeaReflexion: Partial<IdeaReflexion>
   ): Promise<IdeaReflexion> {
-    return this.IdeaReflexionModel.findOneAndUpdate({ id }, IdeaReflexion, {
+    return this.IdeaReflexionModel.findOneAndUpdate({ _id: id }, IdeaReflexion, {
       new: true,
     }).exec();
   }

@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/documentos-trabajo.service';
 import { DocumentoTrabajo } from 'src/schemas/documentos-trabajo.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchService } from 'src/services/search/search.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -15,6 +16,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
 export class DocumentosTrabajoController {
   constructor(
     private readonly documentosTrabajoService: DocumentosTrabajoService,
+    private readonly searchService: SearchService,
     private readonly fileUploadService: FileUploadService
   ) {}
   
@@ -23,6 +25,15 @@ export class DocumentosTrabajoController {
   async findAll(): Promise<DocumentoTrabajo[]> {
     return this.documentosTrabajoService.findAll();
   }
+
+  @Get('search')
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType(' documentos-trabajo', query);
+    return results;
+  }
+  
 
   @Get('titulo/:titulo')
   async findByTitulo(@Param('titulo') titulo: string): Promise<DocumentoTrabajo[]> {

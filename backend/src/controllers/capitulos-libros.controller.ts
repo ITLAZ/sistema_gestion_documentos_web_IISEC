@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { CapitulosLibrosService } from 'src/services/capitulos-libros/capitulos-libros.service';
 import { CapituloLibro } from 'src/schemas/capitulos-libros.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';  
 import { ApiTags } from '@nestjs/swagger';
+import { SearchService } from 'src/services/search/search.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -15,6 +16,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
 export class CapitulosLibrosController {
   constructor(
     private readonly capitulosLibrosService: CapitulosLibrosService,
+    private readonly searchService: SearchService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -22,6 +24,14 @@ export class CapitulosLibrosController {
   @Get()
   async findAll(): Promise<CapituloLibro[]> {
     return this.capitulosLibrosService.findAll();
+  }
+
+  @Get('search')
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType('capitulos-libros', query);
+    return results;
   }
 
   @Get('titulo/:titulo')

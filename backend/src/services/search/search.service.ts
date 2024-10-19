@@ -43,15 +43,30 @@ export class SearchService {
     // Búsqueda por tipo de documento (índice específico)
     async searchByType(type: string, query: string) {
       const result = await this.elasticsearchService.search({
-        index: type,
+        index: type,  // Especifica el índice (tipo de documento) en el que se va a realizar la búsqueda
         body: {
           query: {
-            match: { titulo: query }
+            multi_match: {  // Utiliza multi_match para buscar en varios campos
+              query: query,  // El término de búsqueda
+              fields: [
+                'titulo^3',      
+                'autores^2',
+                'editores^2',
+                'editorial',        
+                'abstract',
+                'nombre_revista^3',
+                'titulo_capitulo^3',
+                'titulo_libro^3',
+                'observaciones',
+                'mensaje_clave'
+              ]
+            }
           }
         }
       });
-      return result.hits.hits;
+      return result.hits.hits;  // Devuelve los documentos que coinciden con la búsqueda
     }
+    
     
     async searchInAll(query: string) {
       const result = await this.elasticsearchService.search({
@@ -110,12 +125,14 @@ export class SearchService {
                   multi_match: {
                     query: query,
                     fields: [
-                      'titulo^2',         // El campo título con mayor relevancia
-                      'autores^3',        // El campo autores con aún mayor relevancia
+                      'titulo^3',      
+                      'autores^2',
+                      'editores^2',
+                      'editorial',        
                       'abstract',
-                      'nombre_revista',
-                      'titulo_capitulo',
-                      'titulo_libro',
+                      'nombre_revista^3',
+                      'titulo_capitulo^3',
+                      'titulo_libro^3',
                       'observaciones',
                       'mensaje_clave'
                     ]
@@ -161,7 +178,10 @@ export class SearchService {
               ],
               filter: filterConditions  // Aplica los filtros adicionales si se pasan
             }
-          }
+          },
+          sort: [
+            { 'anio_publicacion': { order: 'desc' } }  // Ordenar por anio_publicacion de mayor a menor
+          ]
         }
       });
       return result.hits.hits;

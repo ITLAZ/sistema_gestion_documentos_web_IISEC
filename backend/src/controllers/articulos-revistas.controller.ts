@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { ArticulosRevistasService } from 'src/services/articulos-revistas/articulos-revistas.service';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchService } from 'src/services/search/search.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -15,6 +16,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
 export class ArticulosRevistasController {
   constructor(
     private readonly articulosRevistasService: ArticulosRevistasService,
+    private readonly searchService: SearchService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -23,6 +25,15 @@ export class ArticulosRevistasController {
   async findAll(): Promise<ArticuloRevista[]> {
     return this.articulosRevistasService.findAll();
   }
+
+  @Get('search')
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType('articulos-revistas', query);
+    return results;
+  }
+  
 
   // Buscar articulos por aproximación del título
   @Get('titulo/:titulo')

@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { IdeasReflexionesService } from 'src/services/ideas-reflexiones/ideas-reflexiones.service';
 import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchService } from 'src/services/search/search.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -15,6 +16,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
 export class IdeasReflexionesController {
   constructor(
     private readonly ideaReflexionesService: IdeasReflexionesService,
+    private readonly searchService: SearchService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -24,6 +26,14 @@ export class IdeasReflexionesController {
     return this.ideaReflexionesService.findAll();
   }
   
+  @Get('search')
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType('ideas-reflexiones', query);
+    return results;
+  }
+
   // Buscar ideas-reflexiones por aproximación del título
   @Get('titulo/:titulo')
   async findByTitulo(@Param('titulo') titulo: string): Promise<IdeaReflexion[]> {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -25,19 +25,15 @@ export class LibrosController {
   async updateLibros(): Promise<void> {
     this.librosService.updateAllLibros();
   }
-  /*
+  
   @Get('search')
-  async searchBooks(@Query('q') query: string): Promise<any[]> { // Define el tipo de retorno como un arreglo de cualquier tipo
-    const results: SearchResponse<any> = await this.searchService.search('libros', {
-      multi_match: {
-        query,
-        fields: ['titulo', 'autores', 'abstract'],
-      },
-    });
-
-    return results.hits.hits.map((hit) => hit._source); // Accede directamente a hits sin usar results.body
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType('libros', query);
+    return results;
   }
-  */
+
   @Get()
   async findAll(): Promise<Libro[]> {
     return this.librosService.findAll();

@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class PoliciesBriefsService {
   constructor(
     @InjectModel(PolicyBrief.name) private PolicyBriefModel: Model<PolicyBrief>,
+    private searchService: SearchService,
   ) {}
 
   // Crear un PolicyBrief
@@ -50,4 +52,21 @@ export class PoliciesBriefsService {
     return this.PolicyBriefModel.findByIdAndDelete(id).exec();
   }
 
+  //Metodos ElasticSearch
+  async syncPoliciesWithElasticsearch() {
+    const policies = await this.PolicyBriefModel.find().exec();
+    
+    for (const policy of policies) {
+      await this.searchService.indexDocument(
+        'policies-briefs',    // Índice en Elasticsearch
+        policy._id.toString(),
+        {
+          titulo: policy.titulo,              // Campo para búsquedas
+          autores: policy.autores,            // Campo para búsquedas
+          anio_publicacion: policy.anio_publicacion, // Campo para filtros o búsquedas
+          mensaje_clave: policy.mensaje_clave         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
+  }
 }

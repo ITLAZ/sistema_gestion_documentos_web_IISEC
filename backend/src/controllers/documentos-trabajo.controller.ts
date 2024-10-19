@@ -4,11 +4,13 @@ import { DocumentoTrabajo } from 'src/schemas/documentos-trabajo.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Documentos-Trabajo') 
 @Controller('documentos-trabajo')
 export class DocumentosTrabajoController {
   constructor(

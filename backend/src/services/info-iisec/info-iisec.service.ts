@@ -2,11 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { InfoIISEC } from "src/schemas/info-iisec.schema";
+import { SearchService } from "../search/search.service";
 
 @Injectable()
 export class InfoIisecService {
   constructor(
-    @InjectModel(InfoIISEC.name) private InfoIISECModel: Model<InfoIISEC>
+    @InjectModel(InfoIISEC.name) private InfoIISECModel: Model<InfoIISEC>,
+    private readonly searchService: SearchService,
   ) {}
 
   // Crear un InfoIISEC
@@ -54,5 +56,23 @@ export class InfoIisecService {
   // Eliminar un InfoIISEC por su id
   async delete(id: string): Promise<InfoIISEC> {
     return this.InfoIISECModel.findByIdAndDelete(id).exec();
+  }
+
+  //Metodos ElasticSearch
+  async syncInfoIisecWithElasticsearch() {
+    const infos = await this.InfoIISECModel.find().exec();
+    
+    for (const info of infos) {
+      await this.searchService.indexDocument(
+        'info-iisec',    // Índice en Elasticsearch
+        info._id.toString(),
+        {
+          titulo: info.titulo,              // Campo para búsquedas
+          autores: info.autores,            // Campo para búsquedas
+          anio_publicacion: info.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: info.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
   }
 }

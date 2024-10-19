@@ -33,7 +33,7 @@ import { LogsService } from './services/logs_service/logs.service';
 import { AllTypesService } from './services/all-types/all-types.service';
 import { AllTypesController } from './controllers/all-types.controller';
 import { SearchService } from './services/search/search.service';
-import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { FileHandlerController } from './controllers/file-handler.controller';
 
 @Module({
@@ -52,6 +52,8 @@ import { FileHandlerController } from './controllers/file-handler.controller';
       { name: PolicyBrief.name, schema: PolicyBriefSchema},
       { name: Log.name, schema: LogSchema},
     ]),
+
+    
 
     ElasticsearchModule.register({
       node: 'http://localhost:9200', // Asegúrate de que esta sea la URL correcta de tu instancia de Elasticsearch.

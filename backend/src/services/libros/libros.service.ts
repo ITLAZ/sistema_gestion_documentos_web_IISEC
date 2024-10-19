@@ -17,6 +17,23 @@ export class LibrosService {
     return nuevoLibro.save();
   }
 
+  async syncLibrosWithElasticsearch() {
+    const libros = await this.libroModel.find().exec();
+    
+    for (const libro of libros) {
+      await this.searchService.indexDocument(
+        'libros',    // Índice en Elasticsearch
+        libro._id.toString(),
+        {
+          titulo: libro.titulo,              // Campo para búsquedas
+          autores: libro.autores,            // Campo para búsquedas
+          anio_publicacion: libro.anio_publicacion, // Campo para filtros o búsquedas
+          abstract: libro.abstract           // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
+  }
+  
   async updateAllLibros(): Promise<void> {
     try {
       const libros = await this.libroModel.find().exec();

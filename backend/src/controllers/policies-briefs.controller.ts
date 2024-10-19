@@ -4,11 +4,13 @@ import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Policies-Briefs') 
 @Controller('policies-briefs')
 export class PoliciesBriefsController {
   constructor(
@@ -45,13 +47,13 @@ export class PoliciesBriefsController {
   }
 
   // Eliminar un policyBrief por su id
-@Delete(':id')
-async delete(@Param('id') id: string): Promise<PolicyBrief> {
-  if (!Types.ObjectId.isValid(id)) {
-    throw new Error('ID no válido');
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<PolicyBrief> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('ID no válido');
+    }
+    return this.policiesBriefsService.delete(id);
   }
-  return this.policiesBriefsService.delete(id);
-}
 
   // Actualizar un policyBrief por su id
   @Put(':id')

@@ -4,11 +4,13 @@ import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import { ApiTags } from '@nestjs/swagger';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Ideas-Reflexiones') 
 @Controller('ideas-reflexiones')
 export class IdeasReflexionesController {
   constructor(

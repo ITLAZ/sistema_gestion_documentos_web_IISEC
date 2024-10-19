@@ -4,11 +4,13 @@ import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Articulos-Revistas') 
 @Controller('articulos-revistas')
 export class ArticulosRevistasController {
   constructor(

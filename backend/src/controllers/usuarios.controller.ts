@@ -1,8 +1,10 @@
 import { BadRequestException, Body, Controller, InternalServerErrorException, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Usuario } from 'src/schemas/Usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import { UsuariosService } from 'src/services/usuarios/usuarios.service';
 
+@ApiTags('Usuarios') 
 @Controller('usuarios')
 export class UsuariosController {
     constructor(
@@ -50,7 +52,7 @@ export class UsuariosController {
             });
 
             // Retorna un mensaje de éxito y el ID del usuario
-            return { message: 'Login exitoso', id_usuario: idUsuario };
+            return { message: 'Login exitoso', id_usuario: idUsuario }; //token y theme
         } catch (error) {
             // Devuelve el error exacto
             if (error instanceof BadRequestException) {

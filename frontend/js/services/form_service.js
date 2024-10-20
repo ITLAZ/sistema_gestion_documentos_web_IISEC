@@ -125,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Función para validar el input de los campos
-function validarCaracteresPermitidos(event) {
-    const pattern = /^[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*$/;
-    const input = event.target.value;
+    function validarCaracteresPermitidos(event) {
+        const pattern = /^[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*$/;
+        const input = event.target.value;
   
     // Si el valor actual no cumple con el patrón, eliminamos el último carácter
     if (!pattern.test(input)) {
@@ -135,13 +135,13 @@ function validarCaracteresPermitidos(event) {
     }
   }
   
-  // Obtener los campos del formulario
-  const authorsField = document.getElementById('authors');
-  const editorsField = document.getElementById('editors');
-  
-  // Añadir el evento input a ambos campos
-  authorsField.addEventListener('input', validarCaracteresPermitidos);
-  editorsField.addEventListener('input', validarCaracteresPermitidos);
+    // Obtener los campos del formulario
+    const authorsField = document.getElementById('authors');
+    const editorsField = document.getElementById('editores');
+    
+    // Añadir el evento input a ambos campos
+    authorsField.addEventListener('input', validarCaracteresPermitidos);
+    editorsField.addEventListener('input', validarCaracteresPermitidos);
 
 
     // Mostrar/ocultar campos según el tipo de documento seleccionado

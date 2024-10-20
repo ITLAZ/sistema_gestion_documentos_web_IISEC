@@ -144,17 +144,25 @@ export function addEventListenersToCard(cardElement, data) {
         // Guardar tipo de documento e ID en el Session Storage para la eliminación
         sessionStorage.setItem('documentType', data.documentType);
         sessionStorage.setItem('documentId', data._id);
-
+    
         // Recuperar los valores desde el Session Storage
         const documentType = sessionStorage.getItem('documentType');
         const documentId = sessionStorage.getItem('documentId');
-
+    
         // Llamar a la función para manejar la eliminación del documento
-        handleDocumentDeletion(documentType, documentId, cardElement);
-
-        // Elimina los datos del Session Storage si el documento se eliminó exitosamente
-        sessionStorage.removeItem('documentType');
-        sessionStorage.removeItem('documentId');
-
+        handleDocumentDeletion(documentType, documentId, cardElement)
+            .then(() => {
+                // Redirigir al index después de la eliminación exitosa
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                console.error('Error al eliminar el documento:', error);
+            })
+            .finally(() => {
+                // Elimina los datos del Session Storage
+                sessionStorage.removeItem('documentType');
+                sessionStorage.removeItem('documentId');
+            });
     });
+    
 }

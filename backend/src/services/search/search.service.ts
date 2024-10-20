@@ -41,61 +41,84 @@ export class SearchService {
   }
 
     // Búsqueda por tipo de documento (índice específico)
-    async searchByType(type: string, query: string) {
+    async searchByType(
+      type: string,
+      query: string,
+      page: number,
+      size: number,
+      filters: {
+        anio_publicacion?: number,
+        autores?: string,
+      },
+      sortBy: string = 'anio_publicacion',  // Campo por el que se desea ordenar, por defecto 'anio_publicacion'
+      sortOrder: 'asc' | 'desc' = 'asc'
+    ) {
+
+      const from = (page - 1) * size;
+      const filterConditions = [];
+    
+      // Agregar filtros según los campos opcionales que se pasen
+      if (filters.anio_publicacion) {
+        filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
+      }
+    
+      if (filters.autores) {
+        filterConditions.push({ match: { 'autores': filters.autores } });
+      }
+      
+      if(type==='articulos-revistas'){
+        sortBy = 'anio_revista';
+      }
+
+      // Construir la consulta
       const result = await this.elasticsearchService.search({
         index: type,  // Especifica el índice (tipo de documento) en el que se va a realizar la búsqueda
         body: {
+          from: from,
+          size: size,
           query: {
-            multi_match: {  // Utiliza multi_match para buscar en varios campos
-              query: query,  // El término de búsqueda
-              fields: [
-                'titulo^3',      
-                'autores^2',
-                'editores^2',
-                'editorial',        
-                'abstract',
-                'nombre_revista^3',
-                'titulo_capitulo^3',
-                'titulo_libro^3',
-                'observaciones',
-                'mensaje_clave'
-              ]
+            bool: {
+              must: {
+                multi_match: {  // Utiliza multi_match para buscar en varios campos
+                  query: query,  // El término de búsqueda
+                  fields: [
+                    'titulo^3',      
+                    'autores^2',
+                    'editores^2',
+                    'editorial',        
+                    'abstract',
+                    'nombre_revista^3',
+                    'titulo_capitulo^3',
+                    'titulo_libro^3',
+                    'observaciones',
+                    'mensaje_clave'
+                  ],
+                }
+              },
+              filter: filterConditions  // Aquí aplicamos los filtros que se hayan pasado
             }
-          }
+          },
+          sort: [
+            { [sortBy]: { order: sortOrder as 'asc' | 'desc' } } 
+          ]
         }
       });
+    
       return result.hits.hits;  // Devuelve los documentos que coinciden con la búsqueda
     }
-    
-    
-    async searchInAll(query: string) {
-      const result = await this.elasticsearchService.search({
-        index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec',
-        body: {
-          query: {
-            dis_max: {
-              queries: [
-                { match: { 'titulo': query } },
-                { match: { 'autores': query } },
-                { match: { 'abstract': query } },
-                { match: { 'nombre_revista': query } },
-                { match: { 'titulo_capitulo': query } },
-                { match: { 'titulo_libro': query } },
-                { match: { 'observaciones': query } },
-                { match: { 'mensaje_clave': query } },
-                { match: {'editorial': query } },
-                { match: {'editores': query } },
-              ],
-              tie_breaker: 0.7 // Esto permite que las colecciones que no tienen el mejor match sigan apareciendo
-            }
-          }
-        }
-      });
-    
-      return result.hits.hits;
-    }
-    
-    async searchAllCollections(query: string, page: number, size: number, filters: { anio_publicacion?: number, autores?: string, tipo_documento?: string }) {
+   
+    async searchAllCollections(
+      query: string, 
+      page: number, 
+      size: number, 
+      filters: { 
+        anio_publicacion?: number, 
+        autores?: string, 
+        tipo_documento?: string 
+      },
+      sortBy: string = 'anio_publicacion',  // Campo por el que se desea ordenar, por defecto 'anio_publicacion'
+      sortOrder: 'asc' | 'desc' = 'asc'
+    ) {
       const from = (page - 1) * size;
     
       const filterConditions = [];
@@ -141,14 +164,22 @@ export class SearchService {
               ],
               filter: filterConditions  // Aplica los filtros adicionales si se pasan
             }
-          }
+          },
+          sort: [
+            { [sortBy]: { order: sortOrder as 'asc' | 'desc' } } 
+          ]
         }
       });
     
       return result.hits.hits;
     }
     
-    async getAllCollections(query: string, page: number, size: number, filters: { anio_publicacion?: number; autores?: string; tipo_documento?: string; }) {
+    async getAllCollections(
+query: string, page: number, size: number, filters: {
+  anio_publicacion?: number;
+  autores?: string;
+  tipo_documento?: string;
+}      ) {
       const from = (page - 1) * size;
     
       const filterConditions = [];

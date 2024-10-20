@@ -4,11 +4,13 @@ import { DocumentosTrabajoController } from 'src/controllers/documentos-trabajo.
 import { DocumentoTrabajo, DocumentoTrabajoSchema } from 'src/schemas/documentos-trabajo.schema';
 import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/documentos-trabajo.service';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import { SearchService } from 'src/services/search/search.service';
+import { MyElasticsearchModule } from '../my-elasticsearch/my-elasticsearch.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: DocumentoTrabajo.name, schema: DocumentoTrabajoSchema }])],
+  imports: [MongooseModule.forFeature([{ name: DocumentoTrabajo.name, schema: DocumentoTrabajoSchema }]), MyElasticsearchModule],
   controllers: [DocumentosTrabajoController],
-  providers: [DocumentosTrabajoService, FileUploadService],
+  providers: [DocumentosTrabajoService, FileUploadService, SearchService],
   exports: [DocumentosTrabajoService],
 })
 export class DocumentosTrabajoModule {}

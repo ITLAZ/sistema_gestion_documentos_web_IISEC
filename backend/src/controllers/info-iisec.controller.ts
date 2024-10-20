@@ -1,18 +1,22 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { InfoIisecService } from 'src/services/info-iisec/info-iisec.service';
 import { InfoIISEC } from 'src/schemas/info-iisec.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import { ApiTags } from '@nestjs/swagger';
+import { SearchService } from 'src/services/search/search.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Info-IISEC') 
 @Controller('info-iisec')
 export class InfoIisecController {
     constructor(
       private readonly infoIisecService: InfoIisecService,
+      private readonly searchService: SearchService,
       private readonly fileUploadService: FileUploadService
     ) {}
 
@@ -20,6 +24,14 @@ export class InfoIisecController {
   @Get()
   async findAll(): Promise<InfoIISEC[]> {
     return this.infoIisecService.findAll();
+  }
+
+  @Get('search')
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType('info-iisec', query);
+    return results;
   }
   
   // Buscar Info IISEC por aproximación del título

@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class ArticulosRevistasService {
   constructor(
     @InjectModel(ArticuloRevista.name) // Cambia 'ArticuloRevistaModel' por ArticuloRevista.name
-    private articuloRevistaModel: Model<ArticuloRevista>
+    private articuloRevistaModel: Model<ArticuloRevista>,
+    private readonly searchService: SearchService,
   ) {}
   
   async create(articulo: ArticuloRevista): Promise<ArticuloRevista> {
@@ -37,11 +39,29 @@ export class ArticulosRevistasService {
 
   // Actualizar un ArticuloRevista por su id
   async update(id: string, ArticuloRevista: Partial<ArticuloRevista>): Promise<ArticuloRevista> {
-    return this.articuloRevistaModel.findOneAndUpdate({ id }, ArticuloRevista, { new: true }).exec();
+    return this.articuloRevistaModel.findOneAndUpdate({ _id: id }, ArticuloRevista, { new: true }).exec();
   }
 
   async delete(id: string): Promise<ArticuloRevista> {
     return this.articuloRevistaModel.findByIdAndDelete(id).exec();
+  }
+
+  async syncArticulosWithElasticsearch() {
+    const articulos = await this.articuloRevistaModel.find().exec();
+    
+    for (const articulo of articulos) {
+      await this.searchService.indexDocument(
+        'articulos-revistas',    // Índice en Elasticsearch
+        articulo._id.toString(),
+        {
+          titulo: articulo.titulo,    // Campo para búsquedas          
+          autores: articulo.autores,    // Campo para búsquedas
+          nombre_revista: articulo.nombre_revista,    // Campo para búsquedas          
+          anio_revista: articulo.anio_revista, // Campo para filtros o búsquedas
+          abstract: articulo.abstract           // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
   }
 
 }

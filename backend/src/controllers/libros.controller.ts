@@ -5,13 +5,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';  
 import { Types } from 'mongoose';
 import { SearchService } from 'src/services/search/search.service';
-import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { ApiTags } from '@nestjs/swagger';
 
 // Función para obtener las opciones de Multer
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Libros') 
 @Controller('libros')
 export class LibrosController {
   constructor(
@@ -24,17 +25,13 @@ export class LibrosController {
   async updateLibros(): Promise<void> {
     this.librosService.updateAllLibros();
   }
-
+  
   @Get('search')
-  async searchBooks(@Query('q') query: string): Promise<any[]> { // Define el tipo de retorno como un arreglo de cualquier tipo
-    const results: SearchResponse<any> = await this.searchService.search('libros', {
-      multi_match: {
-        query,
-        fields: ['titulo', 'autores', 'abstract'],
-      },
-    });
-
-    return results.hits.hits.map((hit) => hit._source); // Accede directamente a hits sin usar results.body
+  async searchBooks(
+    @Query('query') query: string,
+  ) {
+    const results = await this.searchService.searchByType('libros', query);
+    return results;
   }
 
   @Get()

@@ -2,12 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IdeaReflexion } from "src/schemas/ideas-reflexiones.schema";
+import { SearchService } from "../search/search.service";
 
 @Injectable()
 export class IdeasReflexionesService {
   constructor(
     @InjectModel(IdeaReflexion.name)
-    private IdeaReflexionModel: Model<IdeaReflexion>
+    private IdeaReflexionModel: Model<IdeaReflexion>,
+    private readonly searchService: SearchService,
   ) {}
 
   // Crear un IdeaReflexion
@@ -50,7 +52,7 @@ export class IdeasReflexionesService {
     id: string,
     IdeaReflexion: Partial<IdeaReflexion>
   ): Promise<IdeaReflexion> {
-    return this.IdeaReflexionModel.findOneAndUpdate({ id }, IdeaReflexion, {
+    return this.IdeaReflexionModel.findOneAndUpdate({ _id: id }, IdeaReflexion, {
       new: true,
     }).exec();
   }
@@ -58,5 +60,23 @@ export class IdeasReflexionesService {
   // Eliminar un IdeaReflexion por su id
   async delete(id: string): Promise<IdeaReflexion> {
     return this.IdeaReflexionModel.findByIdAndDelete(id).exec();
+  }
+
+  //Metodos ElasticSearch
+  async syncIdeasWithElasticsearch() {
+    const ideas = await this.IdeaReflexionModel.find().exec();
+    
+    for (const idea of ideas) {
+      await this.searchService.indexDocument(
+        'ideas-reflexiones',    // Índice en Elasticsearch
+        idea._id.toString(),
+        {
+          titulo: idea.titulo,              // Campo para búsquedas
+          autores: idea.autores,            // Campo para búsquedas
+          anio_publicacion: idea.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: idea.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
   }
 }

@@ -1,7 +1,9 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { normalize } from 'path';
 
+@ApiTags('File-Handler') 
 @Controller('file-handler')
 export class FileHandlerController {
     @Get('file/:filename')

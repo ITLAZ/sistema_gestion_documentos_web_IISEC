@@ -8,10 +8,19 @@ import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { InfoIISEC } from 'src/schemas/info-iisec.schema';
 import { Libro } from 'src/schemas/libros.schema';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
+import { ArticulosRevistasService } from '../articulos-revistas/articulos-revistas.service';
+import { LibrosService } from '../libros/libros.service';
+import { CapitulosLibrosService } from '../capitulos-libros/capitulos-libros.service';
+import { DocumentosTrabajoService } from '../documentos-trabajo/documentos-trabajo.service';
+import { IdeasReflexionesService } from '../ideas-reflexiones/ideas-reflexiones.service';
+import { PoliciesBriefsService } from '../policies-briefs/policies-briefs.service';
+import { InfoIisecService } from '../info-iisec/info-iisec.service';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class AllTypesService {
     constructor(
+        //Schemas
         @InjectModel(Libro.name) private readonly libroModel: Model<Libro>,
         @InjectModel(ArticuloRevista.name) private readonly articuloRevistaModel: Model<ArticuloRevista>,
         @InjectModel(CapituloLibro.name) private readonly capituloLibroModel: Model<CapituloLibro>,
@@ -19,6 +28,16 @@ export class AllTypesService {
         @InjectModel(IdeaReflexion.name) private readonly ideaReflexionModel: Model<IdeaReflexion>,
         @InjectModel(PolicyBrief.name) private readonly policyBriefModel: Model<PolicyBrief>,
         @InjectModel(InfoIISEC.name) private readonly infoIISECModel: Model<InfoIISEC>,
+        //Services
+        private librosService: LibrosService,
+        private articuloRevistaService: ArticulosRevistasService,
+        private capituloLibroService: CapitulosLibrosService,
+        private documentoTrabajoService: DocumentosTrabajoService,
+        private ideasReflexionesService: IdeasReflexionesService,
+        private policiesBriefsService: PoliciesBriefsService,
+        private infoIisecService: InfoIisecService,
+        //Search Service
+        private searchService: SearchService,
       ) {}
     
       async obtenerTodas(): Promise<any> {
@@ -40,4 +59,14 @@ export class AllTypesService {
           infoIISEC,
         };
       }
+
+      async updateElasticTodas(){
+        this.librosService.syncLibrosWithElasticsearch();
+        this.articuloRevistaService.syncArticulosWithElasticsearch();
+        this.capituloLibroService.syncCapitulosWithElasticsearch();
+        this.documentoTrabajoService.syncDocumentosWithElasticsearch();
+        this.ideasReflexionesService.syncIdeasWithElasticsearch();
+        this.policiesBriefsService.syncPoliciesWithElasticsearch();
+        this.infoIisecService.syncInfoIisecWithElasticsearch();
+      } 
 }

@@ -1,4 +1,4 @@
-import { handleDocumentDeletion } from './actions_handler.js'; 
+import { handleDocumentDeletion, loadDocumentData } from './actions_handler.js'; 
 
 export function loadCards(dataArray) {
     const cardsContainer = document.getElementById('cards-container');
@@ -81,7 +81,7 @@ function updateCardData(cardElement, data, documentType) {
                    
             break;
 
-        case 'capitulos-capitulos':
+        case 'capitulos-libros':
             cardElement.querySelector('#type').textContent = 'Capítulo de Libro';
             cardElement.querySelector('#editores').style.display = 'block';
             cardElement.querySelector('#editors').textContent = data.editores || 'Editores no disponibles';
@@ -137,7 +137,7 @@ export function addEventListenersToCard(cardElement, data) {
         sessionStorage.setItem('documentType', data.documentType);
         sessionStorage.setItem('documentId', data._id);
 
-        window.location.href = `/edit`;
+        window.location.href = `/edits`;
     });
 
     deleteBtn.addEventListener('click', () => {
@@ -152,8 +152,7 @@ export function addEventListenersToCard(cardElement, data) {
         // Llamar a la función para manejar la eliminación del documento
         handleDocumentDeletion(documentType, documentId, cardElement)
             .then(() => {
-                // Redirigir al index después de la eliminación exitosa
-                window.location.href = 'index.html';
+                window.history.back();
             })
             .catch((error) => {
                 console.error('Error al eliminar el documento:', error);

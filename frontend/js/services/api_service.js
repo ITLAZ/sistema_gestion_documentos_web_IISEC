@@ -28,7 +28,7 @@ export async function getArticles() {
 
 export async function getChapters() {
     try {
-        const response = await fetch('http://localhost:3000/capitulos-capitulos');
+        const response = await fetch('http://localhost:3000/capitulos-libros');
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
@@ -230,6 +230,26 @@ export async function deleteDocumentById(documentType, id) {
 }
 
 
+export async function updateDocumentById(documentType, id, updatedData) {
+    try {
+        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error al editar el documento (${documentType}):`, error);
+        alert(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        throw error;
+    }
+}
+
 
 ///SUBIDA DE ARCHIVOS ARTICULOS REVISTA
 export async function uploadArt(artData, file) {
@@ -363,7 +383,7 @@ export async function uploadCapitulo(capituloData, file) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/capitulos-capitulos/upload', {
+        const response = await fetch('http://localhost:3000/capitulos-libros/upload', {
             method: 'POST',
             body: formData
         });
@@ -404,7 +424,7 @@ export async function uploadCapituloWithoutFile(capituloData) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoCapitulo)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/capitulos-capitulos/no-upload', {
+        const response = await fetch('http://localhost:3000/capitulos-libros/no-upload', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

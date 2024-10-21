@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Agregar documentType a cada elemento dependiendo de su origen
                 const libros = documentsData.libros.map(doc => ({ ...doc, documentType: 'libros' }));
                 const articulosRevistas = documentsData.articulosRevistas.map(doc => ({ ...doc, documentType: 'articulos-revistas' }));
-                const capitulosLibros = documentsData.capitulosLibros.map(doc => ({ ...doc, documentType: 'capitulos-capitulos' }));
+                const capitulosLibros = documentsData.capitulosLibros.map(doc => ({ ...doc, documentType: 'capitulos-libros' }));
                 const documentosTrabajo = documentsData.documentosTrabajo.map(doc => ({ ...doc, documentType: 'documentos-trabajo' }));
                 const ideasReflexiones = documentsData.ideasReflexiones.map(doc => ({ ...doc, documentType: 'ideas-reflexiones' }));
                 const infoIISEC = documentsData.infoIISEC.map(doc => ({ ...doc, documentType: 'info-iisec' }));
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (selectedType === 'articulos-revistas') {
                     documentsData = await getArticles();
                     totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'articulos-revistas' }));
-                } else if (selectedType === 'capitulos-capitulos') {
+                } else if (selectedType === 'capitulos-libros') {
                     documentsData = await getChapters();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'capitulos-capitulos' }));
+                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'capitulos-libros' }));
                 } else if (selectedType === 'documentos-trabajo') {
                     documentsData = await getWorkDocuments();
                     totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'documentos-trabajo' }));
@@ -201,7 +201,7 @@ function displayDocumentDetails(data, documentType) {
             tipodoc = 'Artículo de Revista';
             break;
 
-        case 'capitulos-capitulos':
+        case 'capitulos-libros':
             tipodoc = 'Capítulo de Libro';
             break;
 
@@ -253,7 +253,7 @@ function displayDocumentDetails(data, documentType) {
             document.getElementById('description').textContent = data.abstract || 'Descripción no disponible';
             break;
 
-        case 'capitulos-capitulos':
+        case 'capitulos-libros':
             document.getElementById('numero_identificacion').style.display = 'block';
             document.getElementById('numero_identificacion_value').textContent = data.numero_identificacion || 'Número de identificación no disponible';
             document.getElementById('titulo_capitulo').style.display = 'block';

@@ -3,28 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar</title>
+    <title>Modificar Documento</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="menu-container"></div>
     <div class="container">
         <form id="document-form">
-            <!-- Selector de Tipo de Documento (Combobox en la parte superior) -->
-            <div class="form-group">
-                <label for="type"><strong>Tipo de Documento:</strong></label>
-                <select id="type" name="type" class="form-control" required>
-                    <option value="">--Seleccione el Tipo de Documento--</option>
-                    <option value="libros" selected>Libros</option>
-                    <option value="articulos-revistas">Artículos de Revistas</option>
-                    <option value="capitulos-libros">Capítulos de Libros</option>
-                    <option value="documentos-trabajo">Documentos de Trabajo</option>
-                    <option value="ideas-reflexiones">Ideas y Reflexiones</option>
-                    <option value="info-iisec">Info IISEC</option>
-                    <option value="policies-briefs">Policy Briefs</option>
-                </select>
-            </div>
-        
             <!-- Campo Título (Igual para todos los documentos, excepto capítulos de libros) -->
             <div class="form-group" id="title-group">
                 <label for="title"><strong>Título:</strong></label>
@@ -54,7 +39,6 @@
                 <label for="editorial"><strong>Editorial:</strong></label>
                 <input type="text" id="editorial" name="editorial" class="form-control" placeholder="Editorial">
             </div>
-
 
             <!-- Campo Editor(es) -->
             <div class="form-group" id="editores-group" style="display: none;">
@@ -121,10 +105,58 @@
                 <input type="file" id="pdf-upload" name="pdf-upload" class="form-control" accept=".pdf">
             </div>
         
-            <button type="submit" class="btn btn-primary">Guardar Documento</button>
+            <!-- Botones de Acción -->
+            <div class="edit-actions">
+                <button id="edit-cancel-button" type="button" class="btn btn-secondary edit-btn" onclick="cancelarEdicion()">CANCELAR</button>
+                <button id="edit-save-button" type="button" class="btn btn-primary edit-btn" onclick="onSaveButtonClick()">GUARDAR CAMBIOS</button>
+
+            </div>
+            
         </form>
-             
     </div>
 </body>
-<script src="../js/services/form_service.js" type="module"></script>
+
+
+<script type="module">
+    import { loadNavbar } from '../js/services/navbar_service.js';
+    import { loadDocumentData, handleDocumentUpdate } from '../js/handlers/actions_handler.js';
+
+    loadNavbar(); 
+
+    const documentType = sessionStorage.getItem('documentType');
+    const documentId = sessionStorage.getItem('documentId');
+
+    if (documentType && documentId) {
+        loadDocumentData(documentType, documentId);
+    } else {
+        console.error('No se encontró el tipo de documento o el ID.');
+    }
+
+    function onSaveButtonClick() {
+        if (documentType && documentId) {
+            handleDocumentUpdate(documentType, documentId)
+                .then(() => alert('Documento actualizado exitosamente.'))
+                .catch(error => console.error('Error al actualizar el documento:', error));
+        } else {
+            alert('No se encontraron los parámetros necesarios para la actualización.');
+        }
+    }
+
+    // Asociar la función al evento de clic del botón.
+    const saveButton = document.getElementById('edit-save-button');
+    if (saveButton) {
+        saveButton.addEventListener('click', onSaveButtonClick);
+    }
+
+    // Asociar la función al evento de clic del botón de cancelar.
+    const cancelButton = document.getElementById('edit-cancel-button');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', cancelarEdicion);
+    }
+
+    function cancelarEdicion() {
+        window.history.back();
+    }
+</script>
+
 </html>

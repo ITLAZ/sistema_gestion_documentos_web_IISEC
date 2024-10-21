@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const requiredFieldsByType = {
         'libros': ['title','authors','cover','published'],
         'articulos-revistas': ['title','authors','revista', 'published'],
-        'capitulos-capitulos': ['title','authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
+        'capitulos-libros': ['title','authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
         'documentos-trabajo': ['title', 'authors', 'published'],
         'ideas-reflexiones': ['title', 'authors', 'published'],
         'info-iisec': ['title', 'authors', 'published'],
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
             'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
-        'capitulos-capitulos': [
+        'capitulos-libros': [
             'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
             'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error al subir el artículo de revista:', error);
             }
 
-        } else if (type === 'capitulos-capitulos') {
+        } else if (type === 'capitulos-libros') {
             // Recoger los datos del formulario para capítulos de libros
             const capituloData = {
                 numero_identificacion: document.getElementById('numero_identificacion').value,

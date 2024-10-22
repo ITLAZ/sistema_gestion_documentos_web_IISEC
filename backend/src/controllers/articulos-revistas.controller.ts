@@ -22,8 +22,26 @@ export class ArticulosRevistasController {
 
   // Obtener todos los artículos
   @Get()
-  async findAll(): Promise<ArticuloRevista[]> {
-    return this.articulosRevistasService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string = 'anio_revista',
+    @Query('sortOrder') sortOrder: string = 'asc',
+    @Query('anio_revista') anio_revista?: string,
+    @Query('autores') autores?: string,
+  ): Promise<ArticuloRevista[]> {
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(size, 10) || 10;
+    const anio = anio_revista ? parseInt(anio_revista, 10) : undefined;
+
+    return this.articulosRevistasService.findAll(
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortOrder,
+      autores,
+      anio,
+    );
   }
 
   @Get('search')

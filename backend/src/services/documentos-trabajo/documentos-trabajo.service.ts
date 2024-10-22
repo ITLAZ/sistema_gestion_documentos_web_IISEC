@@ -18,8 +18,31 @@ export class DocumentosTrabajoService {
   }
 
   // Obtener todos los DocumentoTrabajos
-  async findAll(): Promise<DocumentoTrabajo[]> {
-    return this.DocumentoTrabajoModel.find().exec();
+  async findAll(
+    page: number = 1,
+    size: number = 10,
+    sortBy: string = 'anio_publicacion',
+    sortOrder: string = 'asc',
+    autor?: string,
+    anio_publicacion?: number
+  ): Promise<DocumentoTrabajo[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    // Construir el filtro dinámico
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor;
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+  
+    return this.DocumentoTrabajoModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
 
   // Buscar un DocumentoTrabajo por su título

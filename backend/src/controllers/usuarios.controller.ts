@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, InternalServerErrorException, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, InternalServerErrorException, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Usuario } from 'src/schemas/Usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
@@ -76,5 +76,28 @@ export class UsuariosController {
         });
       
         return { message: 'Logout exitoso' };
+    }
+
+    // Endpoint para actualizar el campo `theme`
+    @Put('update-theme')
+    async updateTheme(
+      @Body() body: { id_usuario: string; theme: number }
+    ): Promise<{ message: string; theme: number }> {
+      const { id_usuario, theme } = body;
+
+      // Validación básica
+      if (!id_usuario || theme === undefined) {
+        throw new BadRequestException('ID de usuario y el valor de theme son requeridos');
+      }
+
+      try {
+        const usuarioActualizado = await this.usuariosService.updateTheme(id_usuario, theme);
+        return {
+          message: 'Theme actualizado exitosamente',
+          theme: usuarioActualizado.theme,
+        };
+      } catch (error) {
+        throw new InternalServerErrorException('Error al actualizar el theme');
+      }
     }
 }

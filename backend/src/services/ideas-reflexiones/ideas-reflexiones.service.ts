@@ -18,10 +18,34 @@ export class IdeasReflexionesService {
     return nuevaIdeaReflexion.save();
   }
 
-  // Obtener todos los IdeaReflexions
-  async findAll(): Promise<IdeaReflexion[]> {
-    return this.IdeaReflexionModel.find().exec();
+  // Obtener todos los ideas-reflexiones
+  async findAll(
+    page: number = 1,
+    size: number = 10,
+    sortBy: string = 'anio_publicacion',
+    sortOrder: string = 'asc',
+    autor?: string,
+    anio_publicacion?: number
+  ): Promise<IdeaReflexion[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    // Construir el filtro dinámico
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor;
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+
+    return this.IdeaReflexionModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
+
 
   // Buscar un IdeaReflexion por su título
   async findOneByTitulo(titulo: string): Promise<IdeaReflexion> {

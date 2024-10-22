@@ -17,9 +17,33 @@ export class ArticulosRevistasService {
     return nuevoArticulo.save();
   }
 
-  async findAll(): Promise<ArticuloRevista[]> {
-    return this.articuloRevistaModel.find().exec();
+  async findAll(
+    page: number = 1,
+    size: number = 10,
+    sortBy: string = 'anio_revista',
+    sortOrder: string = 'asc',
+    autor?: string,
+    anio_revista?: number
+  ): Promise<ArticuloRevista[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    // Creamos el objeto de filtro dinámicamente
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor;
+    }
+    if (anio_revista) {
+      filter.anio_revista = anio_revista;
+    }
+    
+    return this.articuloRevistaModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
+
 
   async findOneByTitulo(titulo: string): Promise<ArticuloRevista> {
     return this.articuloRevistaModel.findOne({ titulo }).exec();

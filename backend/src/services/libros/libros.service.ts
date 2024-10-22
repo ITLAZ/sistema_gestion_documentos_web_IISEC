@@ -59,8 +59,31 @@ export class LibrosService {
   }
 
   // Obtener todos los libros
-  async findAll(): Promise<Libro[]> {
-    return this.libroModel.find().exec();
+  async findAll(
+    page: number = 1, 
+    size: number = 10, 
+    sortBy: string = 'anio_publicacion', 
+    sortOrder: string = 'asc',
+    autor?: string, // Parámetro opcional para filtrar por autor
+    anio_publicacion?: number // Parámetro opcional para filtrar por año de publicación
+  ): Promise<Libro[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'desc' ? -1 : 1; // Si es 'desc', ordenamos de forma descendente, si no, de forma ascendente.
+    
+    // Creamos el objeto de filtro dinámicamente
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor; // Asumimos que el campo en la base de datos es 'autores'
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+
+    return this.libroModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
 
   // Buscar un libro por su título

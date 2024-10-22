@@ -22,15 +22,55 @@ export class ArticulosRevistasController {
 
   // Obtener todos los artículos
   @Get()
-  async findAll(): Promise<ArticuloRevista[]> {
-    return this.articulosRevistasService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string = 'anio_revista',
+    @Query('sortOrder') sortOrder: string = 'asc',
+    @Query('anio_revista') anio_revista?: string,
+    @Query('autores') autores?: string,
+  ): Promise<ArticuloRevista[]> {
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(size, 10) || 10;
+    const anio = anio_revista ? parseInt(anio_revista, 10) : undefined;
+
+    return this.articulosRevistasService.findAll(
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortOrder,
+      autores,
+      anio,
+    );
   }
 
   @Get('search')
   async searchBooks(
     @Query('query') query: string,
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string,       // Campo por el que ordenar
+    @Query('sortOrder') sortOrder: string,  // Dirección del orden: 'asc' o 'desc'
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
   ) {
-    const results = await this.searchService.searchByType('articulos-revistas', query);
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(size, 10);
+    const sortField = sortBy || 'anio_publicacion';  // Campo predeterminado si no se proporciona
+    const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';  // Establecer 'asc' por defecto
+
+    const results = await this.searchService.searchByType(
+      'articulos-revistas', 
+      query, 
+      pageNumber, 
+      pageSize,
+        {
+          anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
+          autores
+        }, 
+      sortField, 
+      sortDirection,
+    );
     return results;
   }
   

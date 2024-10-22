@@ -22,15 +22,55 @@ export class CapitulosLibrosController {
 
   // Obtener todos los capítulos
   @Get()
-  async findAll(): Promise<CapituloLibro[]> {
-    return this.capitulosLibrosService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string = 'anio_publicacion',
+    @Query('sortOrder') sortOrder: string = 'asc',
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ): Promise<CapituloLibro[]> {
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(size, 10) || 10;
+    const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
+
+    return this.capitulosLibrosService.findAll(
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortOrder,
+      autores,
+      anio
+    );
   }
 
   @Get('search')
   async searchBooks(
     @Query('query') query: string,
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string,       // Campo por el que ordenar
+    @Query('sortOrder') sortOrder: string,  // Dirección del orden: 'asc' o 'desc'
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
   ) {
-    const results = await this.searchService.searchByType('capitulos-libros', query);
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(size, 10);
+    const sortField = sortBy || 'anio_publicacion';  // Campo predeterminado si no se proporciona
+    const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';  // Establecer 'asc' por defecto
+    
+    const results = await this.searchService.searchByType(
+      'capitulos-libros', 
+      query, 
+      pageNumber, 
+      pageSize,
+        {
+          anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
+          autores
+        }, 
+      sortField, 
+      sortDirection,
+    );
     return results;
   }
 

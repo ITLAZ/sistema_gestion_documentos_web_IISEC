@@ -1,98 +1,105 @@
-export async function getBooks() {
-    try {
-        const response = await fetch('http://localhost:3000/libros');
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        return await response.json(); 
-    } catch (error) {
-        console.error('Error al obtener los libros:', error);
-        alert('Hubo un problema al obtener los libros. Por favor, intenta de nuevo más tarde.');
-        throw error; 
-    }
-}
 
-export async function getArticles() {
+export async function getDocumentsByType(documentType, page, size) {
     try {
-        const response = await fetch('http://localhost:3000/articulos-revistas');
+        // Construir la URL usando el tipo de documento
+        const url = `http://localhost:3000/${documentType}?page=${page}&size=${size}`;
+        const response = await fetch(url);
+        
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
+
+        // Retornar los datos en formato JSON
         return await response.json();
     } catch (error) {
-        console.error('Error al obtener los artículos:', error);
-        alert('Hubo un problema al obtener los artículos. Por favor, intenta de nuevo más tarde.');
+        console.error(`Error al obtener los documentos de tipo ${documentType}:`, error);
+        alert(`Hubo un problema al obtener los documentos de tipo ${documentType}. Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
 
-export async function getChapters() {
+export async function getAllDocuments(query = '', page, size) {
     try {
-        const response = await fetch('http://localhost:3000/capitulos-libros');
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error al obtener los capítulos:', error);
-        alert('Hubo un problema al obtener los capítulos. Por favor, intenta de nuevo más tarde.');
-        throw error;
-    }
-}
+        // Construir la URL con los parámetros de consulta
+        const url = new URL('http://localhost:3000/all-types/all');
+        url.searchParams.append('query', query);
+        url.searchParams.append('page', page);
+        url.searchParams.append('size', size);
 
-export async function getWorkDocuments() {
-    try {
-        const response = await fetch('http://localhost:3000/documentos-trabajo');
+        const response = await fetch(url.toString());
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {
-        console.error('Error al obtener todos los documentos de trabajo:', error);
-        alert('Hubo un problema al obtener los documentos de trabajo. Por favor, intenta de nuevo más tarde.');
+        console.error('Error al obtener todos los documentos:', error);
+        alert('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
 
 
-export async function getIdeasReflexiones() {
-    try {
-        const response = await fetch('http://localhost:3000/ideas-reflexiones');
+
+export async function getDocumentById(documentType, id) {    
+    try {        
+        const url = `http://localhost:3000/${documentType}/id/${id}`;
+        const response = await fetch(url);
+        
+        // Verifica si la respuesta es válida antes de intentar analizar el JSON
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-        return await response.json();
+       
+        const responseData = await response.json(); 
+        console.log('Datos recibidos:', responseData);
+        
+        if (responseData) {
+            console.log('Respuesta del servidor:', responseData); // Para depuración
+            return responseData;
+        } else {
+            throw new Error('La respuesta está vacía.');
+        }
     } catch (error) {
-        console.error('Error al obtener todas las ideas y reflexiones:', error);
-        alert('Hubo un problema al obtener las ideas y reflexiones. Por favor, intenta de nuevo más tarde.');
+        console.error(`Error al obtener los detalles del documento (${documentType}) (${id}):`, error);
         throw error;
     }
 }
 
-export async function getInfoiisec() {
+
+
+export async function deleteDocumentById(documentType, id) {
     try {
-        const response = await fetch('http://localhost:3000/info-iisec');
+        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
+            method: 'DELETE',
+        });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {
-        console.error('Error al obtener todos los info IISEC:', error);
-        alert('Hubo un problema al obtener los infoIISEC. Por favor, intenta de nuevo más tarde.');
+        console.error(`Error al eliminar el documento (${documentType}):`, error);
+        alert(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
 
-export async function getPoliciesBriefs() {
+
+export async function updateDocumentById(documentType, id, updatedData) {
     try {
-        const response = await fetch('http://localhost:3000/policies-briefs');
+        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {
-        console.error('Error al obtener todos los policies and briefs:', error);
-        alert('Hubo un problema al obtener los policies and briefs. Por favor, intenta de nuevo más tarde.');
+        console.error(`Error al editar el documento (${documentType}):`, error);
+        alert(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -181,75 +188,6 @@ export async function uploadBookWithoutFile(libroData) {
         throw error;
     }
 }
-
-
-export async function getAllDocuments() {
-    try {
-        const response = await fetch('http://localhost:3000/all-types');
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error al obtener todos los documentos:', error);
-        alert('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
-        throw error;
-    }
-}
-
-
-export async function getDocumentById(documentType, id) {
-    try {
-        const response = await fetch(`http://localhost:3000/${documentType}/id/${id}`);
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`Error al obtener los detalles del documento (${documentType}):`, error);
-        alert(`Hubo un problema al obtener los detalles del documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
-        throw error;
-    }
-}
-
-
-export async function deleteDocumentById(documentType, id) {
-    try {
-        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
-            method: 'DELETE',
-        });
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`Error al eliminar el documento (${documentType}):`, error);
-        alert(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
-        throw error;
-    }
-}
-
-
-export async function updateDocumentById(documentType, id, updatedData) {
-    try {
-        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedData),
-        });
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`Error al editar el documento (${documentType}):`, error);
-        alert(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
-        throw error;
-    }
-}
-
 
 ///SUBIDA DE ARCHIVOS ARTICULOS REVISTA
 export async function uploadArt(artData, file) {

@@ -5,8 +5,8 @@ export async function handleDocumentDeletion(documentType, documentId, cardEleme
     const userConfirmation = prompt("Realmente desea eliminar este archivo? \nDe ser así, escriba: \"si, deseo eliminar este archivo\"");
 
     if (userConfirmation === "si, deseo eliminar este archivo") {
-        console.log("documentos",documentType);
-        console.log("documentos",documentId);
+        console.log("documento tipo",documentType);
+        console.log("documento id",documentId);
         if (documentType && documentId) {
             try {
                 // Llamada al endpoint para eliminar el documento

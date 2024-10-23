@@ -1,5 +1,5 @@
 import { loadCards } from './handlers/card_handler.js';
-import { getBooks, getArticles, getChapters, getWorkDocuments, getIdeasReflexiones, getInfoiisec, getPoliciesBriefs, getAllDocuments, getDocumentById } from './services/api_service.js';
+import {  getAllDocuments, getDocumentById, getDocumentsByType } from './services/api_service.js';
 import { loadNavbar } from './services/navbar_service.js';
 
 
@@ -23,159 +23,133 @@ import { loadNavbar } from './services/navbar_service.js';
 // Cargar el navbar inmediatamente
 loadNavbar(); 
 
-
-
 // Variables para la paginación y el tipo seleccionado
-let currentPage = 1;
-const itemsPerPage = 30;
-let totalDocuments = [];
-let selectedType = '';  // Variable global para almacenar el tipo de documento seleccionado
+let currentPage = 1; // Número de página actual
+const itemsPerPage = 10; // Cantidad de elementos por página
+let selectedType = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     const typeSelector = document.getElementById('type-selector');
 
-    // Escuchar los cambios en el selector
     typeSelector.addEventListener('change', async () => {
         selectedType = typeSelector.value;
-
-        try {
-            let documentsData;
-            if (selectedType === 'all') {
-                documentsData = await getAllDocuments();
-
-                // Agregar documentType a cada elemento dependiendo de su origen
-                const libros = documentsData.libros.map(doc => ({ ...doc, documentType: 'libros' }));
-                const articulosRevistas = documentsData.articulosRevistas.map(doc => ({ ...doc, documentType: 'articulos-revistas' }));
-                const capitulosLibros = documentsData.capitulosLibros.map(doc => ({ ...doc, documentType: 'capitulos-libros' }));
-                const documentosTrabajo = documentsData.documentosTrabajo.map(doc => ({ ...doc, documentType: 'documentos-trabajo' }));
-                const ideasReflexiones = documentsData.ideasReflexiones.map(doc => ({ ...doc, documentType: 'ideas-reflexiones' }));
-                const infoIISEC = documentsData.infoIISEC.map(doc => ({ ...doc, documentType: 'info-iisec' }));
-                const policiesBriefs = documentsData.policiesBriefs.map(doc => ({ ...doc, documentType: 'policies-briefs' }));
-
-                // Combinar todos los documentos en un solo array
-                totalDocuments = [
-                    ...libros,
-                    ...articulosRevistas,
-                    ...capitulosLibros,
-                    ...documentosTrabajo,
-                    ...ideasReflexiones,
-                    ...policiesBriefs,
-                    ...infoIISEC
-                ];
-
-                // Actualizar la lógica para el tipo seleccionado
-                } else if (selectedType === 'libros') {
-                    documentsData = await getBooks();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'libros' }));
-                } else if (selectedType === 'articulos-revistas') {
-                    documentsData = await getArticles();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'articulos-revistas' }));
-                } else if (selectedType === 'capitulos-libros') {
-                    documentsData = await getChapters();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'capitulos-libros' }));
-                } else if (selectedType === 'documentos-trabajo') {
-                    documentsData = await getWorkDocuments();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'documentos-trabajo' }));
-                } else if (selectedType === 'ideas-reflexiones') {
-                    documentsData = await getIdeasReflexiones();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'ideas-reflexiones' }));
-                } else if (selectedType === 'info-iisec') {
-                    documentsData = await getInfoiisec();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'info-iisec' }));
-                } else if (selectedType === 'policies-briefs') {
-                    documentsData = await getPoliciesBriefs();
-                    totalDocuments = documentsData.map(doc => ({ ...doc, documentType: 'policies-briefs' }));
-                }
-
-            currentPage = 1; // Reiniciar a la primera página
-            renderPage();
-
-        } catch (error) {
-            console.error('Error al realizar la búsqueda:', error);
-        }
-
+        console.log("tipo seleccionado:", selectedType);
+        currentPage = 1; // Reiniciar a la primera página
+        await fetchAndRenderDocuments();
     });
 
-    // Asignar eventos a los botones de paginación
     document.getElementById('prev-page').addEventListener('click', prevPage);
     document.getElementById('next-page').addEventListener('click', nextPage);
 });
 
+// Función para obtener y renderizar documentos
+export async function fetchAndRenderDocuments() {
+    try {
+        let documentsData;
+        if (selectedType === 'all') {
+            documentsData = await getAllDocuments('', currentPage, itemsPerPage);
+        } else {
+            documentsData = await getDocumentsByType(selectedType, currentPage, itemsPerPage);
+        }
+
+        console.log("Tipo seleccionado:", selectedType);
+        console.log('Respuesta del backend:', documentsData);
+
+        const data = documentsData.data || documentsData;
+
+        // Verificar si la respuesta es un array vacío.
+        if (Array.isArray(data) && data.length === 0) {
+            // No hay resultados, ocultar los controles de paginación y mostrar un mensaje.
+            document.getElementById('pagination-controls').style.display = 'none';
+            document.getElementById('page-info').innerText = 'No se encontraron resultados.';
+            loadCards([], selectedType); // Limpia las tarjetas mostradas.
+            return;
+        }
+
+        // Si hay datos, mostrar las tarjetas y los controles de paginación.
+        loadCards(data, selectedType);
+
+        // Mostrar los controles de paginación.
+        document.getElementById('pagination-controls').style.display = 'block';
+
+        // Mostrar u ocultar el botón "Siguiente" dependiendo de si hay más elementos que el tamaño de la página.
+        const nextPageButton = document.getElementById('next-page');
+        nextPageButton.style.display = data.length < itemsPerPage ? 'none' : 'inline-block';
+
+        // Mostrar u ocultar el botón "Anterior" si estamos en la primera página.
+        const prevPageButton = document.getElementById('prev-page');
+        prevPageButton.style.display = currentPage === 1 ? 'none' : 'inline-block';
+
+        // Actualizar la información de la página actual.
+        document.getElementById('page-info').innerText = `Página ${currentPage}`;
+
+    } catch (error) {
+        console.error('Error al realizar la búsqueda:', error);
+    }
+}
+
 // Función para ir a la página siguiente
 function nextPage() {
-    if (currentPage * itemsPerPage < totalDocuments.length) {
-        currentPage++;
-        renderPage();
-    }
+    currentPage++;
+    fetchAndRenderDocuments();
 }
 
 // Función para ir a la página anterior
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        renderPage();
+        fetchAndRenderDocuments();
     }
 }
 
-// Función para renderizar la página actual
-function renderPage() {
-    const totalPages = Math.ceil(totalDocuments.length / itemsPerPage);
-    const paginationControls = document.getElementById('pagination-controls');
-
-    // Mostrar u ocultar los controles de paginación según el número de páginas
-    if (totalPages > 1) {
-        paginationControls.style.display = 'block'; // Mostrar los botones si hay más de una página
-    } else {
-        paginationControls.style.display = 'none'; // Ocultar los botones si solo hay una página
-    }
-
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const documentsToShow = totalDocuments.slice(start, end);
-
-    // Actualizar las tarjetas con los datos de la página actual
-    loadCards(documentsToShow, selectedType);
-
-    // Actualizar la información de paginación
-    document.getElementById('page-info').innerText = `Página ${currentPage} de ${totalPages}`;
-
-    // Desactivar botones si estamos en el límite
-    document.getElementById('prev-page').disabled = currentPage === 1;
-    document.getElementById('next-page').disabled = currentPage === totalPages;
-}
 
 
+     
 //Visualizacion de documento por id
 document.addEventListener('DOMContentLoaded', () => {
-    // Llamar a la función para cargar los detalles del documento automáticamente
     loadDocumentDetails();
 });
 
 export async function loadDocumentDetails() {
-    // Obtener el tipo de documento y el ID desde el Session Storage
     const documentType = sessionStorage.getItem('documentType');
     const id = sessionStorage.getItem('documentId');
 
+    let documentData;
+
+
+    console.log("Tipo de documento recuperado:", documentType);
+    console.log("ID del documento recuperado:", id);
+
     if (id && documentType) {
         try {
-            // Llamada al endpoint para obtener los datos del documento
-            const documentData = await getDocumentById(documentType, id);
-            console.log('detalles del documento:', documentData);
-            console.log('detalles del documento:', documentType);
-            displayDocumentDetails(documentData, documentType);
+            documentData = await getDocumentById(documentType, id);
+            console.log('Detalles del documento recibidos del backend:', documentData);
+
+            documentData = documentData._source || documentData;
+
         } catch (error) {
             console.error('Error al obtener los detalles del documento:', error);
-            console.log('Error al obtener los detalles del documento:', documentData);
-            console.log('Error al obtener los detalles del documento:', documentType);
+            return;
         }
+    }
+
+    if (documentData) {
+        displayDocumentDetails(documentData, documentType);
     } else {
-        console.error('No se encontraron parámetros válidos para el documento.', error);
+        console.error('No se encontraron parámetros válidos para el documento.');
     }
 }
 
 
+
 // Función para mostrar los detalles del documento y adaptar la vista de acuerdo al tipo
 function displayDocumentDetails(data, documentType) {
+    console.log('Detalles del documento recibidos:', data);
+    console.log('Tipo de documento:', documentType);
+
+    // Si el documento proviene de `all-types`, extraer el contenido de `_source`
+    const documentData = data._source || data;
+
     // Ocultar todos los campos opcionales al inicio
     [
         '#cover-info', '#editorial', '#numero_articulo', '#nombre_revista',
@@ -188,7 +162,6 @@ function displayDocumentDetails(data, documentType) {
         }
     });
 
-
     // Asignar el tipo de documento según el valor de documentType
     let tipodoc = '';
 
@@ -196,94 +169,85 @@ function displayDocumentDetails(data, documentType) {
         case 'libros':
             tipodoc = 'Libros';
             break;
-
         case 'articulos-revistas':
             tipodoc = 'Artículo de Revista';
             break;
-
         case 'capitulos-libros':
             tipodoc = 'Capítulo de Libro';
             break;
-
         case 'documentos-trabajo':
             tipodoc = 'Documento de Trabajo';
             break;
-
         case 'ideas-reflexiones':
             tipodoc = 'Ideas y Reflexiones';
             break;
-
         case 'info-iisec':
             tipodoc = 'Info IISEC';
             break;
-
         case 'policies-briefs':
             tipodoc = 'Policy Briefs';
             break;
-
         default:
             console.error('Tipo de documento desconocido:', documentType);
             return; // Detener si no hay tipo
     }
 
     // Mostrar campos comunes
-    document.getElementById('title').textContent = data.titulo || data.titulo_capitulo || 'Título no disponible';
-    document.getElementById('cover').src = data.portada || 'https://placehold.com/600x400';
+    document.getElementById('title').textContent = documentData.titulo || documentData.titulo_capitulo || 'Título no disponible';
+    document.getElementById('cover').src = documentData.portada || 'https://placehold.com/600x400';
     document.getElementById('type').textContent = tipodoc || 'Tipo de documento no disponible';
-    document.getElementById('authors').textContent = data.autores ? data.autores.join(', ') : 'Autores no disponibles';
-    document.getElementById('published').textContent = data.anio_publicacion || data.anio_revista || 'Fecha no disponible';
+    document.getElementById('authors').textContent = documentData.autores ? documentData.autores.join(', ') : 'Autores no disponibles';
+    document.getElementById('published').textContent = documentData.anio_publicacion || documentData.anio_revista || 'Fecha no disponible';
 
     // Mostrar campos específicos según el tipo de documento
     switch (documentType) {
         case 'libros':
             document.getElementById('editorial').style.display = 'block';
-            document.getElementById('editorial-text').textContent = data.editorial || 'Editorial no disponible';
+            document.getElementById('editorial-text').textContent = documentData.editorial || 'Editorial no disponible';
             document.getElementById('descripcion').style.display = 'block';
-            document.getElementById('description').textContent = data.abstract || 'Descripción no disponible';
+            document.getElementById('description').textContent = documentData.abstract || 'Descripción no disponible';
             break;
 
         case 'articulos-revistas':
             document.getElementById('numero_articulo').style.display = 'block';
-            document.getElementById('article-number').textContent = data.numero_articulo || 'Número de artículo no disponible';
+            document.getElementById('article-number').textContent = documentData.numero_articulo || 'Número de artículo no disponible';
             document.getElementById('nombre_revista').style.display = 'block';
-            document.getElementById('revista').textContent = data.nombre_revista || 'Nombre de la revista no disponible';
+            document.getElementById('revista').textContent = documentData.nombre_revista || 'Nombre de la revista no disponible';
             document.getElementById('editorial').style.display = 'block';
-            document.getElementById('editorial-text').textContent = data.editorial || 'Editorial no disponible';
+            document.getElementById('editorial-text').textContent = documentData.editorial || 'Editorial no disponible';
             document.getElementById('descripcion').style.display = 'block';
-            document.getElementById('description').textContent = data.abstract || 'Descripción no disponible';
+            document.getElementById('description').textContent = documentData.abstract || 'Descripción no disponible';
             break;
 
         case 'capitulos-libros':
             document.getElementById('numero_identificacion').style.display = 'block';
-            document.getElementById('numero_identificacion_value').textContent = data.numero_identificacion || 'Número de identificación no disponible';
+            document.getElementById('numero_identificacion_value').textContent = documentData.numero_identificacion || 'Número de identificación no disponible';
             document.getElementById('titulo_capitulo').style.display = 'block';
-            document.getElementById('titulo_capitulo_value').textContent = data.titulo_capitulo || 'Título del capítulo no disponible';
+            document.getElementById('titulo_capitulo_value').textContent = documentData.titulo_capitulo || 'Título del capítulo no disponible';
             document.getElementById('titulo_libro').style.display = 'block';
-            document.getElementById('titulo_libro_value').textContent = data.titulo_libro || 'Título del libro no disponible';
+            document.getElementById('titulo_libro_value').textContent = documentData.titulo_libro || 'Título del libro no disponible';
             document.getElementById('editores').style.display = 'block';
-            document.getElementById('editores_value').textContent = data.editores || 'Editores no disponibles';
+            document.getElementById('editores_value').textContent = documentData.editores ? documentData.editores.join(', ') : 'Editores no disponibles';
             document.getElementById('editorial').style.display = 'block';
-            document.getElementById('editorial-text').textContent = data.editorial || 'Editorial no disponible';
-            document.getElementById('descripcion').style.display = 'block';
-            document.getElementById('description').textContent = data.abstract || 'Descripción no disponible';
+            document.getElementById('editorial-text').textContent = documentData.editorial || 'Editorial no disponible';
             break;
 
         case 'documentos-trabajo':
             document.getElementById('numero_identificacion').style.display = 'block';
-            document.getElementById('numero_identificacion_value').textContent = data.numero_identificacion || 'Número de identificación no disponible';
+            document.getElementById('numero_identificacion_value').textContent = documentData.numero_identificacion || 'Número de identificación no disponible';
             document.getElementById('descripcion').style.display = 'block';
-            document.getElementById('description').textContent = data.abstract || 'Descripción no disponible';
+            document.getElementById('description').textContent = documentData.abstract || 'Descripción no disponible';
             break;
 
         case 'ideas-reflexiones':
         case 'info-iisec':
             document.getElementById('observacion').style.display = 'block';
-            document.getElementById('observation').textContent = data.observaciones || 'Observación no disponible';
+            document.getElementById('observation').textContent = documentData.observaciones || 'Observación no disponible';
             break;
 
         case 'policies-briefs':
             document.getElementById('msj_clave').style.display = 'block';
-            document.getElementById('msj_claves').textContent = data.mensaje_clave || 'Mensaje clave no disponible';
+            document.getElementById('msj_claves').textContent = documentData.mensaje_clave || 'Mensaje clave no disponible';
             break;
 
         default:
@@ -293,40 +257,33 @@ function displayDocumentDetails(data, documentType) {
     }
 
     // Mostrar el PDF si está disponible
-    // Actualizar el iframe según la fuente del documento
     const pdfIframe = document.getElementById('pdf-frame');
     const pdfDownloadLink = document.getElementById('pdf-download-link');
 
-    // Verificar si el link_pdf está disponible y termina en ".pdf"
-    if (data.link_pdf && data.link_pdf.trim().toLowerCase().endsWith('.pdf')) {
-        pdfIframe.src = data.link_pdf;
-        pdfDownloadLink.href = data.link_pdf;
+    if (documentData.link_pdf && documentData.link_pdf.trim().toLowerCase().endsWith('.pdf')) {
+        pdfIframe.src = documentData.link_pdf;
+        pdfDownloadLink.href = documentData.link_pdf;
         pdfIframe.style.display = 'block';
-    } else if (data.direccion_archivo) {
-        const nombreArchivo = data.direccion_archivo.split('\\').pop(); // Obtener el nombre del archivo
+    } else if (documentData.direccion_archivo) {
+        const nombreArchivo = documentData.direccion_archivo.split('\\').pop();
         const archivoUrl = `http://localhost:3000/file-handler/file/${nombreArchivo}`;
         pdfIframe.src = archivoUrl;
         pdfDownloadLink.href = archivoUrl;
         pdfIframe.style.display = 'block';
     } else {
-        // Mostrar el mensaje alternativo
         pdfIframe.style.display = 'none';
         const pdfPreviewContainer = document.querySelector('.pdf-preview');
-        
-        // Crear mensaje alternativo
+
         const messageContainer = document.createElement('div');
         messageContainer.innerHTML = `
             <p>Lo sentimos, el documento no se encuentra actualmente disponible.</p>
-            <p>Puede ingresar al siguiente link para encontrarlo: <a href="${data.link_pdf || '#'}" target="_blank">${data.link_pdf || 'No disponible'}</a></p>
+            <p>Puede ingresar al siguiente link para encontrarlo: <a href="${documentData.link_pdf || '#'}" target="_blank">${documentData.link_pdf || 'No disponible'}</a></p>
         `;
-        
-        // Añadir el mensaje al contenedor
+
         pdfPreviewContainer.appendChild(messageContainer);
     }
-
-
-
 }
+
 
 
 

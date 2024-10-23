@@ -346,7 +346,7 @@ aside .advanced-search {
 #pagination-controls {
   text-align: center; 
   margin: 20px 0;
-  display: flex;
+  display: block;
   justify-content: center;
   align-items: center;
   gap: 10px; /* Espacio entre los botones y la información de la página */

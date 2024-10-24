@@ -22,8 +22,26 @@ export class IdeasReflexionesController {
 
   // Obtener todos los ideas-reflexiones
   @Get()
-  async findAll(): Promise<IdeaReflexion[]> {
-    return this.ideaReflexionesService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string = 'anio_publicacion',
+    @Query('sortOrder') sortOrder: string = 'asc',
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ): Promise<IdeaReflexion[]> {
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(size, 10) || 10;
+    const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
+  
+    return this.ideaReflexionesService.findAll(
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortOrder,
+      autores,
+      anio
+    );
   }
   
   @Get('search')

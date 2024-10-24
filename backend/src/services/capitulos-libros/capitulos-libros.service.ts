@@ -18,8 +18,31 @@ export class CapitulosLibrosService {
   }
 
   // Obtener todos los CapituloLibros
-  async findAll(): Promise<CapituloLibro[]> {
-    return this.CapituloLibroModel.find().exec();
+  async findAll(
+    page: number = 1,
+    size: number = 10,
+    sortBy: string = 'anio_publicacion',
+    sortOrder: string = 'asc',
+    autor?: string,
+    anio_publicacion?: number
+  ): Promise<CapituloLibro[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    // Construir el filtro dinámico
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor;
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+  
+    return this.CapituloLibroModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
 
   // Buscar un CapituloLibro por su título

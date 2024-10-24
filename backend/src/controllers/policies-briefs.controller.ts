@@ -22,8 +22,26 @@ export class PoliciesBriefsController {
 
   // Obtener todos los policies-briefs
   @Get()
-  async findAll(): Promise<PolicyBrief[]> {
-    return this.policiesBriefsService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string = 'anio_publicacion',
+    @Query('sortOrder') sortOrder: string = 'asc',
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ): Promise<PolicyBrief[]> {
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(size, 10) || 10;
+    const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
+  
+    return this.policiesBriefsService.findAll(
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortOrder,
+      autores,
+      anio
+    );
   }
 
   @Get('search')

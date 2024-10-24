@@ -44,4 +44,20 @@ export class UsuariosService {
     // Retorna el ID del usuario si las credenciales son válidas
     return usuarioEncontrado._id.toString();
   }
+
+
+  async updateTheme(id_usuario: string, theme: number): Promise<Usuario> {
+    const usuarioActualizado = await this.UsuarioModel.findByIdAndUpdate(
+      id_usuario,
+      { theme }, // Actualizar solo el campo `theme`
+      { new: true } // Retornar el documento actualizado
+    ).exec();
+  
+    if (!usuarioActualizado) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+  
+    return usuarioActualizado;
+  }
+  
 }

@@ -87,18 +87,17 @@ export class ReportsService {
         anioInicio?: number, // Parámetro opcional para el rango de año de inicio
         anioFin?: number, // Parámetro opcional para el rango de año de fin
         autores?: string // Parámetro opcional para filtrar por autor
-      ): Promise<any[]> {
-      
+    ): Promise<any> {
+    
         // Creamos el objeto de filtro dinámicamente
         const filter: any = {};
-      
-        // Filtros comunes (aplicables a todas las colecciones)
+    
+        // Filtro autores
         if (autores) {
-          filter.autores = autores; // Filtrar por autor
+            filter.autores = autores; // Filtrar por autor
         }
-      
-        // Filtro de años (aplicables a todas las colecciones)
-         // Filtro de años (aplicables a todas las colecciones)
+    
+        // Filtro de anios 
         const anioFiltro: any = {};
         if (anioInicio) {
             anioFiltro.$gte = anioInicio; // Mayor o igual que el año de inicio
@@ -106,10 +105,10 @@ export class ReportsService {
         if (anioFin) {
             anioFiltro.$lte = anioFin; // Menor o igual que el año de fin
         }
-
+    
         // Si anioFiltro no está vacío, lo aplicamos
         const filtroAnio = Object.keys(anioFiltro).length ? anioFiltro : undefined;
-        
+    
         const campos = {
             libros: 'titulo autores anio_publicacion',
             articulosRevistas: 'titulo autores anio_revista',
@@ -119,62 +118,56 @@ export class ReportsService {
             infoIIsec: 'titulo autores anio_publicacion',
             policiesBriefs: 'titulo autores anio_publicacion'
         };
-        // Si anioFiltro no está vacío, lo aplicamos
-        const promesas: Promise<any>[] = [];
-
-    // Campos a devolver por colección
-    const camposPorColeccion = {
-        libros: campos?.libros || '', // Campos específicos para libros
-        articulosRevistas: campos?.articulosRevistas || '', // Campos específicos para artículos de revistas
-        capitulosLibros: campos?.capitulosLibros || '', // Campos específicos para capítulos de libros
-        documentosTrabajo: campos?.documentosTrabajo || '', // Campos específicos para documentos de trabajo
-        ideasReflexiones: campos?.ideasReflexiones || '', // Campos específicos para ideas y reflexiones
-        infoIIsec: campos?.infoIIsec || '', // Campos específicos para info IISEC
-        policiesBriefs: campos?.policiesBriefs || '' // Campos específicos para briefs de políticas
-    };
-
-    // Realizamos la búsqueda en cada una de las colecciones
-    promesas.push(
-        this.libroModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
-            .select(camposPorColeccion.libros)
-            .exec()
-    );
-    promesas.push(
-        this.articuloRevistaModel.find({ ...filter, ...(filtroAnio ? { anio_revista: filtroAnio } : {}) })
-            .select(camposPorColeccion.articulosRevistas)
-            .exec()
-    );
-    promesas.push(
-        this.capituloLibroModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
-            .select(camposPorColeccion.capitulosLibros)
-            .exec()
-    );
-    promesas.push(
-        this.documentoTrabajoModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
-            .select(camposPorColeccion.documentosTrabajo)
-            .exec()
-    );
-    promesas.push(
-        this.ideaReflexionModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
-            .select(camposPorColeccion.ideasReflexiones)
-            .exec()
-    );
-    promesas.push(
-        this.infoIIsecModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
-            .select(camposPorColeccion.infoIIsec)
-            .exec()
-    );
-    promesas.push(
-        this.policiesBriefModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
-            .select(camposPorColeccion.policiesBriefs)
-            .exec()
-    );
-
-    // Esperamos a que todas las promesas de búsqueda se resuelvan
-    const resultados = await Promise.all(promesas);
-
-    // Combinamos los resultados de todas las colecciones
-    return resultados.flat();
-      }
-
+    
+        // Realizamos las consultas a cada colección
+        const librosPromise = this.libroModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
+            .select(campos.libros)
+            .exec();
+    
+        const articulosRevistasPromise = this.articuloRevistaModel.find({ ...filter, ...(filtroAnio ? { anio_revista: filtroAnio } : {}) })
+            .select(campos.articulosRevistas)
+            .exec();
+    
+        const capitulosLibrosPromise = this.capituloLibroModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
+            .select(campos.capitulosLibros)
+            .exec();
+    
+        const documentosTrabajoPromise = this.documentoTrabajoModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
+            .select(campos.documentosTrabajo)
+            .exec();
+    
+        const ideasReflexionesPromise = this.ideaReflexionModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
+            .select(campos.ideasReflexiones)
+            .exec();
+    
+        const infoIIsecPromise = this.infoIIsecModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
+            .select(campos.infoIIsec)
+            .exec();
+    
+        const policiesBriefsPromise = this.policiesBriefModel.find({ ...filter, ...(filtroAnio ? { anio_publicacion: filtroAnio } : {}) })
+            .select(campos.policiesBriefs)
+            .exec();
+    
+        // Esperamos a que todas las promesas de búsqueda se resuelvan
+        const [libros, articulosRevistas, capitulosLibros, documentosTrabajo, ideasReflexiones, infoIIsec, policiesBriefs] = await Promise.all([
+            librosPromise,
+            articulosRevistasPromise,
+            capitulosLibrosPromise,
+            documentosTrabajoPromise,
+            ideasReflexionesPromise,
+            infoIIsecPromise,
+            policiesBriefsPromise
+        ]);
+    
+        // Retornamos los resultados agrupados por categoría
+        return {
+            libros,
+            articulosRevistas,
+            capitulosLibros,
+            documentosTrabajo,
+            ideasReflexiones,
+            infoIIsec,
+            policiesBriefs
+        };
+    }
 }

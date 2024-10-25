@@ -17,15 +17,18 @@
                     <input type="text" id="author" name="author" required>
                 </div>
                 <div class="input-group">
-                    <label for="startDate">Fecha Inicial:</label>
-                    <input type="date" id="startDate" name="startDate" required>
+                    <label for="startDate">Año Inicial:</label>
+                    <input type="number" min="1900" max="2099" step="1" id="startDate" name="startDate" required>
                 </div>
                 <div class="input-group">
-                    <label for="endDate">Fecha Final:</label>
-                    <input type="date" id="endDate" name="endDate" required>
+                    <label for="endDate">Año Final:</label>
+                    <input type="number" min="1900" max="2099" step="1" id="endDate" name="endDate" required>
                 </div>
                 <div class="input-group">
                     <button type="submit">Generar Reporte</button>
+                </div>
+                <div class="input-group">
+                    <button type="button" id="download-report">Descargar Reporte</button>
                 </div>
             </form>
         </aside>

@@ -1,18 +1,36 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ collection: 'Usuarios' })
 export class Usuario extends Document {
+
+  @ApiProperty({
+    example: 'jdoe',
+    description: 'Nombre único de usuario',
+  })
   @Prop({ required: true })
   usuario: string;
 
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Nombre completo del usuario',
+  })
   @Prop({ required: true })
   nombre: string;
 
+  @ApiProperty({
+    example: 'hashedpassword123',
+    description: 'Contraseña del usuario encriptada',
+  })
   @Prop({ required: true })
   contrasenia: string;
 
+  @ApiProperty({
+    example: 1,
+    description: 'Tema visual preferido del usuario',
+  })
   @Prop({ required: true })
   theme: number;
 

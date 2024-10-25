@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiExtraModels, ApiOperation, ApiQuery, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import { LibrosResponseDto, ArticuloRevistaResponseDto, CapituloLibroResponseDto, DocumentoTrabajoResponseDto, InfoIISECResponseDto, IdeaReflexionResponseDto, PolicyBriefResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { AllTypesService } from 'src/services/all-types/all-types.service';
 import { SearchService } from 'src/services/search/search.service';
 
@@ -11,27 +12,47 @@ export class AllTypesController {
         private readonly allTypesService: AllTypesService,
         private searchService: SearchService,
     ) {}
-
+    
+    @ApiExcludeEndpoint()
     @Get('get')
-    @ApiResponse({ status: 200, description: 'Retrieved all types successfully', type: [Promise<any[]>] })
     async obtenerTodas(): Promise<any> {
         return await this.allTypesService.obtenerTodas();
     }
 
     @Get('update')
+    @ApiOperation({ summary: 'Indexar los archivos a elasticsearch' })
     @ApiResponse({ status: 200, description: 'Updated all types successfully' })
     async updateTodas(): Promise<any> {
         return await this.allTypesService.updateElasticTodas();
     }
     
     @Get('search')
+    @ApiOperation({ summary: 'Busqueda de documento por palabra clave en elasticsearch' })
+    @ApiExtraModels(LibrosResponseDto, ArticuloRevistaResponseDto, CapituloLibroResponseDto, DocumentoTrabajoResponseDto, InfoIISECResponseDto, IdeaReflexionResponseDto, PolicyBriefResponseDto)
     @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
     @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
     @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
     @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
     @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
     @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })  // Opcional
-    @ApiResponse({ status: 200, description: 'Search results retrieved successfully', type: [Promise<any[]>] }) // Cambia 'YourSearchResponseType' al tipo correcto
+    @ApiResponse({
+      status: 200,
+      description: 'All results retrieved successfully',
+      schema: {
+          type: 'array',
+          items: {
+              oneOf: [
+                  { $ref: getSchemaPath(LibrosResponseDto) },
+                  { $ref: getSchemaPath(ArticuloRevistaResponseDto) },
+                  { $ref: getSchemaPath(CapituloLibroResponseDto) },
+                  { $ref: getSchemaPath(DocumentoTrabajoResponseDto) },
+                  { $ref: getSchemaPath(InfoIISECResponseDto) },
+                  { $ref: getSchemaPath(IdeaReflexionResponseDto) },
+                  { $ref: getSchemaPath(PolicyBriefResponseDto) },
+              ],
+          },
+      },
+    })
     async searchAll(
       @Query('query') query: string,
       @Query('page') page: string = '1',
@@ -53,14 +74,34 @@ export class AllTypesController {
       return results;
     }
 
+    
     @Get('all')
-    @ApiQuery({ name: 'query', required: false, description: 'Search term' })  // Este es el único obligatorio
+    @ApiOperation({ summary: 'Obtencion de todos los documentos mediante elasticsearch' })
+    @ApiExtraModels(LibrosResponseDto, ArticuloRevistaResponseDto, CapituloLibroResponseDto, DocumentoTrabajoResponseDto, InfoIISECResponseDto, IdeaReflexionResponseDto, PolicyBriefResponseDto)
+    @ApiQuery({ name: 'query', required: false, description: 'Search term' })  // Opcional
     @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
     @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
     @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
     @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
     @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })  // Opcional
-    @ApiResponse({ status: 200, description: 'All results retrieved successfully', type: [Promise<any[]>] }) // Cambia 'YourAllResponseType' al tipo correcto
+    @ApiResponse({
+      status: 200,
+      description: 'All results retrieved successfully',
+      schema: {
+          type: 'array',
+          items: {
+              oneOf: [
+                  { $ref: getSchemaPath(LibrosResponseDto) },
+                  { $ref: getSchemaPath(ArticuloRevistaResponseDto) },
+                  { $ref: getSchemaPath(CapituloLibroResponseDto) },
+                  { $ref: getSchemaPath(DocumentoTrabajoResponseDto) },
+                  { $ref: getSchemaPath(InfoIISECResponseDto) },
+                  { $ref: getSchemaPath(IdeaReflexionResponseDto) },
+                  { $ref: getSchemaPath(PolicyBriefResponseDto) },
+              ],
+          },
+      },
+    })
     async getAll(
       @Query('query') query: string,
       @Query('page') page: string = '1',

@@ -280,6 +280,12 @@ aside .advanced-search {
   gap: 10px;
 }
 
+.input-group label, .form-group label {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--card-text-color);
+}
+
 .input-group select,
 .form-group select {
   border: 1px solid #000;

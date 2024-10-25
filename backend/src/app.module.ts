@@ -35,12 +35,15 @@ import { AllTypesController } from './controllers/all-types.controller';
 import { SearchService } from './services/search/search.service';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { FileHandlerController } from './controllers/file-handler.controller';
+import { ReportsModule } from './modules/reports/reports.module';
+import { ReportsService } from './services/reports/reports.service';
 
 @Module({
   imports: [
+    // ** Modulos de Mongoose
     // Conexión a la base de datos MongoDB
     MongooseModule.forRoot('mongodb://localhost:27017/BibliotecaIISEC'), 
- 
+    // Definicion de colecciones
     MongooseModule.forFeature([
       { name: ArticuloRevista.name, schema: ArticuloRevistaSchema },
       { name: CapituloLibro.name, schema: CapituloLibroSchema },
@@ -53,27 +56,34 @@ import { FileHandlerController } from './controllers/file-handler.controller';
       { name: Log.name, schema: LogSchema},
     ]),
 
-    
-
+    //Modulo ElasticSearch
     ElasticsearchModule.register({
       node: 'http://localhost:9200', // Asegúrate de que esta sea la URL correcta de tu instancia de Elasticsearch.
     }),
 
+    // Modulos de funcionalidades
+    UsuariosModule,
+    EstandarizacionoNombreModule,
+
+    //Modulos de colecciones
     ArticulosRevistasModule,
     CapitulosLibrosModule,
     LibrosModule,
     DocumentosTrabajoModule,
-    UsuariosModule,
-    EstandarizacionoNombreModule,
     IdeasReflexionesModule,
     InfoIisecModule,
     PoliciesBriefsModule,
+
+    //Modulo de Reportes
+    ReportsModule
   ], 
+
   controllers: [
     AppController,
     AllTypesController,
     FileHandlerController,
   ],
+
   providers: [
     AppService, 
     ArticulosRevistasService,
@@ -88,6 +98,7 @@ import { FileHandlerController } from './controllers/file-handler.controller';
     LogsService,
     AllTypesService,
     SearchService,
+    ReportsService,
   ],
 })
 export class AppModule {}

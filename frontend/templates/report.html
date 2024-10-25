@@ -1,17 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <div id="menu-container"></div>
     <div class="container">
-        <h1>Reportes y Estadísticas</h1>
-        <p>Página de reportes y estadísticas.</p>
+        <aside class="report-filter">
+            <h2>Generación de Reportes</h2>
+            <form id="report-form">
+                <div class="input-group">
+                    <label for="author">Nombre del Autor:</label>
+                    <input type="text" id="author" name="author" required>
+                </div>
+                <div class="input-group">
+                    <label for="startDate">Fecha Inicial:</label>
+                    <input type="date" id="startDate" name="startDate" required>
+                </div>
+                <div class="input-group">
+                    <label for="endDate">Fecha Final:</label>
+                    <input type="date" id="endDate" name="endDate" required>
+                </div>
+                <div class="input-group">
+                    <button type="submit">Generar Reporte</button>
+                </div>
+            </form>
+        </aside>
+
+        <main class="report-container" id="report-container">
+            <!-- Aquí se mostrará el reporte generado -->
+        </main>
     </div>
+
+    <script type="module">
+        const form = document.getElementById('report-form');
+        const reportContainer = document.getElementById('report-container');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Obtener los datos del formulario
+            const author = document.getElementById('author').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Lógica simulada para obtener los datos del autor y rango de fechas
+            const data = {
+                books: [
+                    { title: "Libro 1", date: "2021-02-15" },
+                    { title: "Libro 2", date: "2022-07-20" }
+                ],
+                articles: [
+                    { title: "Artículo A", date: "2020-05-10" },
+                    { title: "Artículo B", date: "2022-11-30" }
+                ],
+                chapters: [],
+                "work-documents": [
+                    { title: "Documento de Trabajo 1", date: "2023-01-10" }
+                ]
+            };
+
+            // Limpiar el contenedor del reporte
+            reportContainer.innerHTML = '';
+
+            // Generar el reporte
+            for (const [docType, documents] of Object.entries(data)) {
+                if (documents.length > 0) {
+                    const section = document.createElement('section');
+                    section.classList.add('report-section');
+
+                    // Crear encabezado
+                    const header = document.createElement('h2');
+                    let docTypeText = '';
+                    switch (docType) {
+                        case 'books':
+                            docTypeText = 'Libros';
+                            break;
+                        case 'articles':
+                            docTypeText = 'Artículos';
+                            break;
+                        case 'chapters':
+                            docTypeText = 'Capítulos';
+                            break;
+                        case 'work-documents':
+                            docTypeText = 'Documentos de Trabajo';
+                            break;
+                        default:
+                            docTypeText = 'Otros';
+                    }
+                    header.textContent = `${docTypeText} (${documents.length})`;
+
+                    // Crear lista
+                    const ul = document.createElement('ul');
+                    ul.classList.add('card-info');  // Reutilizando el estilo de las listas en las tarjetas
+                    documents.forEach(doc => {
+                        const li = document.createElement('li');
+                        li.textContent = `${doc.title} - Publicado el ${doc.date}`;
+                        ul.appendChild(li);
+                    });
+
+                    // Agregar encabezado y lista a la sección
+                    section.appendChild(header);
+                    section.appendChild(ul);
+
+                    // Agregar la sección al contenedor del reporte
+                    reportContainer.appendChild(section);
+                }
+            }
+        });
+    </script>
 </body>
-<script src="js/main.js" type="module"></script>
 </html>
+<script src="js/main.js" type="module"></script>

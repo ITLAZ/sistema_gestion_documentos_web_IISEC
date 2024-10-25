@@ -105,6 +105,47 @@ export async function updateDocumentById(documentType, id, updatedData) {
 }
 
 
+export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '') {
+    try {
+        const url = new URL(`http://localhost:3000/${documentType}/search`);
+        const params = {
+            query,
+            page,
+            size,
+            anio_publicacion,
+            autores
+        };
+
+        // Agregar los parámetros a la URL
+        Object.keys(params).forEach(key => {
+            if (params[key]) {
+                url.searchParams.append(key, params[key]);
+            }
+        });
+
+        // Realizar la solicitud GET utilizando fetch
+        const response = await fetch(url);
+
+        // Verificar si la respuesta fue exitosa
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        // Obtener los datos en formato JSON
+        const data = await response.json();
+
+        // Imprimir la respuesta para verificar los datos
+        console.log('Respuesta del backend:', data);
+
+        return data;
+    } catch (error) {
+        console.error('Error al realizar la búsqueda:', error);
+        throw error;
+    }
+}
+
+
+
 export async function uploadBook(libroData, file) {
     const formData = new FormData();
 

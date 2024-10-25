@@ -1,7 +1,7 @@
 import { handleDocumentDeletion, loadDocumentData } from './actions_handler.js'; 
 import { fetchAndRenderDocuments } from '../main.js';
 
-export function loadCards(dataArray, selectedType) {
+export function loadCards(dataArray, selectedType, isSearchResult = false) {
     const cardsContainer = document.getElementById('cards-container');
     cardsContainer.innerHTML = ''; // Limpia el contenedor antes de añadir nuevas tarjetas
 
@@ -12,17 +12,15 @@ export function loadCards(dataArray, selectedType) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
 
-                // Usar `_index` como `documentType` si está presente (especial para `all-types`)
                 const documentType = data._index || selectedType;
 
                 const documentData = {
-                    ...data._source || data, 
-                    _id: data._id, 
-                    documentType 
+                    ...data._source || data,
+                    _id: data._id,
+                    documentType
                 };
 
-                // Llamar a `updateCardData` con `documentType`
-                updateCardData(tempDiv, documentData, documentType);
+                updateCardData(tempDiv, documentData, documentType, isSearchResult);
                 addEventListenersToCard(tempDiv, documentData, documentType);
                 cardsContainer.appendChild(tempDiv.firstChild);
             })
@@ -34,7 +32,8 @@ export function loadCards(dataArray, selectedType) {
 
 
 
-function updateCardData(cardElement, data, documentType) {
+
+function updateCardData(cardElement, data, documentType, isSearchResult = false) {
     console.log('Datos recibidos para la tarjeta:', data); // Para verificar los datos recibidos
 
     // Ocultar todos los campos opcionales al inicio
@@ -66,6 +65,52 @@ function updateCardData(cardElement, data, documentType) {
             console.error(`El elemento con id "${field.id}" no se encontró en card.html`);
         }
     });
+
+    // Si `isSearchResult` es true, mostramos solo información básica y salimos.
+    if (isSearchResult) {
+        cardElement.querySelector('#type').textContent = getDocumentTypeName(documentType);
+
+        // Mostrar detalles según el tipo de documento
+        switch (documentType) {
+            case 'libros':
+                cardElement.querySelector('#descripcion').style.display = 'block';
+                cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
+                break;
+            case 'articulos-revistas':
+                cardElement.querySelector('#nombre_revista').style.display = 'block';
+                cardElement.querySelector('#revista').textContent = data.nombre_revista || 'Nombre de la revista no disponible';
+                cardElement.querySelector('#descripcion').style.display = 'block';
+                cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
+                break;
+            case 'capitulos-libros':
+                cardElement.querySelector('#titulo_libro').style.display = 'block';
+                cardElement.querySelector('#titulo_libro_value').textContent = data.titulo_libro || 'Título del libro no disponible';
+                cardElement.querySelector('#editores').style.display = 'block';
+                cardElement.querySelector('#editors').textContent = data.editores ? data.editores.join(', ') : 'Editores no disponibles';
+                cardElement.querySelector('#editorial').style.display = 'block';
+                cardElement.querySelector('#editorial-text').textContent = data.editorial || 'Editorial no disponible';
+                break;
+            case 'documentos-trabajo':
+                cardElement.querySelector('#descripcion').style.display = 'block';
+                cardElement.querySelector('#description').textContent = data.abstract || 'Descripción no disponible';
+                break;
+            case 'ideas-reflexiones':
+            case 'info-iisec':
+                cardElement.querySelector('#observacion').style.display = 'block';
+                cardElement.querySelector('#observation').textContent = data.observaciones || 'Observación no disponible';
+                break;
+            case 'policies-briefs':
+                cardElement.querySelector('#msj_clave').style.display = 'block';
+                cardElement.querySelector('#msj_claves').textContent = data.mensaje_clave || 'Mensaje clave no disponible';
+                break;
+            default:
+                console.error('Tipo de documento desconocido:', documentType);
+                alert('El tipo de documento no está disponible.');
+                return;
+        }
+
+        return;
+    }
 
     // Asignación específica según el tipo de documento usando `documentType`
     switch (documentType) {
@@ -120,6 +165,7 @@ function updateCardData(cardElement, data, documentType) {
             return; // Detener si no hay tipo
     }
 }
+
 
 
 
@@ -185,5 +231,26 @@ export function addEventListenersToCard(cardElement, data, documentType) {
             });
     });
 
+}
+
+function getDocumentTypeName(documentType) {
+    switch (documentType) {
+        case 'libros':
+            return 'Libro';
+        case 'articulos-revistas':
+            return 'Artículo de Revista';
+        case 'capitulos-libros':
+            return 'Capítulo de Libro';
+        case 'documentos-trabajo':
+            return 'Documento de Trabajo';
+        case 'ideas-reflexiones':
+            return 'Ideas y Reflexiones';
+        case 'info-iisec':
+            return 'Info IISEC';
+        case 'policies-briefs':
+            return 'Policy Briefs';
+        default:
+            return 'Tipo de documento desconocido';
+    }
 }
 

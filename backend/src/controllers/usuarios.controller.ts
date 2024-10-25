@@ -20,7 +20,8 @@ export class UsuariosController {
             example: {
                 usuario: 'jdoe',
                 nombre: 'John Doe',
-                contrasenia: 'password123'
+                contrasenia: 'password123',
+                theme: 1
             }
         }
     })

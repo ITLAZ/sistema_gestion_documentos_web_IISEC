@@ -146,9 +146,6 @@
     function onSaveButtonClick() {
         if (documentType && documentId) {
             handleDocumentUpdate(documentType, documentId)
-                .then(() => {
-                    window.history.back();
-                })
                 .catch(error => console.error('Error al actualizar el documento:', error));
 
         } else {

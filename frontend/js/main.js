@@ -352,6 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+//BUSQUEDA
 document.addEventListener('DOMContentLoaded', () => {
     const searchButton = document.getElementById('search-button');
     const typeSelector = document.getElementById('type-selector');
@@ -359,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorInput = document.getElementById('author');
     const publicationDateInput = document.getElementById('publication-date');
     const currentYear = new Date().getFullYear();
-    const year = parseInt(publicationDateInput.value, 10);
 
     // Parámetros para la paginación
     let currentPage = 1;
@@ -383,14 +383,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (isNaN(year) || year < 1900 || year > currentYear) {
-            alert(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
-            publicationDateInput.value = '';
-            return;
+        if (anio_publicacion){
+            if(isNaN(anio_publicacion) || anio_publicacion < 1900 || anio_publicacion > currentYear) {
+                alert(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
+                publicationDateInput.value = '';
+                return;
+            }
         }
 
+
         try {
-            // Llamar a la función `searchDocuments` para realizar la búsqueda
             const data = await searchDocuments(documentType, query, currentPage, itemsPerPage, anio_publicacion, author);
             
             console.log('Datos recibidos del backend:', data);

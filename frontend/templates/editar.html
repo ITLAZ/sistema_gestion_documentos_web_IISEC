@@ -98,13 +98,7 @@
                 <label for="linkpdf"><strong>Link PDF:</strong></label>
                 <input type="url" id="linkpdf" name="linkpdf" class="form-control" placeholder="Link PDF">
             </div>
-        
-            <!-- Campo para Subir Documento PDF -->
-            <div class="form-group">
-                <label for="pdf-upload"><strong>Subir Documento (solo PDF):</strong></label>
-                <input type="file" id="pdf-upload" name="pdf-upload" class="form-control" accept=".pdf">
-            </div>
-        
+                
             <!-- Botones de Acción -->
             <div class="edit-actions">
                 <button id="edit-cancel-button" type="button" class="btn btn-secondary edit-btn" onclick="cancelarEdicion()">CANCELAR</button>
@@ -135,8 +129,8 @@
     function onSaveButtonClick() {
         if (documentType && documentId) {
             handleDocumentUpdate(documentType, documentId)
-                .then(() => alert('Documento actualizado exitosamente.'))
                 .catch(error => console.error('Error al actualizar el documento:', error));
+                
         } else {
             alert('No se encontraron los parámetros necesarios para la actualización.');
         }

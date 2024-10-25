@@ -117,38 +117,37 @@ function displayFieldsByType(type) {
         'observacion-group': document.getElementById('observacion-group'),
         'msj_clave-group': document.getElementById('msj_clave-group'),
         'linkpdf-group': document.getElementById('linkpdf').parentElement,
-        'pdf-upload-group': document.getElementById('pdf-upload').parentElement,
     };
 
     // Definir el orden de los campos por tipo de documento.
     const orderByType = {
         'libros': [
             'cover-group', 'title-group', 'authors-group', 'editorial-group', 
-            'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'published-group', 'abstract-group', 'linkpdf-group'
         ],
         'articulos-revistas': [
             'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
-            'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group'
         ],
         'capitulos-libros': [
             'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
-            'editores-group', 'editorial-group', 'published-group', 'linkpdf-group', 'pdf-upload-group'
+            'editores-group', 'editorial-group', 'published-group', 'linkpdf-group'
         ],
         'documentos-trabajo': [
             'numero_identificacion-group', 'title-group', 'authors-group', 
-            'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'published-group', 'abstract-group', 'linkpdf-group'
         ],
         'ideas-reflexiones': [
             'title-group', 'authors-group', 'published-group', 'observacion-group', 
-            'linkpdf-group', 'pdf-upload-group'
+            'linkpdf-group'
         ],
         'info-iisec': [
             'title-group', 'authors-group', 'published-group', 'observacion-group', 
-            'linkpdf-group', 'pdf-upload-group'
+            'linkpdf-group'
         ],
         'policies-briefs': [
             'title-group', 'authors-group', 'published-group', 'msj_clave-group', 
-            'linkpdf-group', 'pdf-upload-group'
+            'linkpdf-group'
         ]
     };
 
@@ -176,6 +175,8 @@ function displayFieldsByType(type) {
 export async function handleDocumentUpdate(documentType, documentId) {
     try {
         // Obtener los valores de los campos del formulario.
+        const currentYear = new Date().getFullYear();
+
         const title = document.getElementById('title').value;
         const authors = document.getElementById('authors').value.split(',').map(author => author.trim());
         const published = document.getElementById('published').value;
@@ -191,6 +192,39 @@ export async function handleDocumentUpdate(documentType, documentId) {
         const observation = document.getElementById('observation') ? document.getElementById('observation').value : '';
         const msjClaves = document.getElementById('msj_claves') ? document.getElementById('msj_claves').value : '';
         const linkPdf = document.getElementById('linkpdf').value;
+
+
+    // Validar los campos obligatorios
+    const errors = [];
+    if (!title) errors.push('El campo "Título" es obligatorio.');
+    if (!authors.length || authors.some(author => author === '')) {
+        errors.push('Debe proporcionar al menos un autor.');
+    }
+
+    if (!published) {
+        errors.push('El campo "Año de Publicación" es obligatorio.');
+    } else if (isNaN(published) || published < 1900 || published > currentYear) {
+        errors.push(`El campo "Año de Publicación" debe ser un número entre 1900 y ${currentYear}.`);
+    }
+
+    if ((documentType === 'libros' || documentType === 'capitulos-libros') && !cover) {
+        errors.push('El campo "Portada" es obligatorio para libros y capítulos de libros.');
+    }
+    if (documentType === 'articulos-revistas' && !revista) {
+        errors.push('El campo "Nombre de la Revista" es obligatorio para artículos de revistas.');
+    }
+    if (documentType === 'capitulos-libros' && (!tituloCapitulo || !tituloLibro)) {
+        errors.push('Los campos "Título del Capítulo" y "Título del Libro" son obligatorios para capítulos de libros.');
+    }
+    if (documentType === 'capitulos-libros' && !editores.length) {
+        errors.push('Debe proporcionar al menos un editor para los capítulos de libros.');
+    }
+
+    // Si hay errores, mostrar un mensaje y detener el proceso.
+    if (errors.length > 0) {
+        alert(errors.join('\n'));
+        return;
+    }
 
         // Crear un objeto para almacenar solo los datos que han sido modificados.
         const updatedData = {};
@@ -286,25 +320,11 @@ export async function handleDocumentUpdate(documentType, documentId) {
         // Enviar la solicitud de actualización solo si hay datos modificados.
         if (Object.keys(updatedData).length > 0) {
             await updateDocumentById(documentType, documentId, updatedData);
-            console.log('Documento actualizado exitosamente.');
+            alert('Documento actualizado exitosamente.');
         } else {
             alert('No se detectaron cambios para actualizar.');
         }
     } catch (error) {
-        console.error('Error al actualizar el documento:', error);
+        alert('Error al actualizar el documento:', error);
     }
 }
-
-
-export async function onSaveButtonClick() {
-    const documentType = sessionStorage.getItem('documentType');
-    const documentId = sessionStorage.getItem('documentId');
-
-    if (documentType && documentId) {
-        await handleDocumentUpdate(documentType, documentId);
-    } else {
-        alert('No se encontraron los parámetros necesarios para la actualización.');
-    }
-}
-
-

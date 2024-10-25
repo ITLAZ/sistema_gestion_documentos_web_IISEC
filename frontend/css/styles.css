@@ -243,19 +243,19 @@ aside {
 }
 
 /* Reglas Form */
-aside .advanced-search {
+aside .advanced-search{
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.input-group {
+.input-group, .form-group {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.input-group select {
+.input-group select, .form-group select {
   border: 1px solid #000;
   padding: 10px;
   font-size: 15px;
@@ -265,7 +265,7 @@ aside .advanced-search {
   border-radius: 10px;
 }
 
-.input-group input {
+.input-group input, .form-group input {
   border: 1px solid #000;
   padding: 10px;
   font-size: 15px;
@@ -274,7 +274,7 @@ aside .advanced-search {
 }
 
 .advanced-search .input-group button,
-.input-group button {
+.input-group button, #document-form button {
   background-color: var(--button-bg-color);
   color: var(--button-text-color);
   font-size: 18px;
@@ -287,7 +287,7 @@ aside .advanced-search {
 }
 
 .advanced-search .input-group button:hover,
-.input-group button:hover {
+.input-group button:hover, #document-form button:hover {
   background-color: var(--button-hover-bg-color);
   color: var(--button-hover-text-color);
 }
@@ -368,5 +368,30 @@ aside .advanced-search {
   background-color: var(--card-bg-color);
   color: var(--card-text-color);
   border-radius: 10px;
+}
 
+#document-form {
+  padding: 20px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background-color: var(--card-bg-color);
+  border-radius: 20px;
+  border: var(--border-color) 2px solid;
+}
+
+#document-form .form-group textarea {
+  height: 250px;
+  resize: none;
+  border-radius: 10px;
+  padding: 10px; 
+}
+
+#abstract-group, #observacion-group, #msj_clave-group{
+  grid-column: 1 / 3;
+}
+
+#document-form button {
+  grid-column: 1 / 3;
 }

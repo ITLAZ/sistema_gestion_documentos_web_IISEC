@@ -5,11 +5,13 @@ import { CapitulosLibrosController } from 'src/controllers/capitulos-libros.cont
 import { CapituloLibro, CapituloLibroSchema } from 'src/schemas/capitulos-libros.schema';
 import { CapitulosLibrosService } from 'src/services/capitulos-libros/capitulos-libros.service';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import { SearchService } from 'src/services/search/search.service';
+import { MyElasticsearchModule } from '../my-elasticsearch/my-elasticsearch.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: CapituloLibro.name, schema: CapituloLibroSchema }])],
+  imports: [MongooseModule.forFeature([{ name: CapituloLibro.name, schema: CapituloLibroSchema }]), MyElasticsearchModule],
   controllers: [CapitulosLibrosController],
-  providers: [CapitulosLibrosService, FileUploadService],
+  providers: [CapitulosLibrosService, FileUploadService, SearchService],
   exports: [CapitulosLibrosService],
 })
 export class CapitulosLibrosModule {}

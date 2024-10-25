@@ -1,3 +1,60 @@
+:root {
+  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out,
+    border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+
+  /* Tema claro */
+  [data-theme="light"] {
+    --background-color: #fff;
+    --text-color: #333;
+    --navbar-bg-color: #f4f4f4;
+    --navbar-border-color: #ddd;
+    --card-bg-color: #232954;
+    --card-text-color: #fff;
+    --border-color: #ddd;
+    --button-bg-color: #ddd;
+    --button-text-color: #232954;
+    --button-hover-bg-color: #0056b3;
+    --button-hover-text-color: #f4f4f4;
+  }
+
+  /* Tema Oscuro */
+  [data-theme="dark"] {
+    --background-color: #1e1e1e;
+    /* Un gris más oscuro para el fondo */
+    --text-color: #e0e0e0;
+    /* Texto más claro para mejor visibilidad */
+    --navbar-bg-color: #262626;
+    /* Mantenido para el fondo de la barra de navegación */
+    --navbar-border-color: #444;
+    /* Color de borde más tenue */
+    --card-bg-color: #2c2c2c;
+    /* Fondo de tarjeta más oscuro */
+    --card-text-color: #f4f4f4;
+    /* Texto de tarjeta claro */
+    --border-color: #444;
+    /* Color de borde oscuro */
+    --button-bg-color: #444;
+    /* Fondo de botón oscuro */
+    --button-text-color: #fff;
+    /* Texto blanco en botones */
+    --button-hover-bg-color: #007bff;
+    /* Azul más brillante para el hover */
+    --button-hover-text-color: #fff;
+    /* Texto blanco en hover */
+  }
+}
+
+/* General transition for the body and other elements */
+body, .navbar, .card, aside, main {
+  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out,
+    border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+}
+
+/* Add transitions to buttons */
+button, .toggle-theme-btn {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Reglas Generales */
 * {
   margin: 0;
@@ -7,8 +64,8 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #fff;
-  color: #333;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 /* Reglas Navbar */
@@ -16,10 +73,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f4f4f4;
-  border-bottom: 2px solid #ddd;
+  background-color: var(--navbar-bg-color);
+  border-bottom: 2px solid var(--navbar-border-color);
   padding: 15px 20px;
 }
+
 .navbar-logo {
   display: block;
   width: 30%;
@@ -42,7 +100,7 @@ body {
 
 .navbar-links li a {
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
   font-weight: bold;
   font-size: 18px;
   transition: color 0.3s ease;
@@ -67,13 +125,13 @@ main {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background-color: #f4f4f4;
+  background-color: var(--navbar-bg-color);
   border-radius: 20px;
   gap: 10px;
   overflow-y: scroll;
-  scrollbar-color: #ddd #f4f4f4;
+  scrollbar-color: #ddd var(--navbar-bg-color);
   scrollbar-width: none;
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-color);
 }
 
 main h2 {
@@ -84,10 +142,10 @@ aside {
   width: 30%;
   height: 80vh;
   padding: 20px;
-  background-color: #232954;
+  background-color: var(--card-bg-color);
   border-radius: 20px;
-  border: 2px solid #ddd;
-  color: #fff;
+  border: 2px solid var(--border-color);
+  color: var(--card-text-color);
 }
 
 /* Reglas Card */
@@ -96,10 +154,10 @@ aside {
   height: 250px;
   padding: 20px;
   gap: 20px;
-  border: #333 1px solid;
+  border: var(--text-color) 1px solid;
   border-radius: 10px;
-  background-color: #232954;
-  color: #fff;
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
   margin-top: 10px;
 }
 
@@ -151,6 +209,7 @@ aside {
   overflow: hidden;
   white-space: normal;
 }
+
 .card .card-body .card-text {
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -204,33 +263,31 @@ aside {
 }
 
 .dropdown-content a:hover {
-  background-color: #f1f1f1
+  background-color: #f1f1f1;
 }
 
 /* Reglas Form */
-aside .advanced-search {
+aside .advanced-search{
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-#document-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  background-color: #f4f4f4;
-  border-radius: 20px;
-  border: #333 1px solid;
-}
-
-.input-group, .form-group {
+.input-group,
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.input-group select, .form-group select {
+.input-group label, .form-group label {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--card-text-color);
+}
+
+.input-group select,
+.form-group select {
   border: 1px solid #000;
   padding: 10px;
   font-size: 15px;
@@ -240,7 +297,8 @@ aside .advanced-search {
   border-radius: 10px;
 }
 
-.input-group input, .form-group input{
+.input-group input,
+.form-group input {
   border: 1px solid #000;
   padding: 10px;
   font-size: 15px;
@@ -248,24 +306,11 @@ aside .advanced-search {
   border-radius: 10px;
 }
 
-#abstract-group, #observacion-group, #msj_clave-group{
-  grid-column: 1 / 3;
-}
-
-.form-group textarea {
-  border: 1px solid #000;
-  padding: 10px;
-  font-size: 15px;
-  outline: none;
-  border-radius: 10px;
-  height: 200px;
-  width: 100%;
-  resize: none;
-}
-
+.advanced-search .input-group button,
+.input-group button,
 #document-form button {
-  background-color: #232954;
-  color: #fff;
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
   font-size: 18px;
   text-transform: uppercase;
   padding: 10px;
@@ -273,28 +318,13 @@ aside .advanced-search {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
-  grid-column: 1/3;
 }
 
+.advanced-search .input-group button:hover,
+.input-group button:hover,
 #document-form button:hover {
-  background-color: #0056b3;
-}
-
-.advanced-search .input-group button{
-  background-color: #ddd;
-  color: #232954;
-  font-size: 18px;
-  text-transform: uppercase;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.advanced-search .input-group button:hover {
-  background-color: #0056b3;
-  color: #f4f4f4;
+  background-color: var(--button-hover-bg-color);
+  color: var(--button-hover-text-color);
 }
 
 /* Reglas Login */
@@ -305,15 +335,14 @@ aside .advanced-search {
   height: 100vh;
 }
 
-
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
-  background-color: #f4f4f4;
+  background-color: var(--navbar-bg-color);
   border-radius: 30px;
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-color);
 }
 
 .login-form img {
@@ -323,26 +352,102 @@ aside .advanced-search {
   margin-bottom: 50px;
 }
 
-.input-group button{
-  margin-top: 50px;
-  background-color: #232954;
-  color: #fff;
-  font-size: 18px;
-  text-transform: uppercase;
-  padding: 10px;
+/* Estilos para el botón de cambio de tema */
+.toggle-theme-btn {
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  padding: 10px 20px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-weight: bold;
 }
 
-.input-group button:hover {
-  background-color: #0056b3;
+.toggle-theme-btn:hover {
+  background-color: var(--button-hover-bg-color);
+  color: var(--button-hover-text-color);
+}
+
+#report-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.report-filter {
+  gap: 20px;
+  width: 20%;
+}
+
+.report-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 80%;
+}
+
+.report-container ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding: 20px;
+}
+
+.report-container ul li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
+  border-radius: 10px;
+}
+
+#document-form {
+  padding: 20px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background-color: var(--card-bg-color);
+  border-radius: 20px;
+  border: var(--border-color) 2px solid;
+}
+
+#document-form .form-group textarea {
+  height: 250px;
+  resize: none;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+#abstract-group,
+#observacion-group,
+#msj_clave-group {
+  grid-column: 1 / 3;
+}
+
+#document-form button {
+  grid-column: 1 / 3;
+}
+
+.document-details .details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.document-details .details .info {
+  display: flex;
+  font-size: 16px;
+  flex-direction: column;
+  gap: 10px;
 }
 
 
 /* Estilos de botones para paginacion*/
-
 #pagination-controls {
   text-align: center; 
   margin: 20px 0;
@@ -351,8 +456,6 @@ aside .advanced-search {
   align-items: center;
   gap: 10px; /* Espacio entre los botones y la información de la página */
 }
-
-
 #prev-page,
 #next-page {
     background-color:#3c4271; /* Azul */
@@ -365,8 +468,55 @@ aside .advanced-search {
     font-size: 1em;
     transition: background-color 0.3s;
 }
-
 #prev-page:hover,
 #next-page:hover {
     background-color: #3c4271; /* Un azul más oscuro para el hover */
+}
+
+.edit-actions {
+  grid-column: 1 / 3;
+  display: flex;
+  gap: 10px;
+}
+
+/*Tarjetas resumen - reportes*/
+.summary-container {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px; /* Espacio entre las tarjetas */
+  margin-bottom: 20px; /* Separación inferior */
+}
+
+.summary-card {
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 30%;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  text-align: center;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+
+
+.summary-card h3 {
+  font-size: 1.2em; /* Tamaño de la fuente para el título */
+  margin-bottom: 10px; /* Separación del título y el contenido */
+  color: var(--card-text-color); /* Cambiar color según el tema */
+  transition: color 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+.summary-card p {
+  font-size: 1.0em; /* Tamaño del texto para el valor */
+  margin: 0;
+  font-weight: bold; /* Negrita para destacar el número */
+  color: var(--card-text-color); /* Cambiar color según el tema */
+  transition: color 0.3s ease; /* Transición suave para el cambio de color */
 }

@@ -33,6 +33,10 @@ app.get('/preview', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates','vistadoc.html'));
 });
 
+app.get('/edits', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','editar.html'));
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

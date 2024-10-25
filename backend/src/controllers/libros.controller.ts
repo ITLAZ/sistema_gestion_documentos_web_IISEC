@@ -1,17 +1,18 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query, InternalServerErrorException } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileUploadService } from 'src/services/file-upload/file-upload.service';  
+import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { Types } from 'mongoose';
 import { SearchService } from 'src/services/search/search.service';
-import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { ApiBody, ApiConsumes, ApiParam, ApiQuery, ApiResponse, ApiTags, getSchemaPath, ApiOperation } from '@nestjs/swagger';
+import { LibrosResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 
-// Función para obtener las opciones de Multer
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Libros')
 @Controller('libros')
 export class LibrosController {
   constructor(
@@ -21,109 +22,296 @@ export class LibrosController {
   ) {}
 
   @Get('update-libros')
+  @ApiOperation({ summary: ' Actualizar la indexación de todos los libros en Elasticsearch' })
+  @ApiResponse({ status: 200, description: ' Actualiza todos los libros en Elasticsearch.' })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
   async updateLibros(): Promise<void> {
-    this.librosService.updateAllLibros();
+    try {
+      this.librosService.updateAllLibros();
+    } catch (error) {
+      throw new InternalServerErrorException('Error al actualizar los libros en Elasticsearch.');
+    }
   }
 
   @Get('search')
-  async searchBooks(@Query('q') query: string): Promise<any[]> { // Define el tipo de retorno como un arreglo de cualquier tipo
-    const results: SearchResponse<any> = await this.searchService.search('libros', {
-      multi_match: {
-        query,
-        fields: ['titulo', 'autores', 'abstract'],
-      },
-    });
+  @ApiOperation({ summary: ' Buscar libros por un término' })
+  @ApiQuery({ name: 'query', required: true, description: ' Término de búsqueda', example: 'Análisis de Datos' })
+  @ApiQuery({ name: 'page', required: false, description: ' Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: ' Cantidad de resultados por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: ' Campo por el cual ordenar', example: 'anio_publicacion' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: ' Orden ascendente o descendente', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: ' Año de publicación para filtrar', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: ' Filtrar por autor', example: 'Maria Lopez' })
+  @ApiResponse({
+    status: 200,
+    description: 'Resultados de búsqueda obtenidos correctamente',
+    type: LibrosResponseDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: 400, description: ' Parámetros de búsqueda inválidos' })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
+  async searchBooks(
+    @Query('query') query: string,
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string,
+    @Query('sortOrder') sortOrder: string,
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ) {
+    try {
+      const pageNumber = parseInt(page, 10);
+      const pageSize = parseInt(size, 10);
+      const sortField = sortBy || 'anio_publicacion';
+      const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';
 
-    return results.hits.hits.map((hit) => hit._source); // Accede directamente a hits sin usar results.body
+      const results = await this.searchService.searchByType(
+        'libros', 
+        query, 
+        pageNumber, 
+        pageSize,
+        {
+          anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
+          autores
+        }, 
+        sortField, 
+        sortDirection,
+      );
+      return results;
+    } catch (error) {
+      throw new InternalServerErrorException('Error al realizar la búsqueda de libros.');
+    }
   }
 
   @Get()
-  async findAll(): Promise<Libro[]> {
-    return this.librosService.findAll();
+  @ApiOperation({ summary: 'Obtener todos los libros' })
+  @ApiQuery({ name: 'page', required: false, description: ' Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: ' Cantidad de elementos por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: ' Campo por el que ordenar', example: 'titulo' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: ' Dirección del orden: "asc" o "desc"', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: ' Filtrar por año de publicación', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: ' Filtrar por autores', example: 'Carlos Martínez' })
+  @ApiResponse({ status: 200, description: ' Obtiene todos los libros.', type: Libro, isArray: true })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
+  async findAll(
+    @Query('page') page: string,
+    @Query('size') size: string,
+    @Query('sortBy') sortBy: string,
+    @Query('sortOrder') sortOrder: string,
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ): Promise<Libro[]> {
+    try {
+      const pageNumber = parseInt(page, 10) || 1;
+      const pageSize = parseInt(size, 10) || 10;
+      const sortField = sortBy || 'titulo';
+      const sortDirection = sortOrder || 'asc';
+      const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
+
+      return this.librosService.findAll(
+        pageNumber, 
+        pageSize, 
+        sortField, 
+        sortDirection,
+        autores,
+        anio,
+      );
+    } catch (error) {
+      throw new InternalServerErrorException('Error al obtener los libros.');
+    }
   }
 
   @Get('titulo/:titulo')
+  @ApiOperation({ summary: 'Buscar libros por título' })
+  @ApiParam({ name: 'titulo', description: 'Título del libro a buscar', example: 'Análisis de Datos' })
+  @ApiResponse({ status: 200, description: 'Encuentra libros por título.', type: Libro, isArray: true })
+  @ApiResponse({ status: 400, description: 'Título inválido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findByTitulo(@Param('titulo') titulo: string): Promise<Libro[]> {
-    return this.librosService.findByTitulo(titulo);
+    try {
+      return this.librosService.findByTitulo(titulo);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar libros por título.');
+    }
   }
 
   @Get('autor/:autor')
+  @ApiOperation({ summary: 'Buscar libros por autor' })
+  @ApiParam({ name: 'autor', description: 'Autor del libro a buscar', example: 'Maria Lopez' })
+  @ApiResponse({ status: 200, description: 'Encuentra libros por autor.', type: Libro, isArray: true })
+  @ApiResponse({ status: 400, description: 'Nombre de autor inválido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findByAutor(@Param('autor') autor: string): Promise<Libro[]> {
-    return this.librosService.findByAutor(autor);
-  }
-  
-  @Get('id/:id')
-  async findById(@Param('id') id: string): Promise<Libro> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new Error('ID no válido');
+    try {
+      return this.librosService.findByAutor(autor);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar libros por autor.');
     }
-    return this.librosService.findById(id);
+  }
+
+  @Get('id/:id')
+  @ApiOperation({ summary: 'Obtener un libro por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del libro a buscar', example: '6715d835ce1db7b621aa7790' })
+  @ApiResponse({ status: 200, description: 'Encuentra un libro por su ID.', type: Libro })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findById(@Param('id') id: string): Promise<Libro> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+      return this.librosService.findById(id);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al buscar el libro por ID.');
+    }
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Actualizar un libro por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del libro a actualizar', example: '6715d835ce1db7b621aa7790' })
+  @ApiBody({ type: Libro, description: 'Datos actualizados del libro' })
+  @ApiResponse({ status: 200, description: 'Actualiza un libro por su ID.', type: Libro })
+  @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async update(@Param('id') id: string, @Body() libro: Partial<Libro>): Promise<Libro> {
-    return this.librosService.update(id, libro);
+    try {
+      return this.librosService.update(id, libro);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al actualizar el libro.');
+    }
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: ' Eliminar un libro por su ID' })
+  @ApiParam({ name: 'id', description: ' ID del libro a eliminar', example: '6715d835ce1db7b621aa7790' })
+  @ApiResponse({ status: 200, description: ' Elimina un libro por su ID.', type: Libro })
+  @ApiResponse({ status: 400, description: ' ID no válido' })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
   async delete(@Param('id') id: string): Promise<Libro> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new Error('ID no válido');
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+      return this.librosService.delete(id);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al eliminar el libro.');
     }
-    return this.librosService.delete(id);
   }
 
   @Post('upload')
+  @ApiOperation({ summary: 'Crear un libro con archivo de PDF' })
   @UseInterceptors(
     FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Datos del libro y archivo PDF a subir.',
+    schema: {
+      type: 'object',
+      properties: {
+        portada: { type: 'string', example: 'portada.jpg', description: 'URL de la portada del libro' },
+        anio_publicacion: { type: 'string', example: '2023', description: 'Año de publicación del libro' },
+        titulo: { type: 'string', example: 'Título de prueba', description: 'Título del libro' },
+        autores: {
+          type: 'string',
+          example: 'Autor 1, Autor 2',
+          description: 'Lista de autores del libro separados por comas',
+        },
+        editorial: { type: 'string', example: 'Editorial de prueba', description: 'Editorial del libro' },
+        abstract: { type: 'string', example: 'Abstract de prueba', description: 'Resumen del libro' },
+        link_pdf: { type: 'string', example: 'http://example.com/libro.pdf', description: 'Enlace al archivo PDF' },
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo PDF del libro a cargar',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Crea un libro con archivo de carga.', type: Libro })
+  @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
-    @Body() libro: Libro,
+    @Body() libroData: any,
     @UploadedFile() file: Express.Multer.File
   ): Promise<Libro> {
-    if (!file || !libro) {
-      throw new BadRequestException('Faltan datos necesarios');
+    try {
+      // Validar que el archivo y los datos del libro estén presentes
+      if (!file) {
+        throw new BadRequestException('El archivo PDF es obligatorio');
+      }
+      if (!libroData || !libroData.titulo || !libroData.anio_publicacion || !libroData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del libro');
+      }
+
+      // Convertir autores a un arreglo si es necesario
+      const autoresArray = typeof libroData.autores === 'string'
+        ? libroData.autores.split(',').map((autor: string) => autor.trim())
+        : libroData.autores;
+
+      // Procesar el archivo subido
+      const procesado = this.fileUploadService.procesarArchivo(
+        file,
+        libroData.titulo ?? 'Sin título',
+        autoresArray.join(' ') ?? 'Autor desconocido',
+        libroData.anio_publicacion?.toString() ?? '0000',
+        'Lib',
+        'C:/tmp'
+      );
+
+      // Crear un nuevo objeto de libro con los datos procesados
+      const nuevoLibro: Partial<Libro> = {
+        portada: libroData.portada,
+        anio_publicacion: parseInt(libroData.anio_publicacion, 10),
+        titulo: libroData.titulo,
+        autores: autoresArray,
+        editorial: libroData.editorial,
+        abstract: libroData.abstract,
+        link_pdf: libroData.link_pdf,
+        direccion_archivo: procesado.path,
+      };
+
+      // Guardar el libro en la base de datos
+      return this.librosService.create(nuevoLibro as Libro);
+    } catch (error) {
+      console.error('Error al crear el libro:', error.message);
+      throw new InternalServerErrorException('Error al crear el libro.');
     }
-
-    const procesado = this.fileUploadService.procesarArchivo(
-      file,
-      libro.titulo ?? 'Sin título',
-      libro.autores?.join(' ') ?? 'Autor desconocido',
-      libro.anio_publicacion?.toString() ?? '0000',
-      'Lib',
-      'C:/tmp'
-    );
-
-    const nuevoLibro: Partial<Libro> = {
-      portada: libro.portada,
-      anio_publicacion: libro.anio_publicacion,
-      titulo: libro.titulo,
-      autores: libro.autores,
-      editorial: libro.editorial,
-      abstract: libro.abstract,
-      link_pdf: libro.link_pdf,
-      direccion_archivo: procesado.path,
-    };
-    
-    return this.librosService.create(nuevoLibro as Libro);
   }
 
+
+
   @Post('no-upload')
+  @ApiOperation({ summary: 'Crear un libro sin archivo de PDF' })
+  @ApiBody({ type: Libro, description: 'Datos del libro sin archivo' })
+  @ApiResponse({ status: 201, description: 'Crea un libro sin archivo de carga.', type: Libro })
+  @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async createWithoutFile(@Body() libro: Libro): Promise<Libro> {
-    if (!libro) {
-      throw new BadRequestException('Faltan datos necesarios');
+    try {
+      if (!libro) {
+        throw new BadRequestException('Faltan datos necesarios');
+      }
+
+      const nuevoLibro: Partial<Libro> = {
+        portada: libro.portada,
+        anio_publicacion: libro.anio_publicacion,
+        titulo: libro.titulo,
+        autores: libro.autores,
+        editorial: libro.editorial,
+        abstract: libro.abstract,
+        link_pdf: libro.link_pdf,
+      };
+
+      return this.librosService.create(nuevoLibro as Libro);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al crear el libro sin archivo.');
     }
-
-    const nuevoLibro: Partial<Libro> = {
-      portada: libro.portada,
-      anio_publicacion: libro.anio_publicacion,
-      titulo: libro.titulo,
-      autores: libro.autores,
-      editorial: libro.editorial,
-      abstract: libro.abstract,
-      link_pdf: libro.link_pdf,
-    };
-
-    return this.librosService.create(nuevoLibro as Libro);
   }
 }

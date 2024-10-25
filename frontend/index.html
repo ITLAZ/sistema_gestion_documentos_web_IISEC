@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preload" href="css/styles.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
 </head>
 
 <body>
@@ -17,10 +18,10 @@
                     <h3>Tipo de Archivo:</h3>
                     <select name="document-type" id="type-selector">
                         <option value="">Escoge una opción</option>
-                        <option value="all">Todos</option>
+                        <option value="all-types">Todos</option>
                         <option value="libros">Libros</option>
                         <option value="articulos-revistas">Artículos</option>
-                        <option value="capitulos-capitulos">Capítulos</option>
+                        <option value="capitulos-libros">Capítulos</option>
                         <option value="documentos-trabajo">Documentos de Trabajo</option>
                         <option value="ideas-reflexiones">Ideas y Reflexiones</option>
                         <option value="info-iisec">Info IISEC</option>
@@ -29,11 +30,14 @@
                 </div>
                 <div class="input-group">
                     <h3>Búsqueda Avanzada:</h3>
-                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave...">
+                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave..." pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
+                </div><div class="input-group">
+                    <h3>Autor:</h3>
+                    <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..." pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
                 </div>
                 <div class="input-group">
-                    <h3>Fecha de Publicación:</h3>
-                    <input type="date" name="publication-date" id="publication-date">
+                    <h3>Año de Publicación:</h3>
+                    <input type="number" step="1" name="publication-date" id="publication-date">
                 </div>
                 <!-- Botón de búsqueda -->
                 <div class="input-group">

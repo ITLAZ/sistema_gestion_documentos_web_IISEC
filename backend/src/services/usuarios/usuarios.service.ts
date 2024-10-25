@@ -26,6 +26,17 @@ export class UsuariosService {
     return this.UsuarioModel.find().exec();
   }
 
+  async getUserById(id_usuario: string): Promise<Usuario> {
+    const usuario = await this.UsuarioModel.findById(id_usuario).exec();
+    
+    if (!usuario) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+  
+    return usuario;
+  }
+ 
+
   async validarCredenciales(usuario: string, plainPassword: string): Promise<string | null> {
     // Buscar el usuario en la base de datos por su nombre de usuario
     const usuarioEncontrado = await this.UsuarioModel.findOne({ usuario });
@@ -44,4 +55,20 @@ export class UsuariosService {
     // Retorna el ID del usuario si las credenciales son válidas
     return usuarioEncontrado._id.toString();
   }
+
+
+  async updateTheme(id_usuario: string, theme: number): Promise<Usuario> {
+    const usuarioActualizado = await this.UsuarioModel.findByIdAndUpdate(
+      id_usuario,
+      { theme }, // Actualizar solo el campo `theme`
+      { new: true } // Retornar el documento actualizado
+    ).exec();
+  
+    if (!usuarioActualizado) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+  
+    return usuarioActualizado;
+  }
+  
 }

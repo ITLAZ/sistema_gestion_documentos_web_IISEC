@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class PoliciesBriefsService {
   constructor(
     @InjectModel(PolicyBrief.name) private PolicyBriefModel: Model<PolicyBrief>,
+    private searchService: SearchService,
   ) {}
 
   // Crear un PolicyBrief
@@ -16,8 +18,31 @@ export class PoliciesBriefsService {
   }
 
   // Obtener todos los PolicyBriefs
-  async findAll(): Promise<PolicyBrief[]> {
-    return this.PolicyBriefModel.find().exec();
+  async findAll(
+    page: number = 1,
+    size: number = 10,
+    sortBy: string = 'anio_publicacion',
+    sortOrder: string = 'asc',
+    autor?: string,
+    anio_publicacion?: number
+  ): Promise<PolicyBrief[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    // Construir el filtro dinámico
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor;
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+  
+    return this.PolicyBriefModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
 
   // Buscar un PolicyBrief por su título
@@ -42,7 +67,7 @@ export class PoliciesBriefsService {
 
   // Actualizar un PolicyBrief por su id
   async update(id: string, PolicyBrief: Partial<PolicyBrief>): Promise<PolicyBrief> {
-    return this.PolicyBriefModel.findOneAndUpdate({ id }, PolicyBrief, { new: true }).exec();
+    return this.PolicyBriefModel.findOneAndUpdate({ _id: id }, PolicyBrief, { new: true }).exec();
   }
 
   // Eliminar un PolicyBrief por su id
@@ -50,4 +75,21 @@ export class PoliciesBriefsService {
     return this.PolicyBriefModel.findByIdAndDelete(id).exec();
   }
 
+  //Metodos ElasticSearch
+  async syncPoliciesWithElasticsearch() {
+    const policies = await this.PolicyBriefModel.find().exec();
+    
+    for (const policy of policies) {
+      await this.searchService.indexDocument(
+        'policies-briefs',    // Índice en Elasticsearch
+        policy._id.toString(),
+        {
+          titulo: policy.titulo,              // Campo para búsquedas
+          autores: policy.autores,            // Campo para búsquedas
+          anio_publicacion: policy.anio_publicacion, // Campo para filtros o búsquedas
+          mensaje_clave: policy.mensaje_clave         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
+  }
 }

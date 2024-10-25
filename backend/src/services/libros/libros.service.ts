@@ -17,6 +17,23 @@ export class LibrosService {
     return nuevoLibro.save();
   }
 
+  async syncLibrosWithElasticsearch() {
+    const libros = await this.libroModel.find().exec();
+    
+    for (const libro of libros) {
+      await this.searchService.indexDocument(
+        'libros',    // Índice en Elasticsearch
+        libro._id.toString(),
+        {
+          titulo: libro.titulo,              // Campo para búsquedas
+          autores: libro.autores,            // Campo para búsquedas
+          anio_publicacion: libro.anio_publicacion, // Campo para filtros o búsquedas
+          abstract: libro.abstract           // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
+  }
+  
   async updateAllLibros(): Promise<void> {
     try {
       const libros = await this.libroModel.find().exec();
@@ -42,8 +59,31 @@ export class LibrosService {
   }
 
   // Obtener todos los libros
-  async findAll(): Promise<Libro[]> {
-    return this.libroModel.find().exec();
+  async findAll(
+    page: number = 1, 
+    size: number = 10, 
+    sortBy: string = 'anio_publicacion', 
+    sortOrder: string = 'asc',
+    autor?: string, // Parámetro opcional para filtrar por autor
+    anio_publicacion?: number // Parámetro opcional para filtrar por año de publicación
+  ): Promise<Libro[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'desc' ? -1 : 1; // Si es 'desc', ordenamos de forma descendente, si no, de forma ascendente.
+    
+    // Creamos el objeto de filtro dinámicamente
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor; // Asumimos que el campo en la base de datos es 'autores'
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+
+    return this.libroModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
 
   // Buscar un libro por su título
@@ -68,7 +108,7 @@ export class LibrosService {
 
   // Actualizar un libro por su id
   async update(id: string, libro: Partial<Libro>): Promise<Libro> {
-    return this.libroModel.findOneAndUpdate({ id }, libro, { new: true }).exec();
+    return this.libroModel.findOneAndUpdate({ _id: id }, libro, { new: true }).exec();
   }
 
    // Eliminar un libro por su id

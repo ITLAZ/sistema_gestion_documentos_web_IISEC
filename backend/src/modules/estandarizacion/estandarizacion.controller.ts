@@ -10,11 +10,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { EstandarizacionService } from './estandarizacion.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('estandarizacion')
 export class EstandarizacionController {
   constructor(private readonly estandarizacionService: EstandarizacionService) {}
 
+  @ApiExcludeEndpoint()
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {

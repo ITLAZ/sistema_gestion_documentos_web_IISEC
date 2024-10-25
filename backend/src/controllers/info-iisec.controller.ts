@@ -1,25 +1,91 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { InfoIisecService } from 'src/services/info-iisec/info-iisec.service';
 import { InfoIISEC } from 'src/schemas/info-iisec.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SearchService } from 'src/services/search/search.service';
+import { InfoIISECResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
 };
 
+@ApiTags('Info-IISEC') 
 @Controller('info-iisec')
 export class InfoIisecController {
     constructor(
       private readonly infoIisecService: InfoIisecService,
+      private readonly searchService: SearchService,
       private readonly fileUploadService: FileUploadService
     ) {}
 
   // Obtener todos los Info IISEC
   @Get()
-  async findAll(): Promise<InfoIISEC[]> {
-    return this.infoIisecService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string = 'anio_publicacion',
+    @Query('sortOrder') sortOrder: string = 'asc',
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ): Promise<InfoIISEC[]> {
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageSize = parseInt(size, 10) || 10;
+    const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
+  
+    return this.infoIisecService.findAll(
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortOrder,
+      autores,
+      anio
+    );
+  }
+
+  @Get('search')
+  @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
+  @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
+  @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Field for sort' })  // Opcional
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Form of order for sort' })  // Opcional
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
+  @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
+  @ApiResponse({
+    status: 200,
+    description: 'Search results retrieved successfully',
+    type: InfoIISECResponseDto, // El tipo correcto que retornas
+    isArray: true // Si devuelves un array de resultados
+  })
+  async searchBooks(
+    @Query('query') query: string,
+    @Query('page') page: string = '1',
+    @Query('size') size: string = '10',
+    @Query('sortBy') sortBy: string,       // Campo por el que ordenar
+    @Query('sortOrder') sortOrder: string,  // Dirección del orden: 'asc' o 'desc'
+    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('autores') autores?: string,
+  ) {
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(size, 10);
+    const sortField = sortBy || 'anio_publicacion';  // Campo predeterminado si no se proporciona
+    const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';  // Establecer 'asc' por defecto
+
+    const results = await this.searchService.searchByType(
+      'info-iisec', 
+      query,
+      pageNumber, 
+      pageSize,
+        {
+          anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
+          autores
+        }, 
+      sortField, 
+      sortDirection,
+    );
+    return results;
   }
   
   // Buscar Info IISEC por aproximación del título

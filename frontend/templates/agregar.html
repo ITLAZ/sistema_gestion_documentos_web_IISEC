@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="../css/styles.css"></noscript>
 </head>
 <body>
     <div id="menu-container"></div>
@@ -17,7 +18,7 @@
                     <option value="">--Seleccione el Tipo de Documento--</option>
                     <option value="libros" selected>Libros</option>
                     <option value="articulos-revistas">Artículos de Revistas</option>
-                    <option value="capitulos-capitulos">Capítulos de Libros</option>
+                    <option value="capitulos-libros">Capítulos de Libros</option>
                     <option value="documentos-trabajo">Documentos de Trabajo</option>
                     <option value="ideas-reflexiones">Ideas y Reflexiones</option>
                     <option value="info-iisec">Info IISEC</option>
@@ -34,7 +35,7 @@
             <!-- Campo Autor(es) -->
             <div class="form-group">
                 <label for="authors"><strong>Autor(es) (separados por comas):</strong></label>
-                <input type="text" id="authors" name="authors" class="form-control" placeholder="Autor(es)" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]" required>
+                <input type="text" id="authors" name="authors" class="form-control" placeholder="Autor(es)" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*" required>
             </div>
         
             <!-- Campo Año de Publicación -->
@@ -59,7 +60,7 @@
             <!-- Campo Editor(es) -->
             <div class="form-group" id="editores-group" style="display: none;">
                 <label for="editores"><strong>Editor(es) (separados por comas):</strong></label>
-                <input type="text" id="editores" name="editores" class="form-control" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]" placeholder="Editor(es)">
+                <input type="text" id="editores" name="editores" class="form-control" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*" placeholder="Editor(es)">
             </div>
         
             <!-- Campo Número de Artículo (Para Artículos de Revistas) -->
@@ -127,4 +128,5 @@
     </div>
 </body>
 <script src="../js/services/form_service.js" type="module"></script>
+<script src="../js/main.js" type="module"></script>
 </html>

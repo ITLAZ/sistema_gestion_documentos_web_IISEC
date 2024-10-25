@@ -2,11 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { InfoIISEC } from "src/schemas/info-iisec.schema";
+import { SearchService } from "../search/search.service";
 
 @Injectable()
 export class InfoIisecService {
   constructor(
-    @InjectModel(InfoIISEC.name) private InfoIISECModel: Model<InfoIISEC>
+    @InjectModel(InfoIISEC.name) private InfoIISECModel: Model<InfoIISEC>,
+    private readonly searchService: SearchService,
   ) {}
 
   // Crear un InfoIISEC
@@ -16,8 +18,31 @@ export class InfoIisecService {
   }
 
   // Obtener todos los InfoIISECs
-  async findAll(): Promise<InfoIISEC[]> {
-    return this.InfoIISECModel.find().exec();
+  async findAll(
+    page: number = 1,
+    size: number = 10,
+    sortBy: string = 'anio_publicacion',
+    sortOrder: string = 'asc',
+    autor?: string,
+    anio_publicacion?: number
+  ): Promise<InfoIISEC[]> {
+    const skip = (page - 1) * size;
+    const order = sortOrder === 'asc' ? 1 : -1;
+    
+    // Construir el filtro dinámico
+    const filter: any = {};
+    if (autor) {
+      filter.autores = autor;
+    }
+    if (anio_publicacion) {
+      filter.anio_publicacion = anio_publicacion;
+    }
+  
+    return this.InfoIISECModel.find(filter)
+      .skip(skip)
+      .limit(size)
+      .sort({ [sortBy]: order })
+      .exec();
   }
 
   // Buscar un InfoIISEC por su título
@@ -46,7 +71,7 @@ export class InfoIisecService {
 
   // Actualizar un InfoIISEC por su id
   async update(id: string, InfoIISEC: Partial<InfoIISEC>): Promise<InfoIISEC> {
-    return this.InfoIISECModel.findOneAndUpdate({ id }, InfoIISEC, {
+    return this.InfoIISECModel.findOneAndUpdate({ _id: id }, InfoIISEC, {
       new: true,
     }).exec();
   }
@@ -54,5 +79,23 @@ export class InfoIisecService {
   // Eliminar un InfoIISEC por su id
   async delete(id: string): Promise<InfoIISEC> {
     return this.InfoIISECModel.findByIdAndDelete(id).exec();
+  }
+
+  //Metodos ElasticSearch
+  async syncInfoIisecWithElasticsearch() {
+    const infos = await this.InfoIISECModel.find().exec();
+    
+    for (const info of infos) {
+      await this.searchService.indexDocument(
+        'info-iisec',    // Índice en Elasticsearch
+        info._id.toString(),
+        {
+          titulo: info.titulo,              // Campo para búsquedas
+          autores: info.autores,            // Campo para búsquedas
+          anio_publicacion: info.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: info.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+    }
   }
 }

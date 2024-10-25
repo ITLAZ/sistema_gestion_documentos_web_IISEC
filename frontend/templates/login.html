@@ -6,6 +6,39 @@
     <title>Login</title>
     <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="../css/styles.css"></noscript>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const body = document.body;
+
+        // Aplicar el tema almacenado en localStorage
+        const storedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', storedTheme);
+        console.log('Tema almacenado aplicado:', storedTheme);
+
+        // Cargar el componente de navegación
+        fetch('../components/menu_navegacion.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('menu-container').innerHTML = data;
+
+                // Ahora que el componente está cargado, agregar el event listener
+                const themeToggleButton = document.getElementById('theme-toggle');
+                if (themeToggleButton) {
+                    console.log('Botón de cambio de tema encontrado');
+                    themeToggleButton.addEventListener('click', function () {
+                        const currentTheme = body.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                        body.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        console.log('Tema cambiado a:', newTheme);
+                    });
+                } else {
+                    console.log('Botón de cambio de tema no encontrado');
+                }
+            })
+            .catch(error => console.error('Error al cargar el componente de navegación:', error));
+    });
+    </script>
 </head>
 <body>
     <div class="login-container">

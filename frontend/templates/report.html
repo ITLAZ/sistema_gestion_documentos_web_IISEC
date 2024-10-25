@@ -37,83 +37,132 @@
             <!-- Aquí se mostrará el reporte generado -->
         </main>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
     <script type="module">
         const form = document.getElementById('report-form');
-        const reportContainer = document.getElementById('report-container');
+const reportContainer = document.getElementById('report-container');
+const downloadButton = document.getElementById('download-report');
 
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            // Obtener los datos del formulario
-            const author = document.getElementById('author').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            // Lógica simulada para obtener los datos del autor y rango de fechas
-            const data = {
-                books: [
-                    { title: "Libro 1", date: "2021-02-15" },
-                    { title: "Libro 2", date: "2022-07-20" }
-                ],
-                articles: [
-                    { title: "Artículo A", date: "2020-05-10" },
-                    { title: "Artículo B", date: "2022-11-30" }
-                ],
-                chapters: [],
-                "work-documents": [
-                    { title: "Documento de Trabajo 1", date: "2023-01-10" }
-                ]
-            };
+form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    // Obtener los datos del formulario
+    const author = document.getElementById('author').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    console.log('Datos del formulario:', { author, startDate, endDate });
+    
+    // Construir la URL del endpoint con los parámetros
+    const url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
+    console.log('URL del endpoint:', url);
+    
+    try {
+        // Hacer la solicitud al backend
+        const response = await fetch(url);
+        console.log('Respuesta del fetch:', response);
+        
+        // Verificar si la respuesta es correcta
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Datos recibidos del backend:', data);
+        
+        // Limpiar el contenedor del reporte
+        reportContainer.innerHTML = '';
 
-            // Limpiar el contenedor del reporte
-            reportContainer.innerHTML = '';
+        // Filtrar los datos por autor si se ha proporcionado uno
+        const filterByAuthor = (items, author) => {
+            const lowerCaseAuthor = author.toLowerCase();
+            const filteredItems = items.filter(item => 
+                item.autores.some(a => a.toLowerCase().includes(lowerCaseAuthor))
+            );
+            console.log(`Filtrando ${items.length} elementos por autor "${author}". Resultados: ${filteredItems.length}`);
+            return filteredItems;
+        };
+        
+        // Crear una función para renderizar cada sección
+        const renderSection = (sectionTitle, items, titleKey, dateKey) => {
+            console.log(`Renderizando sección: ${sectionTitle} con ${items.length} elementos`);
+            if (items.length > 0) {
+                const section = document.createElement('section');
+                section.classList.add('report-section');
 
-            // Generar el reporte
-            for (const [docType, documents] of Object.entries(data)) {
-                if (documents.length > 0) {
-                    const section = document.createElement('section');
-                    section.classList.add('report-section');
+                // Crear encabezado
+                const header = document.createElement('h2');
+                header.textContent = `${sectionTitle} (${items.length})`;
 
-                    // Crear encabezado
-                    const header = document.createElement('h2');
-                    let docTypeText = '';
-                    switch (docType) {
-                        case 'books':
-                            docTypeText = 'Libros';
-                            break;
-                        case 'articles':
-                            docTypeText = 'Artículos';
-                            break;
-                        case 'chapters':
-                            docTypeText = 'Capítulos';
-                            break;
-                        case 'work-documents':
-                            docTypeText = 'Documentos de Trabajo';
-                            break;
-                        default:
-                            docTypeText = 'Otros';
-                    }
-                    header.textContent = `${docTypeText} (${documents.length})`;
+                // Crear lista
+                const ul = document.createElement('ul');
+                ul.classList.add('card-info');
 
-                    // Crear lista
-                    const ul = document.createElement('ul');
-                    ul.classList.add('card-info');  // Reutilizando el estilo de las listas en las tarjetas
-                    documents.forEach(doc => {
-                        const li = document.createElement('li');
-                        li.textContent = `${doc.title} - Publicado el ${doc.date}`;
-                        ul.appendChild(li);
-                    });
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item[titleKey]} - Publicado el ${item[dateKey]}`;
+                    ul.appendChild(li);
+                });
 
-                    // Agregar encabezado y lista a la sección
-                    section.appendChild(header);
-                    section.appendChild(ul);
+                // Agregar encabezado y lista a la sección
+                section.appendChild(header);
+                section.appendChild(ul);
 
-                    // Agregar la sección al contenedor del reporte
-                    reportContainer.appendChild(section);
-                }
+                // Agregar la sección al contenedor del reporte
+                reportContainer.appendChild(section);
+            } else {
+                console.log(`No hay elementos para mostrar en la sección: ${sectionTitle}`);
             }
+        };
+
+        // Filtrar y renderizar cada tipo de documento
+        renderSection('Libros', filterByAuthor(data.libros, author), 'titulo', 'anio_publicacion');
+        renderSection('Artículos', filterByAuthor(data.articulosRevistas, author), 'titulo', 'anio_revista');
+        renderSection('Capítulos de Libros', filterByAuthor(data.capitulosLibros, author), 'titulo_capitulo', 'anio_publicacion');
+        renderSection('Documentos de Trabajo', filterByAuthor(data.documentosTrabajo, author), 'titulo', 'anio_publicacion');
+        renderSection('Ideas y Reflexiones', filterByAuthor(data.ideasReflexiones, author), 'titulo', 'anio_publicacion');
+        renderSection('InfoIISEC', filterByAuthor(data.infoIIsec, author), 'titulo', 'anio_publicacion');
+        renderSection('Policies Briefs', filterByAuthor(data.policiesBriefs, author), 'titulo', 'anio_publicacion');
+
+    } catch (error) {
+        console.error('Error al obtener el reporte:', error);
+        reportContainer.innerHTML = '<p>Error al generar el reporte. Inténtalo de nuevo más tarde.</p>';
+    }
+});
+
+// Lógica para descargar el reporte como PDF
+downloadButton.addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text("Reporte de Documentos", 10, 10);
+
+    const sections = reportContainer.querySelectorAll('.report-section');
+
+    let y = 20;
+    sections.forEach(section => {
+        const header = section.querySelector('h2').textContent;
+        doc.text(header, 10, y);
+        y += 10;
+
+        const items = section.querySelectorAll('li');
+        items.forEach(item => {
+            if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
+                doc.addPage();
+                y = 10;
+            }
+            doc.text(item.textContent, 10, y);
+            y += 10;
         });
+    });
+
+    // Descargar el PDF
+    doc.save('reporte.pdf');
+});
+
+
+
     </script>
 </body>
 </html>

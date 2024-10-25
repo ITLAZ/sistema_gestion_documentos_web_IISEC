@@ -4,9 +4,8 @@ import { CapituloLibro } from 'src/schemas/capitulos-libros.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';  
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
-import { CapituloLibroResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -46,19 +45,6 @@ export class CapitulosLibrosController {
   }
 
   @Get('search')
-  @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
-  @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
-  @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Field for sort' })  // Opcional
-  @ApiQuery({ name: 'sortOrder', required: false, description: 'Form of order for sort' })  // Opcional
-  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
-  @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
-  @ApiResponse({
-    status: 200,
-    description: 'Search results retrieved successfully',
-    type: CapituloLibroResponseDto, // El tipo correcto que retornas
-    isArray: true // Si devuelves un array de resultados
-  })
   async searchBooks(
     @Query('query') query: string,
     @Query('page') page: string = '1',

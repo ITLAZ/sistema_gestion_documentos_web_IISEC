@@ -26,17 +26,6 @@ export class UsuariosService {
     return this.UsuarioModel.find().exec();
   }
 
-  async getUserById(id_usuario: string): Promise<Usuario> {
-    const usuario = await this.UsuarioModel.findById(id_usuario).exec();
-    
-    if (!usuario) {
-      throw new BadRequestException('Usuario no encontrado');
-    }
-  
-    return usuario;
-  }
- 
-
   async validarCredenciales(usuario: string, plainPassword: string): Promise<string | null> {
     // Buscar el usuario en la base de datos por su nombre de usuario
     const usuarioEncontrado = await this.UsuarioModel.findOne({ usuario });

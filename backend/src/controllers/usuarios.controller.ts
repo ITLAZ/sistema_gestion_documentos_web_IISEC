@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Param, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, InternalServerErrorException, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Usuario } from 'src/schemas/Usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
@@ -76,21 +76,6 @@ export class UsuariosController {
         });
       
         return { message: 'Logout exitoso' };
-    }
-
-    // Endpoint para obtener un usuario por su id
-    @Get(':id_usuario')
-    async getUserById(
-      @Param('id_usuario') id_usuario: string
-    ): Promise<Usuario> {
-      try {
-        return await this.usuariosService.getUserById(id_usuario);
-      } catch (error) {
-        if (error instanceof BadRequestException) {
-          throw new BadRequestException(error.message);
-        }
-        throw new InternalServerErrorException('Error al obtener el usuario');
-      }
     }
 
     // Endpoint para actualizar el campo `theme`

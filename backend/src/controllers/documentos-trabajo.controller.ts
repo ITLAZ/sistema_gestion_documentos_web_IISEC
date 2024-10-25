@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
 import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/documentos-trabajo.service';
 import { DocumentoTrabajo } from 'src/schemas/documentos-trabajo.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes, getSchemaPath } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { DocumentoTrabajoResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 
@@ -12,7 +12,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
   return fileUploadService.getMulterOptions(destination);
 };
 
-@ApiTags('Documentos-Trabajo') 
+@ApiTags('Documentos-Trabajo')
 @Controller('documentos-trabajo')
 export class DocumentosTrabajoController {
   constructor(
@@ -20,9 +20,17 @@ export class DocumentosTrabajoController {
     private readonly searchService: SearchService,
     private readonly fileUploadService: FileUploadService
   ) {}
-  
-  // Obtener todos los documentos
+
   @Get()
+  @ApiOperation({ summary: 'Obtener todos los documentos de trabajo' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: 'Cantidad de elementos por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el que ordenar', example: 'anio_publicacion' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Dirección del orden: "asc" o "desc"', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Filtrar por año de publicación', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autores', example: 'Carmen Torres' })
+  @ApiResponse({ status: 200, description: 'Lista de documentos obtenida correctamente', type: DocumentoTrabajo, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findAll(
     @Query('page') page: string = '1',
     @Query('size') size: string = '10',
@@ -31,152 +39,248 @@ export class DocumentosTrabajoController {
     @Query('anio_publicacion') anio_publicacion?: string,
     @Query('autores') autores?: string,
   ): Promise<DocumentoTrabajo[]> {
-    const pageNumber = parseInt(page, 10) || 1;
-    const pageSize = parseInt(size, 10) || 10;
-    const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
+    try {
+      const pageNumber = parseInt(page, 10) || 1;
+      const pageSize = parseInt(size, 10) || 10;
+      const anio = anio_publicacion ? parseInt(anio_publicacion, 10) : undefined;
 
-    return this.documentosTrabajoService.findAll(
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortOrder,
-      autores,
-      anio
-    );
+      return this.documentosTrabajoService.findAll(
+        pageNumber,
+        pageSize,
+        sortBy,
+        sortOrder,
+        autores,
+        anio
+      );
+    } catch (error) {
+      throw new InternalServerErrorException('Error al obtener los documentos de trabajo.');
+    }
   }
 
   @Get('search')
-  @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
-  @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
-  @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Field for sort' })  // Opcional
-  @ApiQuery({ name: 'sortOrder', required: false, description: 'Form of order for sort' })  // Opcional
-  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
-  @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
+  @ApiOperation({ summary: 'Buscar documentos de trabajo por un término' })
+  @ApiQuery({ name: 'query', required: true, description: 'Término de búsqueda', example: 'Redes y Comunicaciones' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: 'Cantidad de resultados por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Año de publicación para filtrar', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autor', example: 'Ana García' })
   @ApiResponse({
     status: 200,
-    description: 'Search results retrieved successfully',
-    type: DocumentoTrabajoResponseDto, // El tipo correcto que retornas
-    isArray: true // Si devuelves un array de resultados
+    description: 'Resultados de búsqueda obtenidos correctamente',
+    type: DocumentoTrabajoResponseDto,
+    isArray: true,
   })
+  @ApiResponse({ status: 400, description: 'Parámetros de búsqueda inválidos' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async searchBooks(
     @Query('query') query: string,
     @Query('page') page: string = '1',
     @Query('size') size: string = '10',
-    @Query('sortBy') sortBy: string,       // Campo por el que ordenar
-    @Query('sortOrder') sortOrder: string,  // Dirección del orden: 'asc' o 'desc'
+    @Query('sortBy') sortBy: string,
+    @Query('sortOrder') sortOrder: string,
     @Query('anio_publicacion') anio_publicacion?: string,
     @Query('autores') autores?: string,
   ) {
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(size, 10);
-    const sortField = sortBy || 'anio_publicacion';  // Campo predeterminado si no se proporciona
-    const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';  // Establecer 'asc' por defecto
+    try {
+      const pageNumber = parseInt(page, 10);
+      const pageSize = parseInt(size, 10);
+      const sortField = sortBy || 'anio_publicacion';
+      const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';
 
-    const results = await this.searchService.searchByType(
-      'documentos-trabajo', 
-      query, 
-      pageNumber, 
-      pageSize,
+      const results = await this.searchService.searchByType(
+        'documentos-trabajo',
+        query,
+        pageNumber,
+        pageSize,
         {
           anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
           autores
-        }, 
-      sortField, 
-      sortDirection,
-    );
-    return results;
+        },
+        sortField,
+        sortDirection,
+      );
+      return results;
+    } catch (error) {
+      throw new InternalServerErrorException('Error al realizar la búsqueda de documentos de trabajo.');
+    }
   }
-  
 
   @Get('titulo/:titulo')
+  @ApiOperation({ summary: 'Buscar documentos de trabajo por título' })
+  @ApiParam({ name: 'titulo', description: 'Título del documento a buscar', example: 'Redes y Comunicaciones' })
+  @ApiResponse({ status: 200, description: 'Encuentra documentos por título.', type: DocumentoTrabajo, isArray: true })
+  @ApiResponse({ status: 400, description: 'Título inválido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findByTitulo(@Param('titulo') titulo: string): Promise<DocumentoTrabajo[]> {
-    return this.documentosTrabajoService.findByTitulo(titulo);
+    try {
+      return this.documentosTrabajoService.findByTitulo(titulo);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar documentos por título.');
+    }
   }
 
-  // Buscar documentoTrabajo por aproximación del autor  
   @Get('autor/:autor')
+  @ApiOperation({ summary: 'Buscar documentos de trabajo por autor' })
+  @ApiParam({ name: 'autor', description: 'Autor del documento a buscar', example: 'Ana García' })
+  @ApiResponse({ status: 200, description: 'Encuentra documentos por autor.', type: DocumentoTrabajo, isArray: true })
+  @ApiResponse({ status: 400, description: 'Nombre de autor inválido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findByAutor(@Param('autor') autor: string): Promise<DocumentoTrabajo[]> {
-    return this.documentosTrabajoService.findByAutor(autor);
+    try {
+      return this.documentosTrabajoService.findByAutor(autor);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar documentos por autor.');
+    }
   }
-  
-  // Buscar un documentoTrabajo por su ID
+
   @Get('id/:id')
+  @ApiOperation({ summary: 'Obtener un documento de trabajo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del documento a buscar', example: '6716be60bd17f2acd13f7b5d' })
+  @ApiResponse({ status: 200, description: 'Encuentra un documento por su ID.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findById(@Param('id') id: string): Promise<DocumentoTrabajo> {
-    // Validación de ObjectId
-    if (!Types.ObjectId.isValid(id)) {
-      throw new Error('ID no válido');
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+      return this.documentosTrabajoService.findById(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar el documento por ID.');
     }
-    return this.documentosTrabajoService.findById(id);
   }
 
-  // Actualizar un documentoTrabajo por su id
   @Put(':id')
+  @ApiOperation({ summary: 'Actualizar un documento de trabajo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del documento a actualizar', example: '6716be60bd17f2acd13f7b5d' })
+  @ApiBody({ type: DocumentoTrabajo, description: 'Datos actualizados del documento' })
+  @ApiResponse({ status: 200, description: 'Actualiza un documento por su ID.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async update(@Param('id') id: string, @Body() documento: Partial<DocumentoTrabajo>): Promise<DocumentoTrabajo> {
-    return this.documentosTrabajoService.update(id, documento);
-  }
-
-  // Eliminar un documentoTrabajo por su id
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<DocumentoTrabajo> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new Error('ID no válido');
+    try {
+      return this.documentosTrabajoService.update(id, documento);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al actualizar el documento.');
     }
-    return this.documentosTrabajoService.delete(id);
   }
 
-  // Crear documento-libro en servidor y bd
+  @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar un documento de trabajo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del documento a eliminar', example: '6716be60bd17f2acd13f7b5d' })
+  @ApiResponse({ status: 200, description: 'Elimina un documento por su ID.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async delete(@Param('id') id: string): Promise<DocumentoTrabajo> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+      return this.documentosTrabajoService.delete(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al eliminar el documento.');
+    }
+  }
+
   @Post('upload')
+  @ApiOperation({ summary: 'Crear un documento de trabajo con archivo de PDF' })
   @UseInterceptors(
     FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Datos del documento de trabajo y archivo PDF a subir.',
+    schema: {
+      type: 'object',
+      properties: {
+        numero_identificacion: { type: 'string', example: 'DOC-3182', description: 'Número de identificación del documento' },
+        titulo: { type: 'string', example: 'Redes y Comunicaciones', description: 'Título del documento' },
+        anio_publicacion: { type: 'number', example: 2023, description: 'Año de publicación del documento' },
+        autores: {
+          type: 'string',
+          example: 'Carmen Torres, Carlos Martínez',
+          description: 'Lista de autores del documento separados por comas',
+        },
+        abstract: { type: 'string', example: 'Resumen del documento', description: 'Resumen del contenido del documento' },
+        link_pdf: { type: 'string', example: 'http://example.com/documento.pdf', description: 'Enlace al archivo PDF' },
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo PDF del documento a cargar',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Crea un documento con archivo de carga.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
-    @Body() documento: DocumentoTrabajo,
+    @Body() documentoData: any,
     @UploadedFile() file: Express.Multer.File
   ): Promise<DocumentoTrabajo> {
-    if (!file || !documento) {
-      throw new BadRequestException('Faltan datos necesarios');
+    try {
+      if (!file) {
+        throw new BadRequestException('El archivo PDF es obligatorio');
+      }
+      if (!documentoData || !documentoData.titulo || !documentoData.anio_publicacion || !documentoData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del documento');
+      }
+
+      const autoresArray = typeof documentoData.autores === 'string'
+        ? documentoData.autores.split(',').map((autor: string) => autor.trim())
+        : documentoData.autores;
+
+      const procesado = this.fileUploadService.procesarArchivo(
+        file,
+        documentoData.titulo ?? 'Sin título',
+        autoresArray.join(' ') ?? 'Autor desconocido',
+        documentoData.anio_publicacion?.toString() ?? '0000',
+        'DT',
+        'C:/tmp'
+      );
+
+      const nuevoDocumento: Partial<DocumentoTrabajo> = {
+        numero_identificacion: documentoData.numero_identificacion,
+        titulo: documentoData.titulo,
+        anio_publicacion: parseInt(documentoData.anio_publicacion, 10),
+        autores: autoresArray,
+        abstract: documentoData.abstract,
+        link_pdf: documentoData.link_pdf,
+        direccion_archivo: procesado.path,
+      };
+
+      return this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al crear el documento.');
     }
-
-    const procesado = this.fileUploadService.procesarArchivo(
-      file,
-      documento.titulo?? 'Sin título',
-      documento.autores?.join(' ') ?? 'Autor desconocido',
-      documento.anio_publicacion?.toString() ?? '0000',
-      'DT',
-      'C:/tmp'
-    );
-
-    const nuevoCapitulo: Partial<DocumentoTrabajo> = {
-      numero_identificacion: documento.numero_identificacion,
-      titulo: documento.titulo,
-      anio_publicacion: documento.anio_publicacion,
-      autores: documento.autores,
-      abstract: documento.abstract,
-      link_pdf: documento.link_pdf,
-      direccion_archivo: procesado.path,
-    };
-    
-    return this.documentosTrabajoService.create(nuevoCapitulo as DocumentoTrabajo);
   }
 
-
-  // Crear documento-libro solo en bd
   @Post('no-upload')
+  @ApiOperation({ summary: 'Crear un documento de trabajo sin archivo de PDF' })
+  @ApiBody({ type: DocumentoTrabajo, description: 'Datos del documento de trabajo sin archivo' })
+  @ApiResponse({ status: 201, description: 'Crea un documento sin archivo de carga.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async createWithoutFile(@Body() documento: DocumentoTrabajo): Promise<DocumentoTrabajo> {
-    if (!documento) {
-      throw new BadRequestException('Faltan datos necesarios');
-    }
+    try {
+      if (!documento) {
+        throw new BadRequestException('Faltan datos necesarios');
+      }
 
-    const nuevoCapitulo: Partial<DocumentoTrabajo> = {
-      numero_identificacion: documento.numero_identificacion,
-      titulo: documento.titulo,
-      anio_publicacion: documento.anio_publicacion,
-      autores: documento.autores,
-      abstract: documento.abstract,
-      link_pdf: documento.link_pdf
-    };
-    
-    return this.documentosTrabajoService.create(nuevoCapitulo as DocumentoTrabajo);
+      const nuevoDocumento: Partial<DocumentoTrabajo> = {
+        numero_identificacion: documento.numero_identificacion,
+        titulo: documento.titulo,
+        anio_publicacion: documento.anio_publicacion,
+        autores: documento.autores,
+        abstract: documento.abstract,
+        link_pdf: documento.link_pdf,
+      };
+
+      return this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al crear el documento sin archivo.');
+    }
   }
 }

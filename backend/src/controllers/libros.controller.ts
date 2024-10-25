@@ -22,9 +22,9 @@ export class LibrosController {
   ) {}
 
   @Get('update-libros')
-  @ApiOperation({ summary: 'Actualizar la indexación de todos los libros en Elasticsearch' })
-  @ApiResponse({ status: 200, description: 'Actualiza todos los libros en Elasticsearch.' })
-  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @ApiOperation({ summary: ' Actualizar la indexación de todos los libros en Elasticsearch' })
+  @ApiResponse({ status: 200, description: ' Actualiza todos los libros en Elasticsearch.' })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
   async updateLibros(): Promise<void> {
     try {
       this.librosService.updateAllLibros();
@@ -34,22 +34,22 @@ export class LibrosController {
   }
 
   @Get('search')
-  @ApiOperation({ summary: 'Buscar libros por un término' })
-  @ApiQuery({ name: 'query', required: true, description: 'Término de búsqueda', example: 'Análisis de Datos' })
-  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
-  @ApiQuery({ name: 'size', required: false, description: 'Cantidad de resultados por página', example: '10' })
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
-  @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
-  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Año de publicación para filtrar', example: '2023' })
-  @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autor', example: 'Maria Lopez' })
+  @ApiOperation({ summary: ' Buscar libros por un término' })
+  @ApiQuery({ name: 'query', required: true, description: ' Término de búsqueda', example: 'Análisis de Datos' })
+  @ApiQuery({ name: 'page', required: false, description: ' Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: ' Cantidad de resultados por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: ' Campo por el cual ordenar', example: 'anio_publicacion' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: ' Orden ascendente o descendente', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: ' Año de publicación para filtrar', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: ' Filtrar por autor', example: 'Maria Lopez' })
   @ApiResponse({
     status: 200,
     description: 'Resultados de búsqueda obtenidos correctamente',
     type: LibrosResponseDto,
     isArray: true,
   })
-  @ApiResponse({ status: 400, description: 'Parámetros de búsqueda inválidos' })
-  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @ApiResponse({ status: 400, description: ' Parámetros de búsqueda inválidos' })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
   async searchBooks(
     @Query('query') query: string,
     @Query('page') page: string = '1',
@@ -85,14 +85,14 @@ export class LibrosController {
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los libros' })
-  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
-  @ApiQuery({ name: 'size', required: false, description: 'Cantidad de elementos por página', example: '10' })
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el que ordenar', example: 'titulo' })
-  @ApiQuery({ name: 'sortOrder', required: false, description: 'Dirección del orden: "asc" o "desc"', example: 'asc' })
-  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Filtrar por año de publicación', example: '2023' })
-  @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autores', example: 'Carlos Martínez' })
-  @ApiResponse({ status: 200, description: 'Obtiene todos los libros.', type: Libro, isArray: true })
-  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @ApiQuery({ name: 'page', required: false, description: ' Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: ' Cantidad de elementos por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: ' Campo por el que ordenar', example: 'titulo' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: ' Dirección del orden: "asc" o "desc"', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: ' Filtrar por año de publicación', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: ' Filtrar por autores', example: 'Carlos Martínez' })
+  @ApiResponse({ status: 200, description: ' Obtiene todos los libros.', type: Libro, isArray: true })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
   async findAll(
     @Query('page') page: string,
     @Query('size') size: string,
@@ -185,11 +185,11 @@ export class LibrosController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un libro por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del libro a eliminar', example: '6715d835ce1db7b621aa7790' })
-  @ApiResponse({ status: 200, description: 'Elimina un libro por su ID.', type: Libro })
-  @ApiResponse({ status: 400, description: 'ID no válido' })
-  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  @ApiOperation({ summary: ' Eliminar un libro por su ID' })
+  @ApiParam({ name: 'id', description: ' ID del libro a eliminar', example: '6715d835ce1db7b621aa7790' })
+  @ApiResponse({ status: 200, description: ' Elimina un libro por su ID.', type: Libro })
+  @ApiResponse({ status: 400, description: ' ID no válido' })
+  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
   async delete(@Param('id') id: string): Promise<Libro> {
     try {
       if (!Types.ObjectId.isValid(id)) {

@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
 import { ArticulosRevistasService } from 'src/services/articulos-revistas/articulos-revistas.service';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody, getSchemaPath } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { ArticuloRevistaResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 
@@ -12,7 +12,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
   return fileUploadService.getMulterOptions(destination);
 };
 
-@ApiTags('Articulos-Revistas') 
+@ApiTags('Articulos-Revistas')
 @Controller('articulos-revistas')
 export class ArticulosRevistasController {
   constructor(
@@ -21,8 +21,16 @@ export class ArticulosRevistasController {
     private readonly fileUploadService: FileUploadService
   ) {}
 
-  // Obtener todos los artículos
   @Get()
+  @ApiOperation({ summary: 'Obtener todos los artículos de revistas' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: 'Cantidad de resultados por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_revista' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
+  @ApiQuery({ name: 'anio_revista', required: false, description: 'Año de la revista para filtrar', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autor', example: 'Luis Rodríguez' })
+  @ApiResponse({ status: 200, description: 'Lista de artículos obtenida correctamente', type: ArticuloRevista, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findAll(
     @Query('page') page: string = '1',
     @Query('size') size: string = '10',
@@ -31,157 +39,254 @@ export class ArticulosRevistasController {
     @Query('anio_revista') anio_revista?: string,
     @Query('autores') autores?: string,
   ): Promise<ArticuloRevista[]> {
-    const pageNumber = parseInt(page, 10) || 1;
-    const pageSize = parseInt(size, 10) || 10;
-    const anio = anio_revista ? parseInt(anio_revista, 10) : undefined;
+    try {
+      const pageNumber = parseInt(page, 10) || 1;
+      const pageSize = parseInt(size, 10) || 10;
+      const anio = anio_revista ? parseInt(anio_revista, 10) : undefined;
 
-    return this.articulosRevistasService.findAll(
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortOrder,
-      autores,
-      anio,
-    );
+      return this.articulosRevistasService.findAll(
+        pageNumber,
+        pageSize,
+        sortBy,
+        sortOrder,
+        autores,
+        anio,
+      );
+    } catch (error) {
+      throw new InternalServerErrorException('Error al obtener los artículos de revistas.');
+    }
   }
 
   @Get('search')
-  @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
-  @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
-  @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Field for sort' })  // Opcional
-  @ApiQuery({ name: 'sortOrder', required: false, description: 'Form of order for sort' })  // Opcional
-  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
-  @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
+  @ApiOperation({ summary: 'Buscar artículos de revistas por un término' })
+  @ApiQuery({ name: 'query', required: true, description: 'Término de búsqueda', example: 'Machine Learning Básico' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página', example: '1' })
+  @ApiQuery({ name: 'size', required: false, description: 'Cantidad de resultados por página', example: '10' })
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
+  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Año de publicación para filtrar', example: '2023' })
+  @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autor', example: 'Luis Rodríguez' })
   @ApiResponse({
     status: 200,
-    description: 'Search results retrieved successfully',
-    type: ArticuloRevistaResponseDto, // El tipo correcto que retornas
-    isArray: true // Si devuelves un array de resultados
+    description: 'Resultados de búsqueda obtenidos correctamente',
+    type: ArticuloRevistaResponseDto,
+    isArray: true,
   })
+  @ApiResponse({ status: 400, description: 'Parámetros de búsqueda inválidos' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async searchBooks(
     @Query('query') query: string,
     @Query('page') page: string = '1',
     @Query('size') size: string = '10',
-    @Query('sortBy') sortBy: string,       // Campo por el que ordenar
-    @Query('sortOrder') sortOrder: string,  // Dirección del orden: 'asc' o 'desc'
+    @Query('sortBy') sortBy: string,
+    @Query('sortOrder') sortOrder: string,
     @Query('anio_publicacion') anio_publicacion?: string,
     @Query('autores') autores?: string,
   ) {
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(size, 10);
-    const sortField = sortBy || 'anio_publicacion';  // Campo predeterminado si no se proporciona
-    const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';  // Establecer 'asc' por defecto
+    try {
+      const pageNumber = parseInt(page, 10);
+      const pageSize = parseInt(size, 10);
+      const sortField = sortBy || 'anio_publicacion';
+      const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';
 
-    const results = await this.searchService.searchByType(
-      'articulos-revistas', 
-      query, 
-      pageNumber, 
-      pageSize,
+      const results = await this.searchService.searchByType(
+        'articulos-revistas',
+        query,
+        pageNumber,
+        pageSize,
         {
           anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
           autores
-        }, 
-      sortField, 
-      sortDirection,
-    );
-    return results;
+        },
+        sortField,
+        sortDirection,
+      );
+      return results;
+    } catch (error) {
+      throw new InternalServerErrorException('Error al realizar la búsqueda de artículos de revistas.');
+    }
   }
-  
 
-  // Buscar articulos por aproximación del título
   @Get('titulo/:titulo')
+  @ApiOperation({ summary: 'Buscar artículos de revistas por título' })
+  @ApiParam({ name: 'titulo', description: 'Título del artículo a buscar', example: 'Machine Learning Básico' })
+  @ApiResponse({ status: 200, description: 'Encuentra artículos por título.', type: ArticuloRevista, isArray: true })
+  @ApiResponse({ status: 400, description: 'Título inválido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findByTitulo(@Param('titulo') titulo: string): Promise<ArticuloRevista[]> {
-    return this.articulosRevistasService.findByTitulo(titulo);
+    try {
+      return this.articulosRevistasService.findByTitulo(titulo);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar artículos por título.');
+    }
   }
 
-  // Buscar articulos por aproximación del autor
   @Get('autor/:autor')
+  @ApiOperation({ summary: 'Buscar artículos de revistas por autor' })
+  @ApiParam({ name: 'autor', description: 'Autor del artículo a buscar', example: 'Luis Rodríguez' })
+  @ApiResponse({ status: 200, description: 'Encuentra artículos por autor.', type: ArticuloRevista, isArray: true })
+  @ApiResponse({ status: 400, description: 'Nombre de autor inválido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findByAutor(@Param('autor') autor: string): Promise<ArticuloRevista[]> {
-    return this.articulosRevistasService.findByAutor(autor);
+    try {
+      return this.articulosRevistasService.findByAutor(autor);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar artículos por autor.');
+    }
   }
 
-  // Buscar un articulos por su ID
   @Get('id/:id')
+  @ApiOperation({ summary: 'Obtener un artículo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del artículo a buscar', example: '6716be4bbd17f2acd13f7308' })
+  @ApiResponse({ status: 200, description: 'Encuentra un artículo por su ID.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async findById(@Param('id') id: string): Promise<ArticuloRevista> {
-    // Validación de ObjectId
-    if (!Types.ObjectId.isValid(id)) {
-      throw new Error('ID no válido');
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+      return this.articulosRevistasService.findById(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar el artículo por ID.');
     }
-    return this.articulosRevistasService.findById(id);
   }
 
-  // Eliminar un artículo por su id
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<ArticuloRevista> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new Error('ID no válido');
-    }
-    return this.articulosRevistasService.delete(id);
-  }
-
-  // Actualizar un capituloLibro por su id
   @Put(':id')
+  @ApiOperation({ summary: 'Actualizar un artículo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del artículo a actualizar', example: '6716be4bbd17f2acd13f7308' })
+  @ApiBody({ type: ArticuloRevista, description: 'Datos actualizados del artículo' })
+  @ApiResponse({ status: 200, description: 'Actualiza un artículo por su ID.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async update(@Param('id') id: string, @Body() articulo: Partial<ArticuloRevista>): Promise<ArticuloRevista> {
-    return this.articulosRevistasService.update(id, articulo);
+    try {
+      return this.articulosRevistasService.update(id, articulo);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al actualizar el artículo.');
+    }
   }
 
-  // Crear articulo-libro en servidor y bd
-    @Post('upload')
-    @UseInterceptors(
-      FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
-    )
-    async create(
-      @Body() articulo: ArticuloRevista,
-      @UploadedFile() file: Express.Multer.File
-    ): Promise<ArticuloRevista> {
-      if (!file || !articulo) {
+  @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar un artículo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del artículo a eliminar', example: '6716be4bbd17f2acd13f7308' })
+  @ApiResponse({ status: 200, description: 'Elimina un artículo por su ID.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async delete(@Param('id') id: string): Promise<ArticuloRevista> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+      return this.articulosRevistasService.delete(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al eliminar el artículo.');
+    }
+  }
+
+  @Post('upload')
+  @ApiOperation({ summary: 'Crear un artículo con archivo de PDF' })
+  @UseInterceptors(
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Datos del artículo y archivo PDF a subir.',
+    schema: {
+      type: 'object',
+      properties: {
+        numero_articulo: { type: 'string', example: 'ART-4195', description: 'Número del artículo' },
+        titulo: { type: 'string', example: 'Machine Learning Básico', description: 'Título del artículo' },
+        anio_revista: { type: 'number', example: 2023, description: 'Año de la revista' },
+        autores: {
+          type: 'string',
+          example: 'Luis Rodríguez, Juan Pérez',
+          description: 'Lista de autores del artículo separados por comas',
+        },
+        nombre_revista: { type: 'string', example: 'Revista de Ingeniería', description: 'Nombre de la revista' },
+        editorial: { type: 'string', example: 'Editorial Delta', description: 'Editorial de la revista' },
+        abstract: { type: 'string', example: 'Este es un breve resumen...', description: 'Resumen del artículo' },
+        link_pdf: { type: 'string', example: 'http://example.com/files/file_777.pdf', description: 'Enlace al archivo PDF' },
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo PDF del artículo a cargar',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Crea un artículo con archivo de carga.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async create(
+    @Body() articuloData: any,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<ArticuloRevista> {
+    try {
+      if (!file) {
+        throw new BadRequestException('El archivo PDF es obligatorio');
+      }
+      if (!articuloData || !articuloData.titulo || !articuloData.anio_revista || !articuloData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del artículo');
+      }
+
+      const autoresArray = typeof articuloData.autores === 'string'
+        ? articuloData.autores.split(',').map((autor: string) => autor.trim())
+        : articuloData.autores;
+
+      const procesado = this.fileUploadService.procesarArchivo(
+        file,
+        articuloData.titulo ?? 'Sin título',
+        autoresArray.join(' ') ?? 'Autor desconocido',
+        articuloData.anio_revista?.toString() ?? '0000',
+        'AR',
+        'C:/tmp'
+      );
+
+      const nuevoArticulo: Partial<ArticuloRevista> = {
+        numero_articulo: articuloData.numero_articulo,
+        titulo: articuloData.titulo,
+        anio_revista: parseInt(articuloData.anio_revista, 10),
+        autores: autoresArray,
+        nombre_revista: articuloData.nombre_revista,
+        editorial: articuloData.editorial,
+        abstract: articuloData.abstract,
+        link_pdf: articuloData.link_pdf,
+        direccion_archivo: procesado.path,
+      };
+
+      return this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al crear el artículo.');
+    }
+  }
+
+  @Post('no-upload')
+  @ApiOperation({ summary: 'Crear un artículo sin archivo de PDF' })
+  @ApiBody({ type: ArticuloRevista, description: 'Datos del artículo sin archivo' })
+  @ApiResponse({ status: 201, description: 'Crea un artículo sin archivo de carga.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async createWithoutFile(@Body() articulo: ArticuloRevista): Promise<ArticuloRevista> {
+    try {
+      if (!articulo) {
         throw new BadRequestException('Faltan datos necesarios');
       }
 
-    const procesado = this.fileUploadService.procesarArchivo(
-      file,
-      articulo.titulo ?? 'Sin título',
-      articulo.autores?.join(' ') ?? 'Autor desconocido',
-      articulo.anio_revista?.toString() ?? '0000',
-      'AR',
-      'C:/tmp'
-    );
+      const nuevoArticulo: Partial<ArticuloRevista> = {
+        numero_articulo: articulo.numero_articulo,
+        titulo: articulo.titulo,
+        anio_revista: articulo.anio_revista,
+        autores: articulo.autores,
+        nombre_revista: articulo.nombre_revista,
+        editorial: articulo.editorial,
+        abstract: articulo.abstract,
+        link_pdf: articulo.link_pdf,
+      };
 
-    const nuevoArticulo: Partial<ArticuloRevista> = {
-      numero_articulo: articulo.numero_articulo,
-      titulo: articulo.titulo,
-      anio_revista: articulo.anio_revista,
-      autores: articulo.autores,
-      nombre_revista: articulo.nombre_revista,
-      editorial: articulo.editorial,
-      abstract: articulo.abstract,
-      link_pdf: articulo.link_pdf,
-      direccion_archivo: procesado.path,
-    };
-    
-    return this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista);
-  }
-
-
-  // Crear articulo-libro solo en bd
-  @Post('no-upload')
-  async createWithoutFile(@Body() articulo: ArticuloRevista): Promise<ArticuloRevista> {
-    if (!articulo) {
-      throw new BadRequestException('Faltan datos necesarios');
+      return this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al crear el artículo sin archivo.');
     }
-
-    const nuevoArticulo: Partial<ArticuloRevista> = {
-      numero_articulo: articulo.numero_articulo,
-      titulo: articulo.titulo,
-      anio_revista: articulo.anio_revista,
-      autores: articulo.autores,
-      nombre_revista: articulo.nombre_revista,
-      editorial: articulo.editorial,
-      abstract: articulo.abstract,
-      link_pdf: articulo.link_pdf
-    };
-    
-    return this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista);
   }
 }

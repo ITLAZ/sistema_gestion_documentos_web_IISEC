@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AllTypesService } from 'src/services/all-types/all-types.service';
 import { SearchService } from 'src/services/search/search.service';
 
@@ -23,6 +23,12 @@ export class AllTypesController {
     }
     
     @Get('search')
+    @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
+    @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
+    @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
+    @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
+    @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
+    @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })  // Opcional
     async searchAll(
       @Query('query') query: string,
       @Query('page') page: string = '1',
@@ -45,6 +51,12 @@ export class AllTypesController {
     }
 
     @Get('all')
+    @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
+    @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
+    @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
+    @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
+    @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
+    @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })  // Opcional
     async getAll(
       @Query('query') query: string,
       @Query('page') page: string = '1',

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar Documento</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <form id="document-form">
+            <!-- Campo Título (Igual para todos los documentos, excepto capítulos de libros) -->
+            <div class="form-group" id="title-group">
+                <label for="title"><strong>Título:</strong></label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="Título del Documento">
+            </div>
+        
+            <!-- Campo Autor(es) -->
+            <div class="form-group">
+                <label for="authors"><strong>Autor(es) (separados por comas):</strong></label>
+                <input type="text" id="authors" name="authors" class="form-control" placeholder="Autor(es)" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*" required>
+            </div>
+        
+            <!-- Campo Año de Publicación -->
+            <div class="form-group">
+                <label for="published"><strong>Año de Publicación:</strong></label>
+                <input type="number" id="published" name="published" class="form-control" placeholder="Año de Publicación" required>
+            </div>
+        
+            <!-- Campo Portada (Solo para Libros, ingreso de URL) -->
+            <div class="form-group" id="cover-group" style="display: none;">
+                <label for="cover"><strong>Portada (URL):</strong></label>
+                <input type="url" id="cover" name="cover" class="form-control" placeholder="URL de la Portada">
+            </div>
+        
+            <!-- Campo Editorial (Para Libros, Artículos de Revistas y Capítulos de Libros) -->
+            <div class="form-group" id="editorial-group" style="display: none;">
+                <label for="editorial"><strong>Editorial:</strong></label>
+                <input type="text" id="editorial" name="editorial" class="form-control" placeholder="Editorial">
+            </div>
+
+            <!-- Campo Editor(es) -->
+            <div class="form-group" id="editores-group" style="display: none;">
+                <label for="editores"><strong>Editor(es) (separados por comas):</strong></label>
+                <input type="text" id="editores" name="editores" class="form-control" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*" placeholder="Editor(es)">
+            </div>
+        
+            <!-- Campo Número de Artículo (Para Artículos de Revistas) -->
+            <div class="form-group" id="numero_articulo-group" style="display: none;">
+                <label for="article-number"><strong>Número de Artículo:</strong></label>
+                <input type="text" id="article-number" name="article-number" class="form-control" placeholder="Número del Artículo">
+            </div>
+        
+            <!-- Campo Nombre de la Revista (Para Artículos de Revistas) -->
+            <div class="form-group" id="nombre_revista-group" style="display: none;">
+                <label for="revista"><strong>Nombre de la Revista:</strong></label>
+                <input type="text" id="revista" name="revista" class="form-control" placeholder="Nombre de la Revista">
+            </div>
+        
+            <!-- Campos para Capítulos de Libros -->
+            <div class="form-group" id="numero_identificacion-group" style="display: none;">
+                <label for="numero_identificacion"><strong>Número de Identificación:</strong></label>
+                <input type="text" id="numero_identificacion" name="numero_identificacion" class="form-control" placeholder="Número de Identificación">
+            </div>
+        
+            <div class="form-group" id="titulo_capitulo-group" style="display: none;">
+                <label for="titulo_capitulo"><strong>Título del Capítulo:</strong></label>
+                <input type="text" id="titulo_capitulo" name="titulo_capitulo" class="form-control" placeholder="Título del Capítulo">
+            </div>
+        
+            <!-- Campo Título del Libro (Para Capítulos de Libros) -->
+            <div class="form-group" id="titulo_libro-group" style="display: none;">
+                <label for="titulo_libro"><strong>Título del Libro:</strong></label>
+                <input type="text" id="titulo_libro" name="titulo_libro" class="form-control" placeholder="Título del Libro">
+            </div>
+        
+            <!-- Campo Abstract (Para Documentos de Trabajo, Artículos de Libros y Libros) -->
+            <div class="form-group" id="abstract-group" style="display: none;">
+                <label for="abstract"><strong>Abstract:</strong></label>
+                <textarea id="abstract" name="abstract" class="form-control" placeholder="Abstract del documento"></textarea>
+            </div>
+        
+            <!-- Campo Observación (Para Ideas y Reflexiones y Info IISEC) -->
+            <div class="form-group" id="observacion-group" style="display: none;">
+                <label for="observation"><strong>Observaciones:</strong></label>
+                <textarea id="observation" name="observation" class="form-control" placeholder="Observaciones del documento"></textarea>
+            </div>
+        
+            <!-- Campo Mensaje Clave (Para Policy and Briefs) -->
+            <div class="form-group" id="msj_clave-group" style="display: none;">
+                <label for="msj_claves"><strong>Mensaje Clave:</strong></label>
+                <textarea id="msj_claves" name="msj_claves" class="form-control" placeholder="Mensaje Clave del documento"></textarea>
+            </div>
+        
+            <!-- Campo Link PDF (Igual para todos los documentos) -->
+            <div class="form-group">
+                <label for="linkpdf"><strong>Link PDF:</strong></label>
+                <input type="url" id="linkpdf" name="linkpdf" class="form-control" placeholder="Link PDF">
+            </div>
+                
+            <!-- Botones de Acción -->
+            <div class="edit-actions">
+                <button id="edit-cancel-button" type="button" class="btn btn-secondary edit-btn" onclick="cancelarEdicion()">CANCELAR</button>
+                <button id="edit-save-button" type="button" class="btn btn-primary edit-btn" onclick="onSaveButtonClick()">GUARDAR CAMBIOS</button>
+
+            </div>
+            
+        </form>
+    </div>
+</body>
+
+
+<script type="module">
+    import { loadNavbar } from '../js/services/navbar_service.js';
+    import { loadDocumentData, handleDocumentUpdate } from '../js/handlers/actions_handler.js';
+
+    loadNavbar(); 
+
+    const documentType = sessionStorage.getItem('documentType');
+    const documentId = sessionStorage.getItem('documentId');
+
+    if (documentType && documentId) {
+        loadDocumentData(documentType, documentId);
+    } else {
+        console.error('No se encontró el tipo de documento o el ID.');
+    }
+
+    function onSaveButtonClick() {
+        if (documentType && documentId) {
+            handleDocumentUpdate(documentType, documentId)
+                .catch(error => console.error('Error al actualizar el documento:', error));
+                
+        } else {
+            alert('No se encontraron los parámetros necesarios para la actualización.');
+        }
+    }
+
+    // Asociar la función al evento de clic del botón.
+    const saveButton = document.getElementById('edit-save-button');
+    if (saveButton) {
+        saveButton.addEventListener('click', onSaveButtonClick);
+    }
+
+    // Asociar la función al evento de clic del botón de cancelar.
+    const cancelButton = document.getElementById('edit-cancel-button');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', cancelarEdicion);
+    }
+
+    function cancelarEdicion() {
+        window.history.back();
+    }
+</script>
+
+</html>

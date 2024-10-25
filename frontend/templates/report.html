@@ -15,7 +15,7 @@
             <form id="report-form">
                 <div class="input-group">
                     <label for="author">Nombre del Autor:</label>
-                    <input type="text" id="author" name="author" required>
+                    <input type="text" id="author" name="author" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
                 </div>
                 <div class="input-group">
                     <label for="startDate">Año Inicial:</label>
@@ -54,6 +54,19 @@ form.addEventListener('submit', async function(event) {
     const endDate = document.getElementById('endDate').value;
     
     console.log('Datos del formulario:', { author, startDate, endDate });
+
+    // Validar las fechas
+    if (parseInt(startDate) > parseInt(endDate)) {
+        alert('El año inicial no puede ser mayor que el año final.');
+        return;
+    }
+
+    if (parseInt(startDate) < 1900 || parseInt(endDate) < 1900) {
+        alert('El año debe ser igual o mayor a 1900.');
+        return;
+    }
+
+    console.log('Fechas validadas correctamente.');
     
     // Construir la URL del endpoint con los parámetros
     const url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;

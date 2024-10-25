@@ -129,7 +129,10 @@
     function onSaveButtonClick() {
         if (documentType && documentId) {
             handleDocumentUpdate(documentType, documentId)
-                .catch(error => console.error('Error al actualizar el documento:', error));
+            .then(() => {
+                window.history.back();
+            })
+            .catch(error => console.error('Error al actualizar el documento:', error));
                 
         } else {
             alert('No se encontraron los parámetros necesarios para la actualización.');

@@ -28,19 +28,29 @@ let currentPage = 1; // Número de página actual
 const itemsPerPage = 10; // Cantidad de elementos por página
 let selectedType = '';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const typeSelector = document.getElementById('type-selector');
 
+    // Si hay un tipo previamente seleccionado, restablecerlo y cargar documentos.
+    if (selectedType) {
+        console.log('Restableciendo el tipo seleccionado:', selectedType);
+        typeSelector.value = selectedType;
+        await fetchAndRenderDocuments();
+    }
+
+    // Manejar el cambio de selección del tipo de documento.
     typeSelector.addEventListener('change', async () => {
         selectedType = typeSelector.value;
-        console.log("tipo seleccionado:", selectedType);
+        console.log("Tipo seleccionado:", selectedType);
         currentPage = 1; // Reiniciar a la primera página
         await fetchAndRenderDocuments();
     });
 
+    // Configurar los eventos de los botones de paginación.
     document.getElementById('prev-page').addEventListener('click', prevPage);
     document.getElementById('next-page').addEventListener('click', nextPage);
 });
+
 
 // Función para obtener y renderizar documentos
 export async function fetchAndRenderDocuments() {
@@ -348,6 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const keywordsInput = document.getElementById('keywords');
     const authorInput = document.getElementById('author');
     const publicationDateInput = document.getElementById('publication-date');
+    const currentYear = new Date().getFullYear();
+    const year = parseInt(publicationDateInput.value, 10);
 
     // Parámetros para la paginación
     let currentPage = 1;
@@ -368,6 +380,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Validar que se ingrese una palabra clave
         if (!query) {
             alert('Por favor, ingrese una palabra clave para realizar la búsqueda.');
+            return;
+        }
+
+        if (isNaN(year) || year < 1900 || year > currentYear) {
+            alert(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
+            publicationDateInput.value = '';
             return;
         }
 

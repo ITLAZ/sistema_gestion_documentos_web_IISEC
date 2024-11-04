@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js"
+    "start-ci": "node app.js & sleep 5"  // Para GitHub Actions, deteniéndose después de 5 segundos
   },
   "author": "",
   "license": "ISC",

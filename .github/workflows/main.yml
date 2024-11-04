@@ -1,0 +1,83 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend:
+    name: Backend - NestJS
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
+
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./backend  # Ruta del Backend
+    
+      - name: List files in schema directory
+        run: ls -la ./backend/src/schemas   
+
+      - name: Wait for MongoDB to be ready
+        run: |
+          while ! nc -z localhost 27017; do   
+            sleep 1 # Espera a que MongoDB esté disponible
+          done
+
+      - name: Run database initialization script
+        run: node src/schemas/initMongoDB.js  # Ejecuta el script de inicialización desde la ruta correcta
+        working-directory: ./backend
+
+      - name: Start backend for CI
+        run: |
+            npm run start &  
+            sleep 30        
+            pkill -f 'node' || true  
+        working-directory: ./backend
+
+  frontend:
+    name: Frontend - Node.js
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./frontend  # Ruta del FrontEnd
+
+      - name: Start frontend for CI
+        run: |
+          node app.js &
+          sleep 5
+          pkill -f 'node app.js' || true
+        working-directory: ./frontend

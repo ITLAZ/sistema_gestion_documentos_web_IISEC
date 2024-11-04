@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsuariosController } from 'src/controllers/usuarios.controller';
 import { Log, LogSchema } from 'src/schemas/logs.schema';
-import { Usuario,UsuarioSchema } from 'src/schemas/Usuarios.schema';
+import { Usuario,UsuarioSchema } from 'src/schemas/usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import { UsuariosService } from 'src/services/usuarios/usuarios.service';
 

@@ -20,14 +20,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.9.0'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
         working-directory: ./backend  #Ruta del Backend
 
+      - name: List files in schemas directory
+        run: ls -la ./src/schemas  # Muestra los archivos en el directorio
+        working-directory: ./backend
+        
       - name: Build backend
-        run: npm run build
+        run: npm run start
         working-directory: ./backend
 
   frontend:
@@ -41,7 +45,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.9.0'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install

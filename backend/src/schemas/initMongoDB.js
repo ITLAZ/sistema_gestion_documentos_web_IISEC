@@ -1,4 +1,227 @@
-use BibliotecaIISEC;
+const mongoose = require('mongoose');
+
+async function initDatabase() {
+  try {
+    // Conectar a MongoDB
+    await mongoose.connect('mongodb://localhost:27017/BibliotecaIISEC', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    
+    console.log('Conexión a MongoDB exitosa');
+
+    // Crear la colección "Usuarios"
+    await mongoose.connection.db.createCollection("Usuarios", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["usuario", "nombre", "contrasenia", "theme"],
+          properties: {
+            usuario: { bsonType: "string", description: "Su nombre de usuario para hacer login" },
+            nombre: { bsonType: "string", description: "Nombre del propietario de la cuenta" },
+            contrasenia: { bsonType: "string", description: "Debe ser su contraseña para hacer login" },
+            theme: { bsonType: "int", description: "Código del tema utilizado en el perfil" },
+          },
+        },
+      },
+    });
+
+    // Crear la colección "Libros"
+    await mongoose.connection.db.createCollection("Libros", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["portada", "anio_publicacion", "titulo", "autores"],
+          properties: {
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
+            anio_publicacion: { bsonType: "int", description: "Año de publicación" },
+            titulo: { bsonType: "string", description: "Título del libro" },
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores o compiladores"
+            },
+            editorial: { bsonType: "string", description: "Nombre de la editorial" },
+            abstract: { bsonType: "string", description: "Resumen del libro (opcional)" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del libro" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "ArticulosRevistas"
+    await mongoose.connection.db.createCollection("ArticulosRevistas", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["titulo", "autores", "nombre_revista", "anio_revista"],
+          properties: {
+            numero_articulo: { bsonType: "string", description: "Número o identificación del artículo" },
+            titulo: { bsonType: "string", description: "Título del artículo" },
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores del artículo"
+            },
+            nombre_revista: { bsonType: "string", description: "Nombre de la revista" },
+            anio_revista: { bsonType: "int", description: "Año de publicación del artículo" },
+            editorial: { bsonType: "string", description: "Nombre de la editorial" },
+            abstract: { bsonType: "string", description: "Resumen del artículo (opcional)" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del artículo" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "CapitulosLibros"
+    await mongoose.connection.db.createCollection("CapitulosLibros", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["titulo_libro", "titulo_capitulo", "autores", "anio_publicacion"],
+          properties: {
+            numero_identificacion: { bsonType: "string", description: "Identificador del capítulo" },
+            titulo_capitulo: { bsonType: "string", description: "Título del capítulo" },
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores del capítulo"
+            },
+            titulo_libro: { bsonType: "string", description: "Título del libro" },
+            editores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de editores del capítulo"
+            },
+            anio_publicacion: { bsonType: "int", description: "Año de publicación del capítulo" },
+            editorial: { bsonType: "string", description: "Nombre de la editorial" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del capítulo" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "DocumentosTrabajo"
+    await mongoose.connection.db.createCollection("DocumentosTrabajo", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["titulo", "autores", "anio_publicacion"],
+          properties: {
+            numero_identificacion: { bsonType: "string", description: "Identificador del documento" },
+            titulo: { bsonType: "string", description: "Título del documento" },
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores"
+            },
+            anio_publicacion: { bsonType: "int", description: "Año de publicación" },
+            abstract: { bsonType: "string", description: "Resumen del documento (opcional)" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "IdeasReflexiones"
+    await mongoose.connection.db.createCollection("IdeasReflexiones", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["titulo", "autores", "anio_publicacion"],
+          properties: {
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores"
+            },
+            anio_publicacion: { bsonType: "int", description: "Año de publicación" },
+            titulo: { bsonType: "string", description: "Título del documento" },
+            observaciones: { bsonType: "string", description: "Observaciones del documento" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "PoliciesBriefs"
+    await mongoose.connection.db.createCollection("PoliciesBriefs", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["titulo", "autores", "anio_publicacion"],
+          properties: {
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores"
+            },
+            anio_publicacion: { bsonType: "int", description: "Año de publicación" },
+            titulo: { bsonType: "string", description: "Título del documento" },
+            mensaje_clave: { bsonType: "string", description: "Mensaje clave del documento" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "InfoIISEC"
+    await mongoose.connection.db.createCollection("InfoIISEC", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["titulo", "autores", "anio_publicacion"],
+          properties: {
+            autores: {
+              bsonType: "array",
+              items: { bsonType: "string" },
+              description: "Arreglo de autores"
+            },
+            anio_publicacion: { bsonType: "int", description: "Año de publicación" },
+            titulo: { bsonType: "string", description: "Título del documento" },
+            observaciones: { bsonType: "string", description: "Observaciones del documento" },
+            link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+          },
+        },
+      },
+    });
+
+    // Crear la colección "Logs"
+    await mongoose.connection.db.createCollection("Logs", {
+      validator: {
+        $jsonSchema: {
+          bsonType: "object",
+          required: ["id_usuario", "accion", "fecha"],
+          properties: {
+            id_usuario: { bsonType: "string", description: "ID del usuario que realizó la acción" },
+            id_documento: { bsonType: "string", description: "ID del documento afectado" },
+            accion: { bsonType: "string", description: "Descripción de la acción" },
+            fecha: { bsonType: "date", description: "Fecha y hora de la acción" }
+          },
+        },
+      },
+    });
+
+    console.log('Colecciones creadas exitosamente');
+    
+  } catch (err) {
+    console.error('Error de conexión a MongoDB:', err);
+  } finally {
+    mongoose.connection.close(); // Cierra la conexión al finalizar
+  }
+}
+
+initDatabase();
+
+
+/* use BibliotecaIISEC;
 
 db.createCollection("Usuarios", {
   validator: {
@@ -360,9 +583,9 @@ db.createCollection("Logs", {
     }
   }
 });
-
+*/
 /* INDEXES */
-
+/*
 db.Libros.createIndex({ titulo: 1 })
 db.Libros.createIndex({ autores: 1 })
 db.Libros.createIndex({ anio_publicacion: 1 })
@@ -383,3 +606,4 @@ db.DocumentosTrabajo.createIndex({ anio_publicacion: 1 })
 
 db.Usuarios.createIndex({ usuario: 1 }, { unique: true }) // Para garantizar unicidad
 db.Usuarios.createIndex({ nombre: 1 })
+*/

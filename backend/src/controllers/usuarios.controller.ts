@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Param, Post, Put } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Usuario } from 'src/schemas/Usuarios.schema';
+import { Usuario } from 'src/schemas/usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import { UsuariosService } from 'src/services/usuarios/usuarios.service';
 

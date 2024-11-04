@@ -43,8 +43,11 @@ jobs:
             sleep 1 # Espera a que MongoDB esté disponible
           done
 
+      - name: Check MongoDB logs
+        run: docker logs $(docker ps -q --filter ancestor=mongo:latest)
+
       - name: Run database initialization script
-        run: node src/schema/initMongoDB.js 
+        run: node src/schema/initMongoDB.js  # Ejecuta el script de inicialización desde la ruta correcta
         working-directory: ./backend
 
       - name: Build backend
@@ -66,7 +69,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./frontend  #Ruta del FrontEnd
+        working-directory: ./frontend  # Ruta del FrontEnd
 
       - name: Start frontend for CI
         run: |

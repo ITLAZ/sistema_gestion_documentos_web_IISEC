@@ -39,7 +39,7 @@ jobs:
         working-directory: ./backend  # Ruta del Backend
     
       - name: List files in schema directory
-        run: ls -la ./backend/src/schema    
+        run: ls -la ./backend/src/schemas   
 
       - name: Wait for MongoDB to be ready
         run: |

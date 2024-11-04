@@ -47,6 +47,6 @@ jobs:
         run: npm install
         working-directory: ./frontend  #Ruta del FrontEnd
 
-      - name: Start frontend
-        run: npm start
+      - name: Start frontend for CI
+        run: npm run start-ci
         working-directory: ./frontend

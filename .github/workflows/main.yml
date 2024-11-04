@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./backend  # Ruta del Backend
+    
+      - name: List files in schema directory
+        run: ls -la ./backend/src/schema    
 
       - name: Wait for MongoDB to be ready
         run: |

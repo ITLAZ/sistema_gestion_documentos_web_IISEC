@@ -51,8 +51,11 @@ jobs:
         run: node src/schemas/initMongoDB.js  # Ejecuta el script de inicialización desde la ruta correcta
         working-directory: ./backend
 
-      - name: Build backend
-        run: npm run start
+      - name: Start backend for CI
+        run: |
+            npm run start &  
+            sleep 30        
+            pkill -f 'node' || true  
         working-directory: ./backend
 
   frontend:

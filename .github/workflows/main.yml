@@ -48,7 +48,7 @@ jobs:
           done
 
       - name: Run database initialization script
-        run: node src/schema/initMongoDB.js  # Ejecuta el script de inicialización desde la ruta correcta
+        run: node src/schemas/initMongoDB.js  # Ejecuta el script de inicialización desde la ruta correcta
         working-directory: ./backend
 
       - name: Build backend

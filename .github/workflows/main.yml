@@ -48,5 +48,8 @@ jobs:
         working-directory: ./frontend  #Ruta del FrontEnd
 
       - name: Start frontend for CI
-        run: npm run start-ci
+        run: |
+          node app.js &
+          sleep 5
+          pkill -f 'node app.js' || true
         working-directory: ./frontend

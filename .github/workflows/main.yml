@@ -1,0 +1,52 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend:
+    name: Backend - NestJS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.9.0'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./backend  #Ruta del Backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: ./backend
+
+  frontend:
+    name: Frontend - Node.js
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.9.0'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./frontend  #Ruta del FrontEnd
+
+      - name: Start frontend
+        run: npm start
+        working-directory: ./frontend

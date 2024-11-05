@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { Types } from 'mongoose';
 import { SearchService } from 'src/services/search/search.service';
-import { ApiBody, ApiConsumes, ApiParam, ApiQuery, ApiResponse, ApiTags, getSchemaPath, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiParam, ApiQuery, ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { LibrosResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -17,6 +18,7 @@ const getMulterOptions = (fileUploadService: FileUploadService, destination: str
 export class LibrosController {
   constructor(
     private readonly librosService: LibrosService,
+    private readonly logsService: LogsService,
     private readonly searchService: SearchService,
     private readonly fileUploadService: FileUploadService
   ) {}
@@ -29,6 +31,7 @@ export class LibrosController {
     try {
       this.librosService.updateAllLibros();
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar los libros en Elasticsearch.');
     }
   }
@@ -79,6 +82,7 @@ export class LibrosController {
       );
       return results;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de libros.');
     }
   }
@@ -117,6 +121,7 @@ export class LibrosController {
         anio,
       );
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al obtener los libros.');
     }
   }
@@ -131,6 +136,7 @@ export class LibrosController {
     try {
       return this.librosService.findByTitulo(titulo);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar libros por título.');
     }
   }
@@ -145,6 +151,7 @@ export class LibrosController {
     try {
       return this.librosService.findByAutor(autor);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar libros por autor.');
     }
   }
@@ -180,6 +187,7 @@ export class LibrosController {
     try {
       return this.librosService.update(id, libro);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el libro.');
     }
   }
@@ -239,7 +247,8 @@ export class LibrosController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() libroData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<Libro> {
     try {
       // Validar que el archivo y los datos del libro estén presentes
@@ -249,7 +258,7 @@ export class LibrosController {
       if (!libroData || !libroData.titulo || !libroData.anio_publicacion || !libroData.autores) {
         throw new BadRequestException('Faltan datos obligatorios del libro');
       }
-
+      const fecha = new Date();
       // Convertir autores a un arreglo si es necesario
       const autoresArray = typeof libroData.autores === 'string'
         ? libroData.autores.split(',').map((autor: string) => autor.trim())
@@ -276,9 +285,20 @@ export class LibrosController {
         link_pdf: libroData.link_pdf,
         direccion_archivo: procesado.path,
       };
+      
+      const libroCreado = await this.librosService.create(nuevoLibro as Libro);
 
+      // Registrar el log de la acción
+
+      await this.logsService.createLogDocument({
+          id_usuario: usuarioId,
+          id_documento:  libroCreado.id, // Usamos el ID del usuario retornado
+          accion: 'Creacion documento',
+          fecha: fecha,
+      });
+      
       // Guardar el libro en la base de datos
-      return this.librosService.create(nuevoLibro as Libro);
+      return libroCreado;
     } catch (error) {
       console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el libro.');
@@ -293,24 +313,43 @@ export class LibrosController {
   @ApiResponse({ status: 201, description: 'Crea un libro sin archivo de carga.', type: Libro })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() libro: Libro): Promise<Libro> {
+  async createWithoutFile(
+    @Body() libroData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<Libro> {
     try {
-      if (!libro) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!libroData || !libroData.titulo || !libroData.anio_publicacion || !libroData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del libro');
       }
 
+      const fecha = new Date();
+            // Convertir autores a un arreglo si es necesario
+      // Convertir autores a un arreglo si es necesario
+      const autoresArray = typeof libroData.autores === 'string'
+        ? libroData.autores.split(',').map((autor: string) => autor.trim())
+        : libroData.autores;
+        
       const nuevoLibro: Partial<Libro> = {
-        portada: libro.portada,
-        anio_publicacion: libro.anio_publicacion,
-        titulo: libro.titulo,
-        autores: libro.autores,
-        editorial: libro.editorial,
-        abstract: libro.abstract,
-        link_pdf: libro.link_pdf,
+        portada: libroData.portada,
+        anio_publicacion: parseInt(libroData.anio_publicacion, 10),
+        titulo: libroData.titulo,
+        autores: autoresArray,
+        editorial: libroData.editorial,
+        abstract: libroData.abstract,
+        link_pdf: libroData.link_pdf,
       };
+      const libroCreado = await this.librosService.create(nuevoLibro as Libro);
 
-      return this.librosService.create(nuevoLibro as Libro);
+      await this.logsService.createLogDocument({
+          id_usuario: usuarioId,
+          id_documento:  libroCreado.id, // Usamos el ID del usuario retornado
+          accion: 'Creacion documento',
+          fecha: fecha,
+      });
+      
+      return libroCreado;
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el libro sin archivo.');
     }
   }

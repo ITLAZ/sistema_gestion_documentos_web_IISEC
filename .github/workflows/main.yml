@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - backend2_0
-      - frontend2_0
 
   pull_request:
     branches:

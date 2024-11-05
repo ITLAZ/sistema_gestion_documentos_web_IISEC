@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { PoliciesBriefsService } from 'src/services/policies-briefs/policies-briefs.service';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes, getSchemaPath } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { PolicyBriefResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -18,6 +19,7 @@ export class PoliciesBriefsController {
   constructor(
     private readonly policiesBriefsService: PoliciesBriefsService,
     private readonly searchService: SearchService,
+    private readonly logsService: LogsService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -53,6 +55,7 @@ export class PoliciesBriefsController {
         anio
       );
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al obtener los documentos Policy Briefs.');
     }
   }
@@ -103,6 +106,7 @@ export class PoliciesBriefsController {
       );
       return results;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de documentos Policy Briefs.');
     }
   }
@@ -117,6 +121,7 @@ export class PoliciesBriefsController {
     try {
       return this.policiesBriefsService.findByTitulo(titulo);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar documentos Policy Briefs por título.');
     }
   }
@@ -131,6 +136,7 @@ export class PoliciesBriefsController {
     try {
       return this.policiesBriefsService.findByAutor(autor);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar documentos Policy Briefs por autor.');
     }
   }
@@ -148,6 +154,7 @@ export class PoliciesBriefsController {
       }
       return this.policiesBriefsService.findById(id);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar el documento Policy Brief por ID.');
     }
   }
@@ -165,6 +172,7 @@ export class PoliciesBriefsController {
       }
       return this.policiesBriefsService.delete(id);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al eliminar el documento Policy Brief.');
     }
   }
@@ -180,6 +188,7 @@ export class PoliciesBriefsController {
     try {
       return this.policiesBriefsService.update(id, policyBrief);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el documento Policy Brief.');
     }
   }
@@ -217,7 +226,8 @@ export class PoliciesBriefsController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() policyBriefData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<PolicyBrief> {
     try {
       if (!file) {
@@ -226,6 +236,8 @@ export class PoliciesBriefsController {
       if (!policyBriefData || !policyBriefData.titulo || !policyBriefData.anio_publicacion || !policyBriefData.autores) {
         throw new BadRequestException('Faltan datos obligatorios del documento Policy Brief');
       }
+
+      const fecha = new Date();
 
       const autoresArray = typeof policyBriefData.autores === 'string'
         ? policyBriefData.autores.split(',').map((autor: string) => autor.trim())
@@ -248,9 +260,19 @@ export class PoliciesBriefsController {
         link_pdf: policyBriefData.link_pdf,
         direccion_archivo: procesado.path,
       };
+      
+      const creadoPolicyBrief = await this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
 
-      return this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  creadoPolicyBrief.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return creadoPolicyBrief;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear el documento Policy Brief.');
     }
   }
@@ -261,22 +283,41 @@ export class PoliciesBriefsController {
   @ApiResponse({ status: 201, description: 'Crea un documento sin archivo de carga.', type: PolicyBrief })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() policyBrief: PolicyBrief): Promise<PolicyBrief> {
+  async createWithoutFile(
+    @Body() policyBriefData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<PolicyBrief> {
     try {
-      if (!policyBrief) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!policyBriefData || !policyBriefData.titulo || !policyBriefData.anio_publicacion || !policyBriefData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del documento Policy Brief');
       }
 
-      const nuevoPolicyBrief: Partial<PolicyBrief> = {
-        titulo: policyBrief.titulo,
-        anio_publicacion: policyBrief.anio_publicacion,
-        autores: policyBrief.autores,
-        mensaje_clave: policyBrief.mensaje_clave,
-        link_pdf: policyBrief.link_pdf,
-      };
+      const fecha = new Date();
 
-      return this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
+      const autoresArray = typeof policyBriefData.autores === 'string'
+        ? policyBriefData.autores.split(',').map((autor: string) => autor.trim())
+        : policyBriefData.autores;
+
+      const nuevoPolicyBrief: Partial<PolicyBrief> = {
+          titulo: policyBriefData.titulo,
+          anio_publicacion: parseInt(policyBriefData.anio_publicacion, 10),
+          autores: autoresArray,
+          mensaje_clave: policyBriefData.mensaje_clave,
+          link_pdf: policyBriefData.link_pdf
+      };
+      
+      const creadoPolicyBrief = await this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  creadoPolicyBrief.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return creadoPolicyBrief;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear el documento Policy Brief sin archivo.');
     }
   }

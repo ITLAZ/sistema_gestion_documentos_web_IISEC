@@ -166,11 +166,28 @@ export class CapitulosLibrosController {
   @ApiResponse({ status: 200, description: 'Actualiza un capítulo por su ID.', type: CapituloLibro })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() capitulo: Partial<CapituloLibro>): Promise<CapituloLibro> {
+  async update(
+    @Param('id') id: string,
+    @Body() capitulo: Partial<CapituloLibro>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<CapituloLibro> {
     try {
-      return this.capitulosLibrosService.update(id, capitulo);
+
+      const fecha = new Date();
+      // Actualizar el libro
+      const capituloActualizado = await this.capitulosLibrosService.update(id, capitulo);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return capituloActualizado;
     } catch (error) {
-      console.error('Error al crear el libro:', error.message);
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el capítulo.');
     }
   }

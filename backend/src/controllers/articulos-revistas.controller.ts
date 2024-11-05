@@ -166,9 +166,25 @@ export class ArticulosRevistasController {
   @ApiResponse({ status: 200, description: 'Actualiza un artículo por su ID.', type: ArticuloRevista })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() articulo: Partial<ArticuloRevista>): Promise<ArticuloRevista> {
+  async update(
+    @Param('id') id: string, 
+    @Body() articulo: Partial<ArticuloRevista>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<ArticuloRevista> {
     try {
-      return this.articulosRevistasService.update(id, articulo);
+      const fecha = new Date();
+      // Actualizar el libro
+      const articuloActualizado = await this.articulosRevistasService.update(id, articulo);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return articuloActualizado;
     } catch (error) {
       console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el artículo.');

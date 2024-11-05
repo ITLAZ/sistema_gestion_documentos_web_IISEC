@@ -7,11 +7,16 @@ import { CapitulosLibrosService } from 'src/services/capitulos-libros/capitulos-
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { SearchService } from 'src/services/search/search.service';
 import { MyElasticsearchModule } from '../my-elasticsearch/my-elasticsearch.module';
+import { Log, LogSchema } from 'src/schemas/logs.schema';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: CapituloLibro.name, schema: CapituloLibroSchema }]), MyElasticsearchModule],
+  imports: [MongooseModule.forFeature([
+    { name: CapituloLibro.name, schema: CapituloLibroSchema },
+    { name: Log.name, schema: LogSchema },
+  ]), MyElasticsearchModule],
   controllers: [CapitulosLibrosController],
-  providers: [CapitulosLibrosService, FileUploadService, SearchService],
+  providers: [CapitulosLibrosService, FileUploadService, SearchService, LogsService],
   exports: [CapitulosLibrosService],
 })
 export class CapitulosLibrosModule {}

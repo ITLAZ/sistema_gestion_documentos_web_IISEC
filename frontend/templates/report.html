@@ -13,6 +13,22 @@
         <aside class="report-filter">
             <h2>Generación de Reportes</h2>
             <form id="report-form">
+                <!-- Nuevo combo box para seleccionar categoría -->
+                <div class="input-group">
+                    <label for="category">Tipo de Documento:</label>
+                    <select id="category" name="category" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="all-types">Todos los documentos</option>
+                        <option value="libros">Libros</option>
+                        <option value="articulosRevistas">Artículos de Revista</option>
+                        <option value="capitulosLibros">Capítulos de Libros</option>
+                        <option value="documentosTrabajo">Documentos de Trabajo</option>
+                        <option value="ideasReflexiones">Ideas y Reflexiones</option>
+                        <option value="infoIIsec">Info IISEC</option>
+                        <option value="policiesBriefs">Policies Briefs</option>
+                    </select>
+                </div>
+
                 <div class="input-group">
                     <label for="author">Nombre del Autor:</label>
                     <input type="text" id="author" name="author" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
@@ -25,12 +41,11 @@
                     <label for="endDate">Año Final:</label>
                     <input type="number" min="1900" max="2099" step="1" id="endDate" name="endDate">
                 </div>
-                <div class="input-group">
-                    <button type="submit">Generar Reporte</button>
-                </div>
-                <div class="input-group">
-                    <button type="button" id="download-report">Descargar Reporte</button>
-                </div>
+                <div class="input-group button-group">
+                    <button type="submit" class="btn-small">Generar</button>
+                    <button type="button" id="download-report" class="btn-small">Descargar</button>
+                </div>                
+                
             </form>
         </aside>
 

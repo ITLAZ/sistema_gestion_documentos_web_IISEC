@@ -520,3 +520,30 @@ aside .advanced-search{
   color: var(--card-text-color); /* Cambiar color según el tema */
   transition: color 0.3s ease; /* Transición suave para el cambio de color */
 }
+
+
+/* Contenedor de los botones en línea */
+.button-group {
+  display: flex;
+  gap: 5px; /* Espacio entre botones */
+  justify-content: flex-start; /* Alinea los botones al inicio */
+}
+
+/* Estilo para botones aún más pequeños */
+.btn-small {
+  padding: 3px 8px; /* Tamaño más reducido */
+  font-size: 0.8em; /* Tamaño de fuente más pequeño */
+  border: none;
+  border-radius: 3px;
+  background-color: var(--button-bg-color, #444);
+  color: var(--button-text-color, #fff);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover para botones */
+.btn-small:hover {
+  background-color: var(--button-hover-bg-color, #007bff);
+  color: var(--button-hover-text-color, #fff);
+}
+

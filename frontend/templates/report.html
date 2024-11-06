@@ -148,41 +148,43 @@
             filteredData = { [category]: filterByAuthor(data, author) };
         }
 
-        // Crear contenedor de resumen
-        const summaryContainer = document.createElement('div');
-        summaryContainer.classList.add('summary-container');
-        reportContainer.appendChild(summaryContainer);
+        // Crear contenedor de resumen solo si se selecciona "Todos los documentos"
+        if (category === "all-types") {
+            const summaryContainer = document.createElement('div');
+            summaryContainer.classList.add('summary-container');
+            reportContainer.appendChild(summaryContainer);
 
-        // Calcular los totales
-        const counts = Object.keys(filteredData).map(type => ({
-            type,
-            count: filteredData[type].length
-        }));
+            // Calcular los totales
+            const counts = Object.keys(filteredData).map(type => ({
+                type,
+                count: filteredData[type].length
+            }));
 
-        const totalDocuments = counts.reduce((acc, item) => acc + item.count, 0);
-        const maxCount = Math.max(...counts.map(item => item.count));
-        const minCount = Math.min(...counts.map(item => item.count));
+            const totalDocuments = counts.reduce((acc, item) => acc + item.count, 0);
+            const maxCount = Math.max(...counts.map(item => item.count));
+            const minCount = Math.min(...counts.map(item => item.count));
 
-        const documentsWithMostResults = counts.filter(item => item.count === maxCount);
-        const documentsWithLeastResults = counts.filter(item => item.count === minCount);
+            const documentsWithMostResults = counts.filter(item => item.count === maxCount);
+            const documentsWithLeastResults = counts.filter(item => item.count === minCount);
 
-        // Crear tarjetas de resumen
-        const createSummaryCard = (title, value) => {
-            const card = document.createElement('div');
-            card.classList.add('summary-card');
-            card.innerHTML = `
-                <h3>${title}</h3>
-                <p>${value}</p>
-            `;
-            return card;
-        };
+            // Crear tarjetas de resumen
+            const createSummaryCard = (title, value) => {
+                const card = document.createElement('div');
+                card.classList.add('summary-card');
+                card.innerHTML = `
+                    <h3>${title}</h3>
+                    <p>${value}</p>
+                `;
+                return card;
+            };
 
-        const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
-        const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
+            const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
+            const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
 
-        summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
-        summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
-        summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
+            summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
+            summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
+            summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
+        }
 
         // Renderizar cada tipo de documento debajo de las tarjetas de resumen
         const renderSection = (sectionTitle, items, titleKey, dateKey) => {
@@ -225,6 +227,7 @@
         reportContainer.innerHTML = '<p>Error al generar el reporte. Inténtalo de nuevo más tarde.</p>';
     }
 });
+
 
 
 // Lógica para descargar el reporte como PDF

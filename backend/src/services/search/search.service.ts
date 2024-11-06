@@ -50,10 +50,9 @@ export class SearchService {
         anio_publicacion?: number,
         autores?: string,
       },
-      sortBy: string = 'anio_publicacion',  // Campo por el que se desea ordenar, por defecto 'anio_publicacion'
+      sortBy: string = 'anio_publicacion',
       sortOrder: 'asc' | 'desc' = 'asc'
     ) {
-
       const from = (page - 1) * size;
       const filterConditions = [];
     
@@ -65,47 +64,68 @@ export class SearchService {
       if (filters.autores) {
         filterConditions.push({ match: { 'autores': filters.autores } });
       }
-      
-      if(type==='articulos-revistas'){
+    
+      if (type === 'articulos-revistas') {
         sortBy = 'anio_revista';
       }
-
-      // Construir la consulta
+    
+      // Ajuste de consulta con fuzzy y wildcard
       const result = await this.elasticsearchService.search({
-        index: type,  // Especifica el índice (tipo de documento) en el que se va a realizar la búsqueda
+        index: type,
         body: {
           from: from,
           size: size,
           query: {
             bool: {
-              must: {
-                multi_match: {  // Utiliza multi_match para buscar en varios campos
-                  query: query,  // El término de búsqueda
-                  fields: [
-                    'titulo^3',      
-                    'autores^2',
-                    'editores^2',
-                    'editorial',        
-                    'abstract',
-                    'nombre_revista^3',
-                    'titulo_capitulo^3',
-                    'titulo_libro^3',
-                    'observaciones',
-                    'mensaje_clave'
-                  ],
+              should: [
+                {
+                  multi_match: {
+                    query: query,
+                    fields: [
+                      'titulo^3',
+                      'autores^2',
+                      'editores^2',
+                      'editorial',
+                      'abstract',
+                      'nombre_revista^3',
+                      'titulo_capitulo^3',
+                      'titulo_libro^3',
+                      'observaciones',
+                      'mensaje_clave'
+                    ],
+                    fuzziness: 'AUTO',
+                    prefix_length: 1,
+                    minimum_should_match: '60%'
+                  }
+                },
+                {
+                  wildcard: {
+                    "titulo": {
+                      value: `*${query.toLowerCase()}*`,
+                      boost: 2
+                    }
+                  }
+                },
+                {
+                  wildcard: {
+                    "abstract": {
+                      value: `*${query.toLowerCase()}*`
+                    }
+                  }
                 }
-              },
-              filter: filterConditions  // Aquí aplicamos los filtros que se hayan pasado
+              ],
+              filter: filterConditions
             }
           },
           sort: [
-            { [sortBy]: { order: sortOrder as 'asc' | 'desc' } } 
+            { [sortBy]: { order: sortOrder as 'asc' | 'desc' } }
           ]
         }
       });
     
-      return result.hits.hits;  // Devuelve los documentos que coinciden con la búsqueda
+      return result.hits.hits;
     }
+    
    
     async searchAllCollections(
       query: string, 

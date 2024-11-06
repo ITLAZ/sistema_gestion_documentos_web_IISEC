@@ -60,173 +60,171 @@
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
 
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
+        form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    // Obtener los datos del formulario
+    const category = document.getElementById('category').value;
+    const author = document.getElementById('author').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    console.log('Datos del formulario:', { category, author, startDate, endDate });
+
+    // Validaciones...
+    if (!author && !startDate && !endDate) {
+        alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
+        return;
+    }
+
+    if (startDate && !endDate) {
+        alert('Debe ingresar un año final si ha ingresado un año de inicio.');
+        return;
+    }
+
+    if (!startDate && endDate) {
+        alert('Debe ingresar un año de inicio si ha ingresado un año final.');
+        return;
+    }
+
+    if (parseInt(startDate) > parseInt(endDate)) {
+        alert('El año inicial no puede ser mayor que el año final.');
+        return;
+    }
+
+    if (parseInt(startDate) < 1900 || parseInt(endDate) < 1900) {
+        alert('El año debe ser igual o mayor a 1900.');
+        return;
+    }
+
+    console.log('Fechas validadas correctamente.');
+
+    // Construir la URL según la selección en el combo box
+    let url;
+    if (category === "all-types") {
+        url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
+    } else {
+        url = `http://localhost:3000/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
+    }
+
+    console.log(`URL del endpoint ${category === "all-types" ? 'general' : 'filtrado por categoría'}:`, url);
+    
+    try {
+        const response = await fetch(url);
+        console.log('Respuesta del fetch:', response);
         
-        // Obtener los datos del formulario
-        const author = document.getElementById('author').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         
-        console.log('Datos del formulario:', { author, startDate, endDate });
-
-        // Validaciones...
-        if (!author && !startDate && !endDate) {
-            alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
-            return;
-        }
-
-        if (startDate && !endDate) {
-            alert('Debe ingresar un año final si ha ingresado un año de inicio.');
-            return;
-        }
-
-        if (!startDate && endDate) {
-            alert('Debe ingresar un año de inicio si ha ingresado un año final.');
-            return;
-        }
-
-        if (parseInt(startDate) > parseInt(endDate)) {
-            alert('El año inicial no puede ser mayor que el año final.');
-            return;
-        }
-
-        if (parseInt(startDate) < 1900 || parseInt(endDate) < 1900) {
-            alert('El año debe ser igual o mayor a 1900.');
-            return;
-        }
-
-        console.log('Fechas validadas correctamente.');
+        const data = await response.json();
+        console.log('Datos recibidos del backend:', data);
         
-        const url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
-        console.log('URL del endpoint:', url);
-        
-        try {
-            const response = await fetch(url);
-            console.log('Respuesta del fetch:', response);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log('Datos recibidos del backend:', data);
-            
-            reportContainer.innerHTML = '';
+        reportContainer.innerHTML = '';
 
-            const filterByAuthor = (items, author) => {
-                const lowerCaseAuthor = author.toLowerCase();
-                return items.filter(item => 
-                    item.autores.some(a => a.toLowerCase().includes(lowerCaseAuthor))
-                );
+        // Función para filtrar por autor en los datos
+        const filterByAuthor = (items, author) => {
+            const lowerCaseAuthor = author.toLowerCase();
+            return items.filter(item => 
+                item.autores && item.autores.some(a => a.toLowerCase().includes(lowerCaseAuthor))
+            );
+        };
+
+        // Lógica para manejar diferentes formatos de respuesta
+        let filteredData;
+        if (category === "all-types") {
+            // Si es "Todos", los datos están organizados por tipo
+            filteredData = {
+                libros: filterByAuthor(data.libros || [], author),
+                articulosRevistas: filterByAuthor(data.articulosRevistas || [], author),
+                capitulosLibros: filterByAuthor(data.capitulosLibros || [], author),
+                documentosTrabajo: filterByAuthor(data.documentosTrabajo || [], author),
+                ideasReflexiones: filterByAuthor(data.ideasReflexiones || [], author),
+                infoIIsec: filterByAuthor(data.infoIIsec || [], author),
+                policiesBriefs: filterByAuthor(data.policiesBriefs || [], author)
             };
+        } else {
+            // Si es una categoría específica, los datos vienen en un solo array
+            filteredData = { [category]: filterByAuthor(data, author) };
+        }
 
-            const filteredLibros = filterByAuthor(data.libros, author);
-            const filteredArticulos = filterByAuthor(data.articulosRevistas, author);
-            const filteredCapitulos = filterByAuthor(data.capitulosLibros, author);
-            const filteredDocumentosTrabajo = filterByAuthor(data.documentosTrabajo, author);
-            const filteredIdeasReflexiones = filterByAuthor(data.ideasReflexiones, author);
-            const filteredInfoIIsec = filterByAuthor(data.infoIIsec, author);
-            const filteredPoliciesBriefs = filterByAuthor(data.policiesBriefs, author);
-
-            // Crear contenedor de resumen
-            const summaryContainer = document.createElement('div');
-            summaryContainer.classList.add('summary-container');
-
-        // Agregar el contenedor de resúmenes al contenedor del reporte
+        // Crear contenedor de resumen
+        const summaryContainer = document.createElement('div');
+        summaryContainer.classList.add('summary-container');
         reportContainer.appendChild(summaryContainer);
 
-            // Calcular los totales
-            const counts = [
-                { type: 'Libros', count: filteredLibros.length },
-                { type: 'Artículos', count: filteredArticulos.length },
-                { type: 'Capítulos de Libros', count: filteredCapitulos.length },
-                { type: 'Documentos de Trabajo', count: filteredDocumentosTrabajo.length },
-                { type: 'Ideas y Reflexiones', count: filteredIdeasReflexiones.length },
-                { type: 'Info IISEC', count: filteredInfoIIsec.length },
-                { type: 'Policies Briefs', count: filteredPoliciesBriefs.length }
-            ];
+        // Calcular los totales
+        const counts = Object.keys(filteredData).map(type => ({
+            type,
+            count: filteredData[type].length
+        }));
 
-            const totalDocuments = counts.reduce((acc, item) => acc + item.count, 0);
-            const maxCount = Math.max(...counts.map(item => item.count));
-            const minCount = Math.min(...counts.map(item => item.count));
+        const totalDocuments = counts.reduce((acc, item) => acc + item.count, 0);
+        const maxCount = Math.max(...counts.map(item => item.count));
+        const minCount = Math.min(...counts.map(item => item.count));
 
-            const documentsWithMostResults = counts.filter(item => item.count === maxCount);
-            const documentsWithLeastResults = counts.filter(item => item.count === minCount);
+        const documentsWithMostResults = counts.filter(item => item.count === maxCount);
+        const documentsWithLeastResults = counts.filter(item => item.count === minCount);
 
-            // Función para crear tarjetas cuadradas de resumen
-            const createSummaryCard = (title, value) => {
-                const card = document.createElement('div');
-                card.classList.add('summary-card');
-                card.innerHTML = `
-                    <h3>${title}</h3>
-                    <p>${value}</p>
-                `;
-                return card;
-            };
+        // Crear tarjetas de resumen
+        const createSummaryCard = (title, value) => {
+            const card = document.createElement('div');
+            card.classList.add('summary-card');
+            card.innerHTML = `
+                <h3>${title}</h3>
+                <p>${value}</p>
+            `;
+            return card;
+        };
 
-            // Generar descripciones para las tarjetas de "Más resultados" y "Menos resultados"
-            const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
-            const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
+        const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
+        const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
 
-            // Añadir las tarjetas de resumen
-            summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
-            summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
-            summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
+        summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
+        summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
+        summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
 
-            // Agregar el contenedor de resúmenes al contenedor del reporte
-            reportContainer.appendChild(summaryContainer);
+        // Renderizar cada tipo de documento debajo de las tarjetas de resumen
+        const renderSection = (sectionTitle, items, titleKey, dateKey) => {
+            if (items.length > 0) {
+                const section = document.createElement('section');
+                section.classList.add('report-section');
 
-            // Renderizar cada tipo de documento debajo de las tarjetas de resumen
-            const renderSection = (sectionTitle, items, titleKey, dateKey) => {
-                console.log(`Renderizando sección: ${sectionTitle} con ${items.length} elementos`);
-                if (items.length > 0) {
-                    const section = document.createElement('section');
-                    section.classList.add('report-section');
+                const header = document.createElement('h2');
+                header.textContent = `${sectionTitle} (${items.length})`;
 
-                    // Crear encabezado
-                    const header = document.createElement('h2');
-                    header.textContent = `${sectionTitle} (${items.length})`;
+                const ul = document.createElement('ul');
+                ul.classList.add('card-info');
 
-                    // Crear lista
-                    const ul = document.createElement('ul');
-                    ul.classList.add('card-info');
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item[titleKey]} - Publicado el ${item[dateKey]}`;
+                    ul.appendChild(li);
+                });
 
-                    items.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `${item[titleKey]} - Publicado el ${item[dateKey]}`;
-                        ul.appendChild(li);
-                    });
-
-                    // Agregar encabezado y lista a la sección
-                    section.appendChild(header);
-                    section.appendChild(ul);
-
-                    // Agregar la sección al contenedor del reporte
-                    reportContainer.appendChild(section);
-                } else {
-                    console.log(`No hay elementos para mostrar en la sección: ${sectionTitle}`);
-                }
-            };
-
-            renderSection('Libros', filteredLibros, 'titulo', 'anio_publicacion');
-            renderSection('Artículos', filteredArticulos, 'titulo', 'anio_revista');
-            renderSection('Capítulos de Libros', filteredCapitulos, 'titulo_capitulo', 'anio_publicacion');
-            renderSection('Documentos de Trabajo', filteredDocumentosTrabajo, 'titulo', 'anio_publicacion');
-            renderSection('Ideas y Reflexiones', filteredIdeasReflexiones, 'titulo', 'anio_publicacion');
-            renderSection('Info IISEC', filteredInfoIIsec, 'titulo', 'anio_publicacion');
-            renderSection('Policies Briefs', filteredPoliciesBriefs, 'titulo', 'anio_publicacion');
-
-            if (reportContainer.children.length === 1) { // Solo contiene el resumen y ningún otro resultado
-                reportContainer.innerHTML += '<p>No se encontraron resultados para los criterios de búsqueda.</p>';
+                section.appendChild(header);
+                section.appendChild(ul);
+                reportContainer.appendChild(section);
             }
+        };
 
-        } catch (error) {
-            console.error('Error al obtener el reporte:', error);
-            reportContainer.innerHTML = '<p>Error al generar el reporte. Inténtalo de nuevo más tarde.</p>';
+        renderSection('Libros', filteredData.libros || [], 'titulo', 'anio_publicacion');
+        renderSection('Artículos', filteredData.articulosRevistas || [], 'titulo', 'anio_revista');
+        renderSection('Capítulos de Libros', filteredData.capitulosLibros || [], 'titulo_capitulo', 'anio_publicacion');
+        renderSection('Documentos de Trabajo', filteredData.documentosTrabajo || [], 'titulo', 'anio_publicacion');
+        renderSection('Ideas y Reflexiones', filteredData.ideasReflexiones || [], 'titulo', 'anio_publicacion');
+        renderSection('Info IISEC', filteredData.infoIIsec || [], 'titulo', 'anio_publicacion');
+        renderSection('Policies Briefs', filteredData.policiesBriefs || [], 'titulo', 'anio_publicacion');
+
+        if (reportContainer.children.length === 1) {
+            reportContainer.innerHTML += '<p>No se encontraron resultados para los criterios de búsqueda.</p>';
         }
-    });
 
+    } catch (error) {
+        console.error('Error al obtener el reporte:', error);
+        reportContainer.innerHTML = '<p>Error al generar el reporte. Inténtalo de nuevo más tarde.</p>';
+    }
+});
 
 
 // Lógica para descargar el reporte como PDF

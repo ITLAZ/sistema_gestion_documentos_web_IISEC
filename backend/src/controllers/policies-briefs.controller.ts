@@ -184,9 +184,25 @@ export class PoliciesBriefsController {
   @ApiResponse({ status: 200, description: 'Actualiza un documento por su ID.', type: PolicyBrief })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() policyBrief: Partial<PolicyBrief>): Promise<PolicyBrief> {
+  async update(
+    @Param('id') id: string, 
+    @Body() policyBrief: Partial<PolicyBrief>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<PolicyBrief> {
     try {
-      return this.policiesBriefsService.update(id, policyBrief);
+      const fecha = new Date();
+      // Actualizar el libro
+      const policyActualizado = await this.policiesBriefsService.update(id, policyBrief);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return policyActualizado;
     } catch (error) {
       console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el documento Policy Brief.');

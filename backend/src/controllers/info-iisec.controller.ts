@@ -184,9 +184,26 @@ export class InfoIisecController {
   @ApiResponse({ status: 200, description: 'Actualiza un documento por su ID.', type: InfoIISEC })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() infoIISEC: Partial<InfoIISEC>): Promise<InfoIISEC> {
+  async update(
+    @Param('id') id: string, 
+    @Body() infoIISEC: Partial<InfoIISEC>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<InfoIISEC> {
     try {
-      return this.infoIisecService.update(id, infoIISEC);
+
+      const fecha = new Date();
+      // Actualizar el libro
+      const infoIISECActualizado = await this.infoIisecService.update(id, infoIISEC);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return infoIISECActualizado;
     } catch (error) {
       console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el documento Info IISEC.');

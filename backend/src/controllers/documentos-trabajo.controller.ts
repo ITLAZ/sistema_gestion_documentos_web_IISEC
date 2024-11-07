@@ -166,9 +166,26 @@ export class DocumentosTrabajoController {
   @ApiResponse({ status: 200, description: 'Actualiza un documento por su ID.', type: DocumentoTrabajo })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() documento: Partial<DocumentoTrabajo>): Promise<DocumentoTrabajo> {
+  async update(
+    @Param('id') id: string, 
+    @Body() documento: Partial<DocumentoTrabajo>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<DocumentoTrabajo> {
     try {
-      return this.documentosTrabajoService.update(id, documento);
+      const fecha = new Date();
+      // Actualizar el libro
+      const documentoActualizado = await this.documentosTrabajoService.update(id, documento);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return documentoActualizado;
+      return 
     } catch (error) {
       console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al actualizar el documento.');

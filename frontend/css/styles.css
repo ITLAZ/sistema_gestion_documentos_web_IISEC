@@ -547,3 +547,15 @@ aside .advanced-search{
   color: var(--button-hover-text-color, #fff);
 }
 
+.order{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.order h3{
+  grid-column: 1 / 3;
+}
+
+.order input{
+  grid-column: 1 / 2;
+}

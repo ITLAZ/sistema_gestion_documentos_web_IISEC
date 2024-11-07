@@ -4,7 +4,7 @@ import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody} from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody, ApiHeader} from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { ArticuloRevistaResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
@@ -195,19 +195,45 @@ export class ArticulosRevistasController {
   @ApiOperation({ summary: 'Eliminar un artículo por su ID' })
   @ApiParam({ name: 'id', description: 'ID del artículo a eliminar', example: '6716be4bbd17f2acd13f7308' })
   @ApiResponse({ status: 200, description: 'Elimina un artículo por su ID.', type: ArticuloRevista })
-  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 400, description: 'ID no válido o usuario no proporcionado' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<ArticuloRevista> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<ArticuloRevista> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.articulosRevistasService.delete(id);
+      
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+  
+      const articuloEliminado = await this.articulosRevistasService.delete(id);
+      if (!articuloEliminado) {
+        throw new BadRequestException('Artículo no encontrado');
+      }
+  
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+  
+      return articuloEliminado;
     } catch (error) {
-      console.error(error.message);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el artículo:', error.message);
       throw new InternalServerErrorException('Error al eliminar el artículo.');
     }
   }
+  
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un artículo con archivo de PDF' })

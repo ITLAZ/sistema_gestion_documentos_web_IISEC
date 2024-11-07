@@ -209,24 +209,49 @@ export class LibrosController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: ' Eliminar un libro por su ID' })
-  @ApiParam({ name: 'id', description: ' ID del libro a eliminar', example: '6715d835ce1db7b621aa7790' })
-  @ApiResponse({ status: 200, description: ' Elimina un libro por su ID.', type: Libro })
-  @ApiResponse({ status: 400, description: ' ID no válido' })
-  @ApiResponse({ status: 500, description: ' Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<Libro> {
+  @ApiOperation({ summary: 'Eliminar un libro por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del libro a eliminar', example: '6715d835ce1db7b621aa7790' })
+  @ApiResponse({ status: 200, description: 'Elimina un libro por su ID.', type: Libro })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<Libro> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.librosService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+      
+      // Eliminar el libro
+      const libroEliminado = await this.librosService.delete(id);
+      if (!libroEliminado) {
+        throw new BadRequestException('Libro no encontrado');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return libroEliminado;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
+      console.error('Error al eliminar el libro:', error.message);
       throw new InternalServerErrorException('Error al eliminar el libro.');
     }
   }
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un libro con archivo de PDF' })

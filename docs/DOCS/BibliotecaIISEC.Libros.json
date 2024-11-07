@@ -1,0 +1,103 @@
+[{
+  "_id": {
+    "$oid": "672c3768a3d49a3a24c8ede4"
+  },
+  "portada": "https://iisec.ucb.edu.bo/assets_iisec/img/publicacion/thumb/Inflacion_estabilizacion_JAM_thumb.png",
+  "anio_publicacion": 1995,
+  "titulo": "Inflación, Estabilización y Crecimiento. La Experiencia Boliviana de 1982 a 1993.",
+  "autores": [
+    "Juan Antonio Morales Ayana",
+    "G. La Torre"
+  ],
+  "editorial": "La Paz: Publicaciones IISEC-UCB.",
+  "abstract": "",
+  "link_pdf": "https://iisec.ucb.edu.bo/assets_iisec/publicacion/Inflacion_estabilizacion_-_Juan_A__Morales.pdf",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "672c3998a3d49a3a24c8ede8"
+  },
+  "portada": "https://iisec.ucb.edu.bo/assets_iisec/img/publicacion/thumb/Sin_titulo_Copiar_Copiar_thumb.png",
+  "anio_publicacion": 2008,
+  "titulo": "Treinta años de economía en Bolivia: historia y perspectivas",
+  "autores": [
+    "Javier Aliaga Lordemann",
+    "Horacio Villegas Quino",
+    "Jeffrey D. Sachs",
+    "Juan Antonio Morales Anaya",
+    "Alejandro F. Mercado Salazar",
+    "Mauricio Medinaceli Monroy",
+    "Rainer Thiele",
+    "Jorge"
+  ],
+  "editorial": "Instituto de Investigaciones Socio-Económicas Impresión: SOIPA Ltda.",
+  "abstract": "",
+  "link_pdf": "https://iisec.ucb.edu.bo/assets_iisec/publicacion/iisec.pdf",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "672c39caa3d49a3a24c8edec"
+  },
+  "portada": "https://iisec.ucb.edu.bo/assets_iisec/img/publicacion/thumb/matriz_thumb.JPG",
+  "anio_publicacion": 2011,
+  "titulo": "Perspectivas de la matriz energética Bolivia",
+  "autores": [
+    "Javier Aliaga Lordemann"
+  ],
+  "editorial": "",
+  "abstract": "",
+  "link_pdf": "https://iisec.ucb.edu.bo/assets_iisec/publicacion/Perspectivas_de_la_matriz_energetica_Boliviana.pdf",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "672c3a0ba3d49a3a24c8edf1"
+  },
+  "portada": "https://iisec.ucb.edu.bo/assets_iisec/img/publicacion/thumb/bien_vivir_thumb.JPG",
+  "anio_publicacion": 2014,
+  "titulo": "Vivir bien y enfoque de capacidades. Hacia una conciliación empírica",
+  "autores": [
+    "Ahmed Eid"
+  ],
+  "editorial": "Instituto de Investigaciones Socio-Económicas Fundación Hanns Seidel Impresión: SOIPA Ltda.",
+  "abstract": "El libro “Vivir Bien y Enfoque de Capacidades hacia una conciliación empírica” surge como resultado de un documento inicial de investigación.",
+  "link_pdf": "https://iisec.ucb.edu.bo/assets_iisec/publicacion/Vivir_Bien_y_Enfoque_de_Capacidades.pdf",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "672c3a37a3d49a3a24c8edf5"
+  },
+  "portada": "https://iisec.ucb.edu.bo/assets_iisec/img/publicacion/thumb/felicidad_thumb.JPG",
+  "anio_publicacion": 2015,
+  "titulo": "Avances de la economía de la felicidad en Bolivia",
+  "autores": [
+    "Javier Aliaga Lordemann",
+    "Alejandro Herrera Jimenez",
+    "Marcelo Gantier Mita",
+    "Luís Serrudo Lázaro",
+    "Miguel Carvaja"
+  ],
+  "editorial": "Universidad Católica Boliviana “San Pablo” Instituto de Investigaciones Socio-Económicas (IISEC-UCB)",
+  "abstract": "En las últimas dos décadas la Felicidad influyó mucho a los hacedores de política, por ejemplo en Bután las políticas públicas no solo se enfocan en el crecimiento económico.",
+  "link_pdf": "https://iisec.ucb.edu.bo/assets_iisec/publicacion/Avances_de_la_economia_de_la_felicidad_en_Bolivia.pdf",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "672c3a52a3d49a3a24c8edf9"
+  },
+  "portada": "https://iisec.ucb.edu.bo/assets_iisec/img/publicacion/thumb/Deuda-Social-en-Bolivia_1_thumb.png",
+  "anio_publicacion": 2017,
+  "titulo": "Deuda social en Bolivia: Una aproximación desde los indicadores de pobreza, salud, educación y empleo",
+  "autores": [
+    "Fernanda Wanderley",
+    "Jaime Perez Coronel"
+  ],
+  "editorial": "Instituto de Investigaciones Socio-Económicas Fundación Jubileo",
+  "abstract": "El documento es un primer acercamiento a la deuda social en Bolivia, a partir del análisis de indicadores de pobreza y desigualdad social.",
+  "link_pdf": "https://iisec.ucb.edu.bo/assets_iisec/publicacion/Deuda_social-en-Bolivia.pdf",
+  "__v": 0
+}]

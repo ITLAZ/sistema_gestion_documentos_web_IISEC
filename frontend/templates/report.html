@@ -230,6 +230,7 @@
                 chartContainer.innerHTML = '';
 
                 if (category === "all-types") {
+                    // Gráfico de Conteo de Documentos por Categoría
                     const ctx1 = document.createElement('canvas');
                     chartContainer.appendChild(ctx1);
                     new Chart(ctx1, {
@@ -246,7 +247,68 @@
                         }
                     });
 
-                } else {
+                    // Gráficos adicionales solo si se especifica un rango de años
+                    if (startDate || endDate) {
+                        // Gráfico 1: Cantidad total de documentos por año
+                        const documentsByYear = {};
+                        Object.values(filteredData).forEach(items => {
+                            items.forEach(item => {
+                                const year = item.anio_publicacion || item.anio_revista;
+                                if (year) {
+                                    documentsByYear[year] = (documentsByYear[year] || 0) + 1;
+                                }
+                            });
+                        });
+
+                        const ctx2 = document.createElement('canvas');
+                        chartContainer.appendChild(ctx2);
+                        new Chart(ctx2, {
+                            type: chartType,
+                            data: {
+                                labels: Object.keys(documentsByYear),
+                                datasets: [{
+                                    label: 'Cantidad de Documentos por Año',
+                                    data: Object.values(documentsByYear),
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }]
+                            }
+                        });
+
+                        // Gráfico 2: Tipo de documentos por año
+                        const typesByYear = {};
+                        Object.keys(filteredData).forEach(type => {
+                            filteredData[type].forEach(item => {
+                                const year = item.anio_publicacion || item.anio_revista;
+                                if (year) {
+                                    if (!typesByYear[year]) {
+                                        typesByYear[year] = { libros: 0, articulosRevistas: 0, capitulosLibros: 0, documentosTrabajo: 0, ideasReflexiones: 0, infoIIsec: 0, policiesBriefs: 0 };
+                                    }
+                                    typesByYear[year][type] += 1;
+                                }
+                            });
+                        });
+
+                        const years = Object.keys(typesByYear);
+                        const ctx3 = document.createElement('canvas');
+                        chartContainer.appendChild(ctx3);
+                        new Chart(ctx3, {
+                            type: chartType,
+                            data: {
+                                labels: years,
+                                datasets: Object.keys(filteredData).map(type => ({
+                                    label: `Cantidad de ${type} por Año`,
+                                    data: years.map(year => typesByYear[year][type] || 0),
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }))
+                            }
+                        });
+                    }
+                }
+                else {
                     const yearCounts = {};
                     filteredData.forEach(item => {
                         const year = item.anio_publicacion || item.anio_revista;

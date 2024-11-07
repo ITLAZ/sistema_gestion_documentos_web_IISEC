@@ -6,6 +6,7 @@
     <title>Reportes y Estadísticas</title>
     <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="../css/styles.css"></noscript>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="menu-container"></div>
@@ -49,8 +50,28 @@
             </form>
         </aside>
 
+        <div>
+            <h3>Selecciona el tipo de gráfico:</h3>
+            <label>
+                <input type="radio" name="chartType" value="bar" checked> Barra
+            </label>
+            <label>
+                <input type="radio" name="chartType" value="line"> Línea
+            </label>
+            <label>
+                <input type="radio" name="chartType" value="pie"> Pastel
+            </label>
+            <label>
+                <input type="radio" name="chartType" value="doughnut"> Dona
+            </label>
+            <label>
+                <input type="radio" name="chartType" value="radar"> Radar
+            </label>
+        </div>
+
         <main class="report-container" id="report-container">
             <!-- Aquí se mostrará el reporte generado -->
+            <canvas id="myChart" width="400" height="200"></canvas>
         </main>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>

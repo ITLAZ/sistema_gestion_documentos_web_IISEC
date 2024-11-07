@@ -198,17 +198,44 @@ export class CapitulosLibrosController {
   @ApiResponse({ status: 200, description: 'Elimina un capítulo por su ID.', type: CapituloLibro })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<CapituloLibro> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<CapituloLibro> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.capitulosLibrosService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Eliminar el capítulo
+      const capituloEliminado = await this.capitulosLibrosService.delete(id);
+      if (!capituloEliminado) {
+        throw new BadRequestException('Capítulo no encontrado');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return capituloEliminado;
     } catch (error) {
-      console.error('Error al crear el libro:', error.message);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el capítulo:', error.message);
       throw new InternalServerErrorException('Error al eliminar el capítulo.');
     }
   }
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un capítulo de libro con archivo de PDF' })

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
     <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="../css/styles.css"></noscript>
+    <noscript>
+        <link rel="stylesheet" href="../css/styles.css">
+    </noscript>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
     <div id="menu-container"></div>
     <div class="container">
-        
+
         <!-- Formulario de generación de reportes -->
         <aside class="report-filter">
             <h2>Generación de Reportes</h2>
@@ -46,22 +50,25 @@
                 <div class="input-group button-group">
                     <button type="submit" class="btn-small">Generar</button>
                     <button type="button" id="download-report" class="btn-small">Descargar</button>
-                </div>                
+                </div>
             </form>
         </aside>
 
-        <!-- Selección de tipo de gráfico (fuera del formulario, en la parte superior del contenedor de reportes) -->
-        <div class="chart-selection">
-            <h3>Selecciona el tipo de gráfico:</h3>
-            <label><input type="radio" name="chartType" value="bar" checked> Barra</label>
-            <label><input type="radio" name="chartType" value="line"> Línea</label>
-            <label><input type="radio" name="chartType" value="pie"> Pastel</label>
-        </div>
+        <div class="graph-container">
+            <!-- Selección de tipo de gráfico (fuera del formulario, en la parte superior del contenedor de reportes) -->
+            <div class="chart-selection">
+                <h3>Selecciona el tipo de gráfico:</h3>
+                <label><input type="radio" name="chartType" value="bar" checked> Barra</label>
+                <label><input type="radio" name="chartType" value="line"> Línea</label>
+                <label><input type="radio" name="chartType" value="pie"> Pastel</label>
+                <label><input type="radio" name="chartType" value="none"> Sin Gráfico</label>
+            </div>
 
-        <!-- Contenedor de reportes -->
-        <main class="report-container" id="report-container">
-            <!-- Aquí se mostrará el reporte generado y el gráfico -->
-        </main>
+            <!-- Contenedor de reportes -->
+            <main class="report-container" id="report-container">
+                <!-- Aquí se mostrará el reporte generado y el gráfico -->
+            </main>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
@@ -70,7 +77,7 @@
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
 
-        form.addEventListener('submit', async function(event) {
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
             // Obtener los datos del formulario
@@ -113,16 +120,16 @@
             }
 
             console.log(`URL del endpoint ${category === "all-types" ? 'general' : 'filtrado por categoría'}:`, url);
-            
+
             try {
                 const response = await fetch(url);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
-                
+
                 reportContainer.innerHTML = '';
 
                 // Preparar datos filtrados para una categoría específica
@@ -226,7 +233,7 @@
                     chartContainer.id = 'chart-container';
                     reportContainer.appendChild(chartContainer);
                 }
-                
+
                 chartContainer.innerHTML = '';
 
                 if (category === "all-types") {
@@ -342,7 +349,7 @@
 
 
 
-        
+
 
 
 
@@ -397,5 +404,6 @@
 
     </script>
 </body>
+
 </html>
 <script src="js/main.js" type="module"></script>

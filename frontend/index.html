@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio</title>
     <link rel="preload" href="css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
+    <noscript>
+        <link rel="stylesheet" href="css/styles.css">
+    </noscript>
 </head>
 
 <body>
@@ -30,14 +32,25 @@
                 </div>
                 <div class="input-group">
                     <h3>Búsqueda Avanzada:</h3>
-                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave..." pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
-                </div><div class="input-group">
-                    <h3>Autor:</h3>
-                    <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..." pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
+                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave..."
+                        pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
                 </div>
-                <div class="input-group">
+                <div class="input-group order">
+                    <h3>Autor:</h3>
+                    <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..."
+                        pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
+                    <label>
+                        <input type="checkbox" id="toggle-author" style="display: none;">
+                        <button type="button" id="author-order"></button>
+                    </label>
+                </div>
+                <div class="input-group order">
                     <h3>Año de Publicación:</h3>
                     <input type="number" step="1" name="publication-date" id="publication-date">
+                    <label>
+                        <input type="checkbox" id="toggle-date" style="display: none;">
+                        <button type="button" id="date-order"></button>
+                    </label>
                 </div>
                 <!-- Botón de búsqueda -->
                 <div class="input-group">
@@ -49,13 +62,13 @@
             <h2>Resultados Encontrados:</h2>
             <div id="cards-container"></div>
 
-        <!-- Controles de paginación -->
-        <div id="pagination-controls" style="display: none;">
-            <button id="prev-page">⬅️ Anterior</button>
-            <span id="page-info"></span>
-            <button id="next-page">Siguiente ➡️</button>
-        </div>
-        </main> 
+            <!-- Controles de paginación -->
+            <div id="pagination-controls" style="display: none;">
+                <button id="prev-page">⬅️ Anterior</button>
+                <span id="page-info"></span>
+                <button id="next-page">Siguiente ➡️</button>
+            </div>
+        </main>
     </div>
 </body>
 <script src="js/main.js" type="module"></script>

@@ -245,6 +245,12 @@
                     reportContainer.appendChild(chartContainer);
                 }
 
+                // Si se selecciona "Sin Gráfico", salimos de la función aquí para no crear gráficos
+                if (chartType === 'none') {
+                    chartContainer.innerHTML = ''; // Asegura que el contenedor esté vacío
+                    return;
+                }
+
                 chartContainer.innerHTML = '';
 
                 if (category === "all-types") {

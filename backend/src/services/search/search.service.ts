@@ -126,7 +126,6 @@ export class SearchService {
       return result.hits.hits;
     }
     
-   
     async searchAllCollections(
       query: string,
       page: number,
@@ -140,22 +139,22 @@ export class SearchService {
       sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const from = (page - 1) * size;
-  
+    
       const filterConditions = [];
-  
+    
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
         filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
       }
-  
+    
       if (filters.autores) {
         filterConditions.push({ match: { 'autores': filters.autores } });
       }
-  
+    
       if (filters.tipo_documento) {
         filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice (tipo de documento)
       }
-  
+    
       const result = await this.elasticsearchService.search({
         index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec',
         body: {
@@ -163,7 +162,7 @@ export class SearchService {
           size: size,    // Tamaño de página: cuántos registros devolver
           query: {
             bool: {
-              must: [
+              should: [
                 {
                   multi_match: {
                     query: query,
@@ -178,7 +177,25 @@ export class SearchService {
                       'titulo_libro^3',
                       'observaciones',
                       'mensaje_clave'
-                    ]
+                    ],
+                    fuzziness: 'AUTO',
+                    prefix_length: 1,
+                    minimum_should_match: '60%'
+                  }
+                },
+                {
+                  wildcard: {
+                    "titulo": {
+                      value: `*${query.toLowerCase()}*`,
+                      boost: 2
+                    }
+                  }
+                },
+                {
+                  wildcard: {
+                    "abstract": {
+                      value: `*${query.toLowerCase()}*`
+                    }
                   }
                 }
               ],
@@ -190,9 +207,10 @@ export class SearchService {
           ]
         }
       });
-  
+    
       return result.hits.hits;
     }
+    
     
     async getAllCollections(
       query: string,

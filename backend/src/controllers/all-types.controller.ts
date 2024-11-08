@@ -29,86 +29,57 @@ export class AllTypesController {
     @Get('search')
     @ApiOperation({ summary: 'Busqueda de documento por palabra clave en elasticsearch' })
     @ApiExtraModels(LibrosResponseDto, ArticuloRevistaResponseDto, CapituloLibroResponseDto, DocumentoTrabajoResponseDto, InfoIISECResponseDto, IdeaReflexionResponseDto, PolicyBriefResponseDto)
-    @ApiQuery({ name: 'query', required: true, description: 'Search term' })  // Este es el único obligatorio
-    @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
-    @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
-    @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
-    @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
-    @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })  // Opcional
-    @ApiResponse({
-      status: 200,
-      description: 'All results retrieved successfully',
-      schema: {
-          type: 'array',
-          items: {
-              oneOf: [
-                  { $ref: getSchemaPath(LibrosResponseDto) },
-                  { $ref: getSchemaPath(ArticuloRevistaResponseDto) },
-                  { $ref: getSchemaPath(CapituloLibroResponseDto) },
-                  { $ref: getSchemaPath(DocumentoTrabajoResponseDto) },
-                  { $ref: getSchemaPath(InfoIISECResponseDto) },
-                  { $ref: getSchemaPath(IdeaReflexionResponseDto) },
-                  { $ref: getSchemaPath(PolicyBriefResponseDto) },
-              ],
-          },
-      },
-    })
+    @ApiQuery({ name: 'query', required: true, description: 'Search term' })
+    @ApiQuery({ name: 'page', required: false, description: 'Page number' })
+    @ApiQuery({ name: 'size', required: false, description: 'Page size' })
+    @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' })
+    @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })
+    @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })
+    @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
+    @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
     async searchAll(
       @Query('query') query: string,
       @Query('page') page: string = '1',
       @Query('size') size: string = '10',
       @Query('anio_publicacion') anio_publicacion?: string,
       @Query('autores') autores?: string,
-      @Query('tipo_documento') tipo_documento?: string
+      @Query('tipo_documento') tipo_documento?: string,
+      @Query('sortBy') sortBy?: string,
+      @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const pageNumber = parseInt(page, 10);
       const pageSize = parseInt(size, 10);
-  
+
       // Llama al servicio con los parámetros
       const results = await this.searchService.searchAllCollections(query, pageNumber, pageSize, {
         anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
         autores,
         tipo_documento,
-      });
+      }, sortBy, sortOrder);
   
       return results;
     }
 
-    
     @Get('all')
     @ApiOperation({ summary: 'Obtencion de todos los documentos mediante elasticsearch' })
     @ApiExtraModels(LibrosResponseDto, ArticuloRevistaResponseDto, CapituloLibroResponseDto, DocumentoTrabajoResponseDto, InfoIISECResponseDto, IdeaReflexionResponseDto, PolicyBriefResponseDto)
-    @ApiQuery({ name: 'query', required: false, description: 'Search term' })  // Opcional
-    @ApiQuery({ name: 'page', required: false, description: 'Page number' })  // Opcional
-    @ApiQuery({ name: 'size', required: false, description: 'Page size' })    // Opcional
-    @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' }) // Opcional
-    @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })  // Opcional
-    @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })  // Opcional
-    @ApiResponse({
-      status: 200,
-      description: 'All results retrieved successfully',
-      schema: {
-          type: 'array',
-          items: {
-              oneOf: [
-                  { $ref: getSchemaPath(LibrosResponseDto) },
-                  { $ref: getSchemaPath(ArticuloRevistaResponseDto) },
-                  { $ref: getSchemaPath(CapituloLibroResponseDto) },
-                  { $ref: getSchemaPath(DocumentoTrabajoResponseDto) },
-                  { $ref: getSchemaPath(InfoIISECResponseDto) },
-                  { $ref: getSchemaPath(IdeaReflexionResponseDto) },
-                  { $ref: getSchemaPath(PolicyBriefResponseDto) },
-              ],
-          },
-      },
-    })
+    @ApiQuery({ name: 'query', required: false, description: 'Search term' })
+    @ApiQuery({ name: 'page', required: false, description: 'Page number' })
+    @ApiQuery({ name: 'size', required: false, description: 'Page size' })
+    @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Publication year' })
+    @ApiQuery({ name: 'autores', required: false, description: 'Author filter' })
+    @ApiQuery({ name: 'tipo_documento', required: false, description: 'Document type filter' })
+    @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
+    @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
     async getAll(
       @Query('query') query: string,
       @Query('page') page: string = '1',
       @Query('size') size: string = '10',
       @Query('anio_publicacion') anio_publicacion?: string,
       @Query('autores') autores?: string,
-      @Query('tipo_documento') tipo_documento?: string
+      @Query('tipo_documento') tipo_documento?: string,
+      @Query('sortBy') sortBy?: string,
+      @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const pageNumber = parseInt(page, 10);
       const pageSize = parseInt(size, 10);
@@ -118,8 +89,9 @@ export class AllTypesController {
         anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
         autores,
         tipo_documento,
-      });
+      }, sortBy, sortOrder);
   
       return results;
     }
+    
 }

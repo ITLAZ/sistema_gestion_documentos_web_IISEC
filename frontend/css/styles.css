@@ -274,6 +274,8 @@ aside .advanced-search{
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 80vh;
+  overflow: hidden;
 }
 
 .input-group,
@@ -456,6 +458,7 @@ aside .advanced-search{
   padding: 10px;
   background-color: var(--background-color);
   border: var(--border-color) 2px solid;
+  color: var(--text-color);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;

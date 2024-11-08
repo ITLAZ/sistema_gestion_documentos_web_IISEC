@@ -7,6 +7,7 @@ import {
 } from "./services/api_service.js";
 import { loadNavbar } from "./services/navbar_service.js";
 
+
 // Verificar si el usuario está autenticado
 (function verificarAutenticacion() {
   // Función para obtener una cookie por su nombre
@@ -33,6 +34,7 @@ const itemsPerPage = 10; // Cantidad de elementos por página
 let selectedType = "";
 let sortBy = "anio_publicacion"; // Campo de ordenamiento predeterminado
 let sortOrder = "asc"; // Orden predeterminado (ascendente)
+let isSearchMode = false;
 
 // Función para alternar el orden ascendente/descendente
 function toggleSortOrder() {
@@ -53,6 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (selectedType) {
     console.log("Restableciendo el tipo seleccionado:", selectedType);
     typeSelector.value = selectedType;
+    isSearchMode = false;
     await fetchAndRenderDocuments();
   }
 
@@ -136,14 +139,32 @@ export async function fetchAndRenderDocuments() {
 // Función para ir a la página siguiente
 function nextPage() {
   currentPage++;
-  fetchAndRenderDocuments();
+  if (isSearchMode) {
+    executeSearch(
+      typeSelector.value,
+      keywordsInput.value.trim(),
+      publicationDateInput.value,
+      authorInput.value.trim()
+    );
+  } else {
+    fetchAndRenderDocuments();
+  }
 }
 
 // Función para ir a la página anterior
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
-    fetchAndRenderDocuments();
+    if (isSearchMode) {
+      executeSearch(
+        typeSelector.value,
+        keywordsInput.value.trim(),
+        publicationDateInput.value,
+        authorInput.value.trim()
+      );
+    } else {
+      fetchAndRenderDocuments();
+    }
   }
 }
 
@@ -443,6 +464,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const sortYearButton = document.getElementById("sort-year");
   const dateOrderButton = document.getElementById("date-order");
 
+  console.log(dateOrderButton); // Debería mostrar el botón en la consola
+
+  if (!dateOrderButton) {
+    console.error("El botón dateOrderButton no existe en el DOM.");
+  }
+
   // Parámetros para la paginación
   let currentPage = 1;
   const itemsPerPage = 10;
@@ -453,6 +480,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const query = keywordsInput.value.trim(); // Palabra clave (obligatoria)
     const author = authorInput.value.trim();
     const anio_publicacion = publicationDateInput.value;
+
+    isSearchMode = true; // Cambiar a modo búsqueda
+    sortBy = "anio_publicacion"; // Fijar el ordenamiento por año en modo de búsqueda
 
     // Validar que se ingrese una palabra clave
     if (!query) {
@@ -505,12 +535,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Configurar evento para el botón de orden ascendente/descendente
-  dateOrderButton.addEventListener("click", () => {
-    sortOrder = sortOrder === "asc" ? "desc" : "asc";
-    dateOrderButton.innerText = sortOrder === "asc" ? "Ascendente" : "Descendente";
-    executeSearch(typeSelector.value, keywordsInput.value.trim(), publicationDateInput.value, authorInput.value.trim());
-  });
+
+dateOrderButton.innerHTML = "Ascendente" 
+// Configurar evento para el botón de orden ascendente/descendente
+dateOrderButton.addEventListener("click", () => {
+  // Alternar el valor de sortOrder y actualizar el texto del botón
+  sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  
+  // Ejecutar la función correspondiente dependiendo del modo (búsqueda o visualización)
+  if (isSearchMode) {
+    // Llamar a executeSearch solo si estamos en modo de búsqueda
+    console.log(isSearchMode);
+    executeSearch(
+      typeSelector.value,
+      keywordsInput.value.trim(),
+      publicationDateInput.value,
+      authorInput.value.trim()
+    );
+  } else {
+    // Llamar a fetchAndRenderDocuments en modo de visualización
+    console.log(isSearchMode);
+    fetchAndRenderDocuments();
+  }
+});
+
+console.log(dateOrderButton); // Debería mostrar el botón en la consola
+
+if (!dateOrderButton) {
+  console.error("El botón dateOrderButton no existe en el DOM.");
+}
+
 
   // Función para alternar la visibilidad de botones (mostrar solo el de orden asc/desc)
   function toggleSortButtonsVisibility() {
@@ -592,3 +646,5 @@ export async function getCookieValue(name) {
   
   return cookieString ? cookieString.split('=')[1] : null;
 }
+
+

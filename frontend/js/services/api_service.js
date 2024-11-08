@@ -105,7 +105,7 @@ export async function updateDocumentById(documentType, id, updatedData) {
 }
 
 
-export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '') {
+export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '', sortBy = 'anio_publicacion', sortOrder) {
     try {
         const url = new URL(`http://localhost:3000/${documentType}/search`);
         const params = {
@@ -113,7 +113,9 @@ export async function searchDocuments(documentType, query, page = 1, size = 10, 
             page,
             size,
             anio_publicacion,
-            autores
+            autores,
+            sortBy,
+            sortOrder
         };
 
         // Agregar los parámetros a la URL

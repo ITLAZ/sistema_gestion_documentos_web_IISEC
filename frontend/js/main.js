@@ -439,6 +439,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const publicationDateInput = document.getElementById("publication-date");
   const currentYear = new Date().getFullYear();
 
+  // Botones de ordenamiento
+  const sortYearButton = document.getElementById("sort-year");
+  const dateOrderButton = document.getElementById("date-order");
+
   // Parámetros para la paginación
   let currentPage = 1;
   const itemsPerPage = 10;
@@ -449,11 +453,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const query = keywordsInput.value.trim(); // Palabra clave (obligatoria)
     const author = authorInput.value.trim();
     const anio_publicacion = publicationDateInput.value;
-
-    console.log("Tipo de documento seleccionado:", documentType);
-    console.log("Palabra clave ingresada:", query);
-    console.log("Autor ingresado:", author);
-    console.log("Año de publicación ingresado:", anio_publicacion);
 
     // Validar que se ingrese una palabra clave
     if (!query) {
@@ -473,6 +472,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Ocultar botones adicionales y dejar solo el de orden ascendente/descendente
+    toggleSortButtonsVisibility();
+
+    // Ejecutar búsqueda con los parámetros actuales de ordenamiento
+    await executeSearch(documentType, query, anio_publicacion, author);
+  });
+
+  // Función para ejecutar la búsqueda
+  async function executeSearch(documentType, query, anio_publicacion, author) {
     try {
       const data = await searchDocuments(
         documentType,
@@ -480,7 +488,9 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPage,
         itemsPerPage,
         anio_publicacion,
-        author
+        author,
+        sortBy,
+        sortOrder
       );
 
       console.log("Datos recibidos del backend:", data);
@@ -493,6 +503,25 @@ document.addEventListener("DOMContentLoaded", () => {
         "Hubo un error al realizar la búsqueda. Por favor, inténtelo de nuevo."
       );
     }
+  }
+
+  // Configurar evento para el botón de orden ascendente/descendente
+  dateOrderButton.addEventListener("click", () => {
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
+    dateOrderButton.innerText = sortOrder === "asc" ? "Ascendente" : "Descendente";
+    executeSearch(typeSelector.value, keywordsInput.value.trim(), publicationDateInput.value, authorInput.value.trim());
+  });
+
+  // Función para alternar la visibilidad de botones (mostrar solo el de orden asc/desc)
+  function toggleSortButtonsVisibility() {
+    sortYearButton.style.display = "none"; // Ocultar el botón de año
+    dateOrderButton.style.display = "inline-block"; // Mostrar solo el botón de orden ascendente/descendente
+  }
+
+  // Al seleccionar una nueva opción en el combobox, se muestran todos los botones
+  typeSelector.addEventListener("change", () => {
+    sortYearButton.style.display = "none"; // Mantener oculto el botón de año
+    dateOrderButton.style.display = "inline-block"; // Mostrar solo el botón de orden ascendente/descendente
   });
 
   // Función para renderizar los resultados
@@ -511,6 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("date-order");

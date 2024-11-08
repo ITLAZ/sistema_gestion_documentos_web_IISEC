@@ -32,6 +32,14 @@
 $ npm install
 ```
 
+## Database setup
+
+Once you have installed Mongo in your computer, you should verify that you already have a database called `BibliotecaIISEC`. Then you can run the following command to import the data: 
+
+```bash
+node src/schemas/initMongoDB.js
+```
+
 ## Compile and run the project
 
 ```bash

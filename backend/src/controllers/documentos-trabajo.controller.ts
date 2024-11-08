@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers} from '@nestjs/common';
 import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/documentos-trabajo.service';
 import { DocumentoTrabajo } from 'src/schemas/documentos-trabajo.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes, getSchemaPath } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes} from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { DocumentoTrabajoResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -18,6 +19,7 @@ export class DocumentosTrabajoController {
   constructor(
     private readonly documentosTrabajoService: DocumentosTrabajoService,
     private readonly searchService: SearchService,
+    private readonly logsService: LogsService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -53,6 +55,7 @@ export class DocumentosTrabajoController {
         anio
       );
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al obtener los documentos de trabajo.');
     }
   }
@@ -103,6 +106,7 @@ export class DocumentosTrabajoController {
       );
       return results;
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de documentos de trabajo.');
     }
   }
@@ -117,6 +121,7 @@ export class DocumentosTrabajoController {
     try {
       return this.documentosTrabajoService.findByTitulo(titulo);
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al buscar documentos por título.');
     }
   }
@@ -131,6 +136,7 @@ export class DocumentosTrabajoController {
     try {
       return this.documentosTrabajoService.findByAutor(autor);
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al buscar documentos por autor.');
     }
   }
@@ -148,6 +154,7 @@ export class DocumentosTrabajoController {
       }
       return this.documentosTrabajoService.findById(id);
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al buscar el documento por ID.');
     }
   }
@@ -159,10 +166,28 @@ export class DocumentosTrabajoController {
   @ApiResponse({ status: 200, description: 'Actualiza un documento por su ID.', type: DocumentoTrabajo })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() documento: Partial<DocumentoTrabajo>): Promise<DocumentoTrabajo> {
+  async update(
+    @Param('id') id: string, 
+    @Body() documento: Partial<DocumentoTrabajo>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<DocumentoTrabajo> {
     try {
-      return this.documentosTrabajoService.update(id, documento);
+      const fecha = new Date();
+      // Actualizar el libro
+      const documentoActualizado = await this.documentosTrabajoService.update(id, documento);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return documentoActualizado;
+      return 
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al actualizar el documento.');
     }
   }
@@ -173,13 +198,40 @@ export class DocumentosTrabajoController {
   @ApiResponse({ status: 200, description: 'Elimina un documento por su ID.', type: DocumentoTrabajo })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<DocumentoTrabajo> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<DocumentoTrabajo> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.documentosTrabajoService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Eliminar el documento
+      const documentoEliminado = await this.documentosTrabajoService.delete(id);
+      if (!documentoEliminado) {
+        throw new BadRequestException('Documento no encontrado');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return documentoEliminado;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el documento:', error.message);
       throw new InternalServerErrorException('Error al eliminar el documento.');
     }
   }
@@ -218,7 +270,8 @@ export class DocumentosTrabajoController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() documentoData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<DocumentoTrabajo> {
     try {
       if (!file) {
@@ -227,6 +280,7 @@ export class DocumentosTrabajoController {
       if (!documentoData || !documentoData.titulo || !documentoData.anio_publicacion || !documentoData.autores) {
         throw new BadRequestException('Faltan datos obligatorios del documento');
       }
+      const fecha = new Date();
 
       const autoresArray = typeof documentoData.autores === 'string'
         ? documentoData.autores.split(',').map((autor: string) => autor.trim())
@@ -251,8 +305,18 @@ export class DocumentosTrabajoController {
         direccion_archivo: procesado.path,
       };
 
-      return this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+      const documentoCreado = await this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  documentoCreado.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return documentoCreado;
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el documento.');
     }
   }
@@ -263,23 +327,41 @@ export class DocumentosTrabajoController {
   @ApiResponse({ status: 201, description: 'Crea un documento sin archivo de carga.', type: DocumentoTrabajo })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() documento: DocumentoTrabajo): Promise<DocumentoTrabajo> {
+  async createWithoutFile(
+    @Body() documentoData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<DocumentoTrabajo> {
     try {
-      if (!documento) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!documentoData || !documentoData.titulo || !documentoData.anio_publicacion || !documentoData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del documento');
       }
 
-      const nuevoDocumento: Partial<DocumentoTrabajo> = {
-        numero_identificacion: documento.numero_identificacion,
-        titulo: documento.titulo,
-        anio_publicacion: documento.anio_publicacion,
-        autores: documento.autores,
-        abstract: documento.abstract,
-        link_pdf: documento.link_pdf,
-      };
+      const fecha = new Date();
 
-      return this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+      const autoresArray = typeof documentoData.autores === 'string'
+        ? documentoData.autores.split(',').map((autor: string) => autor.trim())
+        : documentoData.autores;
+
+      const nuevoDocumento: Partial<DocumentoTrabajo> = {
+        numero_identificacion: documentoData.numero_identificacion,
+        titulo: documentoData.titulo,
+        anio_publicacion: parseInt(documentoData.anio_publicacion, 10),
+        autores: autoresArray,
+        abstract: documentoData.abstract,
+        link_pdf: documentoData.link_pdf,
+      };
+      const documentoCreado = await this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  documentoCreado.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return documentoCreado;
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el documento sin archivo.');
     }
   }

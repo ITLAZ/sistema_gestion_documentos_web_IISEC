@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { IdeasReflexionesService } from 'src/services/ideas-reflexiones/ideas-reflexiones.service';
 import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes, getSchemaPath } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { IdeaReflexionResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -18,6 +19,7 @@ export class IdeasReflexionesController {
   constructor(
     private readonly ideaReflexionesService: IdeasReflexionesService,
     private readonly searchService: SearchService,
+    private readonly logsService: LogsService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -53,6 +55,7 @@ export class IdeasReflexionesController {
         anio
       );
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al obtener las ideas y reflexiones.');
     }
   }
@@ -103,6 +106,7 @@ export class IdeasReflexionesController {
       );
       return results;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de ideas y reflexiones.');
     }
   }
@@ -117,6 +121,7 @@ export class IdeasReflexionesController {
     try {
       return this.ideaReflexionesService.findByTitulo(titulo);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar ideas y reflexiones por título.');
     }
   }
@@ -131,6 +136,7 @@ export class IdeasReflexionesController {
     try {
       return this.ideaReflexionesService.findByAutor(autor);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar ideas y reflexiones por autor.');
     }
   }
@@ -148,6 +154,7 @@ export class IdeasReflexionesController {
       }
       return this.ideaReflexionesService.findById(id);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar la idea o reflexión por ID.');
     }
   }
@@ -158,16 +165,44 @@ export class IdeasReflexionesController {
   @ApiResponse({ status: 200, description: 'Elimina una idea o reflexión por su ID.', type: IdeaReflexion })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<IdeaReflexion> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<IdeaReflexion> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.ideaReflexionesService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Eliminar la idea o reflexión
+      const ideaReflexionEliminada = await this.ideaReflexionesService.delete(id);
+      if (!ideaReflexionEliminada) {
+        throw new BadRequestException('Idea o reflexión no encontrada');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return ideaReflexionEliminada;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar la idea o reflexión:', error.message);
       throw new InternalServerErrorException('Error al eliminar la idea o reflexión.');
     }
   }
+
 
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar una idea o reflexión por su ID' })
@@ -176,10 +211,28 @@ export class IdeasReflexionesController {
   @ApiResponse({ status: 200, description: 'Actualiza una idea o reflexión por su ID.', type: IdeaReflexion })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() ideaReflexion: Partial<IdeaReflexion>): Promise<IdeaReflexion> {
+  async update(
+    @Param('id') id: string, 
+    @Body() ideaReflexion: Partial<IdeaReflexion>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<IdeaReflexion> {
     try {
-      return this.ideaReflexionesService.update(id, ideaReflexion);
+      
+      const fecha = new Date();
+      // Actualizar el libro
+      const ideaActualizado = await this.ideaReflexionesService.update(id, ideaReflexion);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return ideaActualizado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar la idea o reflexión.');
     }
   }
@@ -217,7 +270,8 @@ export class IdeasReflexionesController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() ideaReflexionData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<IdeaReflexion> {
     try {
       if (!file) {
@@ -226,6 +280,8 @@ export class IdeasReflexionesController {
       if (!ideaReflexionData || !ideaReflexionData.titulo || !ideaReflexionData.anio_publicacion || !ideaReflexionData.autores) {
         throw new BadRequestException('Faltan datos obligatorios de la idea o reflexión');
       }
+
+      const fecha = new Date();
 
       const autoresArray = typeof ideaReflexionData.autores === 'string'
         ? ideaReflexionData.autores.split(',').map((autor: string) => autor.trim())
@@ -249,8 +305,18 @@ export class IdeasReflexionesController {
         direccion_archivo: procesado.path,
       };
 
-      return this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
+      const ideaReflexionCreada = await this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  ideaReflexionCreada.id,
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return ideaReflexionCreada;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear la idea o reflexión.');
     }
   }
@@ -261,22 +327,41 @@ export class IdeasReflexionesController {
   @ApiResponse({ status: 201, description: 'Crea una idea o reflexión sin archivo de carga.', type: IdeaReflexion })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() ideaReflexion: IdeaReflexion): Promise<IdeaReflexion> {
+  async createWithoutFile(
+    @Body() ideaReflexionData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<IdeaReflexion> {
     try {
-      if (!ideaReflexion) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!ideaReflexionData || !ideaReflexionData.titulo || !ideaReflexionData.anio_publicacion || !ideaReflexionData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios de la idea o reflexión');
       }
 
+      const fecha = new Date();
+
+      const autoresArray = typeof ideaReflexionData.autores === 'string'
+        ? ideaReflexionData.autores.split(',').map((autor: string) => autor.trim())
+        : ideaReflexionData.autores;
+
       const nuevoIdeaReflexion: Partial<IdeaReflexion> = {
-        titulo: ideaReflexion.titulo,
-        anio_publicacion: ideaReflexion.anio_publicacion,
-        autores: ideaReflexion.autores,
-        observaciones: ideaReflexion.observaciones,
-        link_pdf: ideaReflexion.link_pdf,
+        titulo: ideaReflexionData.titulo,
+        anio_publicacion: parseInt(ideaReflexionData.anio_publicacion, 10),
+        autores: autoresArray,
+        observaciones: ideaReflexionData.observaciones,
+        link_pdf: ideaReflexionData.link_pdf
       };
 
-      return this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
+      const ideaReflexionCreada = await this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  ideaReflexionCreada.id,
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return ideaReflexionCreada;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear la idea o reflexión sin archivo.');
     }
   }

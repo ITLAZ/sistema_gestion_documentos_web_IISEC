@@ -49,7 +49,7 @@
                     <input type="number" min="1900" max="2099" step="1" id="endDate" name="endDate">
                 </div>
                 <div id="compare-selection" class="compare-selection">
-                    <h3>Tipo de documento a comparar:</h3>
+                    <h3>Documentos adicionales a mostrar (conteo):</h3>
                     <label><input type="checkbox" name="docType" value="libros"> Libros</label>
                     <label><input type="checkbox" name="docType" value="articulosRevistas"> Articulos de Revista</label>
                     <label><input type="checkbox" name="docType" value="capitulosLibros"> Capitulos de Libros</label>
@@ -91,12 +91,30 @@
         const categorySelect = document.getElementById('category');
         const compareSelection = document.getElementById('compare-selection');
 
-        // Función para mostrar u ocultar la selección de tipo de documento a comparar
+        // Seleccionar automáticamente el checkbox basado en la categoría seleccionada en el combo box
         categorySelect.addEventListener('change', function () {
-            if (categorySelect.value === 'all-types') {
-                compareSelection.style.display = 'none';
-            } else {
+            const selectedCategory = categorySelect.value;
+
+            // Si se selecciona una categoría específica, marca el checkbox correspondiente y muestra el selector de comparación
+            if (selectedCategory && selectedCategory !== 'all-types') {
                 compareSelection.style.display = 'block';
+
+                // Desmarca todos los checkboxes
+                compareSelection.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                // Marca el checkbox de la categoría seleccionada en el combo box
+                const selectedCheckbox = compareSelection.querySelector(`input[value="${selectedCategory}"]`);
+                if (selectedCheckbox) {
+                    selectedCheckbox.checked = true;
+                }
+            } else {
+                // Si se selecciona "Todos los documentos", oculta el selector de comparación y desmarca los checkboxes
+                compareSelection.style.display = 'none';
+                compareSelection.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
             }
         });
 
@@ -357,6 +375,7 @@
                         }
                     });
 
+                    // Crear gráfico principal para la categoría específica
                     const ctx = document.createElement('canvas');
                     chartContainer.appendChild(ctx);
                     new Chart(ctx, {
@@ -372,6 +391,14 @@
                             }]
                         }
                     });
+
+                    // Obtener las categorías seleccionadas en los checkboxes
+                    const selectedCheckboxes = Array.from(compareSelection.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+
+                    // Si hay dos o más categorías seleccionadas, genera el gráfico adicional
+                    if (selectedCheckboxes.length >= 2) {
+                        generateAdditionalChart(selectedCheckboxes, startDate, endDate);
+                    }
                 }
 
             } catch (error) {
@@ -380,6 +407,52 @@
             }
         });
 
+
+        // Función para generar un gráfico adicional con las categorías seleccionadas
+        async function generateAdditionalChart(selectedCategories, startDate, endDate) {
+            const chartContainer = document.getElementById('chart-container');
+            if (!chartContainer) return;
+
+            try {
+                // Construir la URL para el gráfico adicional
+                const params = new URLSearchParams();
+                selectedCategories.forEach(category => params.append('categorias', category));
+                params.append('anioInicio', startDate);
+                params.append('anioFin', endDate);
+
+                const additionalChartUrl = `http://localhost:3000/reports/countByTypes?${params.toString()}`;
+                console.log(`URL para el gráfico adicional: ${additionalChartUrl}`);
+
+                const response = await fetch(additionalChartUrl);
+                if (!response.ok) {
+                    throw new Error('Error al obtener datos para el gráfico adicional');
+                }
+
+                const additionalData = await response.json();
+
+                // Crear un nuevo gráfico en el contenedor
+                const additionalCtx = document.createElement('canvas');
+                chartContainer.appendChild(additionalCtx);
+
+                const chartType = document.querySelector('input[name="chartType"]:checked').value;
+
+                new Chart(additionalCtx, {
+                    type: chartType,
+                    data: {
+                        labels: additionalData.map(item => item.tipo),
+                        datasets: [{
+                            label: 'Conteo de Documentos por Categoría Seleccionada',
+                            data: additionalData.map(item => item.cantidad),
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    }
+                });
+            } catch (error) {
+                console.error('Error al generar el gráfico adicional:', error);
+            }
+        }
 
 
 
@@ -442,6 +515,8 @@
                 doc.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
                 y += imgHeight + 10;
             }
+
+            alert("Se generó exitosamente el PDF");
 
             // Descargar el PDF
             doc.save('reporte.pdf');

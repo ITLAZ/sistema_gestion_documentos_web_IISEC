@@ -18,13 +18,15 @@ export async function getDocumentsByType(documentType, page, size, sortBy, sortO
     }
 }
 
-export async function getAllDocuments(query = '', page, size) {
+export async function getAllDocuments(query = '', page, size, sortBy = 'anio_publicacion', sortOrder) {
     try {
         // Construir la URL con los parámetros de consulta
         const url = new URL('http://localhost:3000/all-types/all');
         url.searchParams.append('query', query);
         url.searchParams.append('page', page);
         url.searchParams.append('size', size);
+        url.searchParams.append('sortBy', sortBy);
+        url.searchParams.append('sortOrder', sortOrder);
 
         const response = await fetch(url.toString());
         if (!response.ok) {

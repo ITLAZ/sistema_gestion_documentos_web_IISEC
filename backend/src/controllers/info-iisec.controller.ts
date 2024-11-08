@@ -165,17 +165,44 @@ export class InfoIisecController {
   @ApiResponse({ status: 200, description: 'Elimina un documento por su ID.', type: InfoIISEC })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<InfoIISEC> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<InfoIISEC> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.infoIisecService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Eliminar el documento
+      const infoEliminado = await this.infoIisecService.delete(id);
+      if (!infoEliminado) {
+        throw new BadRequestException('Documento no encontrado');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return infoEliminado;
     } catch (error) {
-      console.error(error.message);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el documento Info IISEC:', error.message);
       throw new InternalServerErrorException('Error al eliminar el documento Info IISEC.');
     }
   }
+
 
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar un documento Info IISEC por su ID' })

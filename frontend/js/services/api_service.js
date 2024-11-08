@@ -67,10 +67,13 @@ export async function getDocumentById(documentType, id) {
 
 
 
-export async function deleteDocumentById(documentType, id) {
+export async function deleteDocumentById(documentType, id, usuarioId) {
     try {
         const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
             method: 'DELETE',
+            headers: {
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
         });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -84,12 +87,13 @@ export async function deleteDocumentById(documentType, id) {
 }
 
 
-export async function updateDocumentById(documentType, id, updatedData) {
+export async function updateDocumentById(documentType, id, updatedData, usuarioId) {
     try {
         const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(updatedData),
         });

@@ -226,19 +226,51 @@ export class SearchService {
       const result = await this.elasticsearchService.search({
         index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec',
         body: {
-          from: from,    // Para la paginación: desde qué registro comenzar
-          size: size,    // Tamaño de página: cuántos registros devolver
+          from: from,
+          size: size,
           query: {
             bool: {
-              must: [
-                { match_all: {} }  // Devuelve todos los documentos
-              ],
-              filter: filterConditions  // Aplica los filtros adicionales si se pasan
+              must: query
+                ? [
+                    {
+                      multi_match: {
+                        query: query,
+                        fields: ['titulo', 'autores', 'abstract'],  // Ajusta los campos según tus necesidades
+                        fuzziness: 'AUTO'
+                      }
+                    }
+                  ]
+                : [
+                    { match_all: {} }
+                  ],
+              filter: filterConditions
             }
           },
           sort: [
-            { [sortBy]: { order: sortOrder } }  // Aplicar ordenamiento según los parámetros proporcionados
+            { [sortBy]: { order: sortOrder } }
           ]
+        }
+      });      
+      return result.hits.hits;
+    }
+
+    // Búsqueda en un índice único con campo `tipo_documento`
+    async searchByDocumentType(type: string, query: string) {
+      const result = await this.elasticsearchService.search({
+        index: 'documentos', // Índice único
+        body: {
+          query: {
+            bool: {
+              must: [
+                { match: { tipo_documento: type } },
+                { multi_match: { 
+                    query: query,
+                    fields: ['titulo', 'autores', 'abstract', 'anio_publicacion']
+                  }
+                }
+              ]
+            }
+          }
         }
       });
       return result.hits.hits;

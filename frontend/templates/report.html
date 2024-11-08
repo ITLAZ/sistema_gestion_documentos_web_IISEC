@@ -34,7 +34,7 @@
                         <option value="policiesBriefs">Policies Briefs</option>
                     </select>
                 </div>
-                
+
 
                 <div class="input-group">
                     <label for="author">Nombre del Autor:</label>
@@ -266,16 +266,20 @@
                 chartContainer.innerHTML = '';
 
                 if (category === "all-types") {
+                    // Realiza una solicitud al endpoint countByTypes para el primer gráfico
+                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}`);
+                    if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
+                    const countByTypesData = await countByTypesResponse.json();
                     // Gráfico de Conteo de Documentos por Categoría
                     const ctx1 = document.createElement('canvas');
                     chartContainer.appendChild(ctx1);
                     new Chart(ctx1, {
                         type: chartType,
                         data: {
-                            labels: Object.keys(filteredData),
+                            labels: countByTypesData.map(item => item.tipo),
                             datasets: [{
                                 label: 'Conteo de Documentos por Categoría',
-                                data: Object.values(filteredData).map(items => items.length),
+                                data: countByTypesData.map(item => item.cantidad),
                                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 borderColor: 'rgba(54, 162, 235, 1)',
                                 borderWidth: 1

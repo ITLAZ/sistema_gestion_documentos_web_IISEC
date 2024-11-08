@@ -259,4 +259,102 @@ export class ReportsService {
       // Retornamos el resultado de todas las categorías solicitadas
       return resultados;
     }    
+
+    async findDistributionByYear(
+      categorias: string[], // Array de tipos de documento (libros, articulosRevistas, etc.)
+      anioInicio?: number, // Parámetro opcional para el rango de año de inicio
+      anioFin?: number, // Parámetro opcional para el rango de año de fin
+      autores?: string // Parámetro opcional para filtrar por autor
+    ): Promise<{ tipo: string; anio: number; cantidad: number }[]> {
+    
+      const resultados: { tipo: string; anio: number; cantidad: number }[] = [];
+    
+      // Si no se envían categorías, incluimos todas las posibles
+      if (!categorias || categorias.length === 0) {
+        categorias = [
+          'libros',
+          'articulosRevistas',
+          'capitulosLibros',
+          'documentosTrabajo',
+          'ideasReflexiones',
+          'infoIIsec',
+          'policiesBriefs'
+        ];
+      }
+    
+      // Iteramos sobre cada categoría proporcionada
+      for (const categoria of categorias) {
+        // Creamos el objeto de filtro dinámicamente
+        const filter: any = {};
+    
+        // Seleccionamos el modelo y el campo de año adecuado según la categoría
+        let model;
+        let anioCampo = 'anio_publicacion'; // Campo por defecto para el año
+        switch (categoria) {
+          case 'libros':
+            model = this.libroModel;
+            break;
+          case 'articulosRevistas':
+            model = this.articuloRevistaModel;
+            anioCampo = 'anio_revista'; // Campo específico para ArticuloRevista
+            break;
+          case 'capitulosLibros':
+            model = this.capituloLibroModel;
+            break;
+          case 'documentosTrabajo':
+            model = this.documentoTrabajoModel;
+            break;
+          case 'ideasReflexiones':
+            model = this.ideaReflexionModel;
+            break;
+          case 'infoIIsec':
+            model = this.infoIIsecModel;
+            break;
+          case 'policiesBriefs':
+            model = this.policiesBriefModel;
+            break;
+          default:
+            continue; // Si la categoría no es válida, pasamos a la siguiente
+        }
+    
+        // Aplicamos los filtros según los parámetros proporcionados
+        if (autores) {
+          filter.autores = autores; // Filtrar por autor
+        }
+    
+        if (anioInicio || anioFin) {
+          filter[anioCampo] = {}; // Usamos el campo adecuado para el año
+          if (anioInicio) {
+            filter[anioCampo].$gte = anioInicio; // Mayor o igual que el año de inicio
+          }
+          if (anioFin) {
+            filter[anioCampo].$lte = anioFin; // Menor o igual que el año de fin
+          }
+        }
+    
+        // Utilizamos la agregación para contar la cantidad de documentos por año y categoría
+        const result = await model.aggregate([
+          { $match: filter }, // Aplicamos el filtro
+          {
+            $group: {
+              _id: { anio: `$${anioCampo}` }, // Agrupamos por año
+              count: { $sum: 1 } // Contamos la cantidad de documentos por año
+            }
+          },
+          { $sort: { "_id.anio": 1 } } // Ordenamos los resultados por año ascendente
+        ]);
+    
+        // Agregamos el resultado al arreglo final con el formato solicitado
+        for (const item of result) {
+          resultados.push({
+            tipo: categoria,
+            anio: item._id.anio, // Año de la publicación
+            cantidad: item.count // Cantidad de documentos publicados en ese año
+          });
+        }
+      }
+    
+      // Retornamos el resultado de todas las categorías solicitadas
+      return resultados;
+    }
 }

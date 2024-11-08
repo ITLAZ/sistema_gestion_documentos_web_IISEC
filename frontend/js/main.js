@@ -491,3 +491,36 @@ document.addEventListener("DOMContentLoaded", () => {
         button.textContent = button.textContent === "Ascendente" ? "Descendente" : "Ascendente";
     });
 });
+
+
+//FUNCION PARA REALIZAR EL ORDENAMIENTO
+document.addEventListener("DOMContentLoaded", () => {
+  const searchButton = document.getElementById("search-button");
+  const typeSelector = document.getElementById("type-selector");
+  const sortTitleButton = document.getElementById("sort-title");
+  const sortAuthorButton = document.getElementById("sort-author");
+  const sortYearButton = document.getElementById("sort-year");
+  const dateOrderButton = document.getElementById("date-order");
+
+  // Función para mostrar solo el botón de Año y Ascendente/Descendente
+  function showYearAndOrderButtonsOnly() {
+      sortTitleButton.style.display = "none";
+      sortAuthorButton.style.display = "none";
+      sortYearButton.style.display = "inline-block";
+      dateOrderButton.style.display = "inline-block";
+  }
+
+  // Función para mostrar todos los botones de ordenamiento
+  function showAllSortButtons() {
+      sortTitleButton.style.display = "inline-block";
+      sortAuthorButton.style.display = "inline-block";
+      sortYearButton.style.display = "inline-block";
+      dateOrderButton.style.display = "inline-block";
+  }
+
+  // Evento para el botón de búsqueda
+  searchButton.addEventListener("click", showYearAndOrderButtonsOnly);
+
+  // Evento para el combo box
+  typeSelector.addEventListener("change", showAllSortButtons);
+});

@@ -411,6 +411,21 @@
                     y += 10;
                 });
             });
+            // Incluir gráficos en el PDF si existen
+            const chartCanvases = document.querySelectorAll('.graph-container canvas');
+            for (const canvas of chartCanvases) {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 180;  // Ajuste de ancho en el PDF
+                const imgHeight = (canvas.height / canvas.width) * imgWidth;
+
+                if (y + imgHeight > 280) {  // Crear una nueva página si es necesario
+                    doc.addPage();
+                    y = 10;
+                }
+
+                doc.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
+                y += imgHeight + 10;
+            }
 
             // Descargar el PDF
             doc.save('reporte.pdf');

@@ -31,6 +31,20 @@ loadNavbar();
 let currentPage = 1; // Número de página actual
 const itemsPerPage = 10; // Cantidad de elementos por página
 let selectedType = "";
+let sortBy = "anio_publicacion"; // Campo de ordenamiento predeterminado
+let sortOrder = "asc"; // Orden predeterminado (ascendente)
+
+// Función para alternar el orden ascendente/descendente
+function toggleSortOrder() {
+  sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  document.getElementById("date-order").innerText = sortOrder === "asc" ? "Ascendente" : "Descendente";
+}
+
+// Función para actualizar el campo de ordenamiento
+function setSortBy(field) {
+  sortBy = field;
+  fetchAndRenderDocuments(); // Actualizar los resultados
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   const typeSelector = document.getElementById("type-selector");
@@ -50,6 +64,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchAndRenderDocuments();
   });
 
+  // Configurar los eventos de los botones de ordenamiento
+  document.getElementById("sort-title").addEventListener("click", () => setSortBy("titulo"));
+  document.getElementById("sort-author").addEventListener("click", () => setSortBy("autores"));
+  document.getElementById("sort-year").addEventListener("click", () => setSortBy("anio_publicacion"));
+
+  // Configurar el evento del botón de orden ascendente/descendente
+  document.getElementById("date-order").addEventListener("click", () => {
+      toggleSortOrder();
+      fetchAndRenderDocuments(); // Actualizar los resultados
+  });
+
   // Configurar los eventos de los botones de paginación.
   document.getElementById("prev-page").addEventListener("click", prevPage);
   document.getElementById("next-page").addEventListener("click", nextPage);
@@ -65,7 +90,9 @@ export async function fetchAndRenderDocuments() {
       documentsData = await getDocumentsByType(
         selectedType,
         currentPage,
-        itemsPerPage
+        itemsPerPage,
+        sortBy, 
+        sortOrder
       );
     }
 

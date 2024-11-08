@@ -1,8 +1,8 @@
 
-export async function getDocumentsByType(documentType, page, size) {
+export async function getDocumentsByType(documentType, page, size, sortBy, sortOrder) {
     try {
         // Construir la URL usando el tipo de documento
-        const url = `http://localhost:3000/${documentType}?page=${page}&size=${size}`;
+        const url = `http://localhost:3000/${documentType}?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         const response = await fetch(url);
         
         if (!response.ok) {

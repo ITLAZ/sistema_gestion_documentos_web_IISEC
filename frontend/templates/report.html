@@ -34,6 +34,7 @@
                         <option value="policiesBriefs">Policies Briefs</option>
                     </select>
                 </div>
+                
 
                 <div class="input-group">
                     <label for="author">Nombre del Autor:</label>
@@ -47,7 +48,7 @@
                     <label for="endDate">Año Final:</label>
                     <input type="number" min="1900" max="2099" step="1" id="endDate" name="endDate">
                 </div>
-                <div class="compare-selection">
+                <div id="compare-selection" class="compare-selection">
                     <h3>Tipo de documento a comparar:</h3>
                     <label><input type="checkbox" name="docType" value="libros"> Libros</label>
                     <label><input type="checkbox" name="docType" value="articulosRevistas"> Articulos de Revista</label>
@@ -87,6 +88,17 @@
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
+        const categorySelect = document.getElementById('category');
+        const compareSelection = document.getElementById('compare-selection');
+
+        // Función para mostrar u ocultar la selección de tipo de documento a comparar
+        categorySelect.addEventListener('change', function () {
+            if (categorySelect.value === 'all-types') {
+                compareSelection.style.display = 'none';
+            } else {
+                compareSelection.style.display = 'block';
+            }
+        });
 
         form.addEventListener('submit', async function (event) {
             event.preventDefault();

@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { InfoIisecService } from 'src/services/info-iisec/info-iisec.service';
 import { InfoIISEC } from 'src/schemas/info-iisec.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes, getSchemaPath } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { InfoIISECResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -18,6 +19,7 @@ export class InfoIisecController {
   constructor(
     private readonly infoIisecService: InfoIisecService,
     private readonly searchService: SearchService,
+    private readonly logsService: LogsService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -53,6 +55,7 @@ export class InfoIisecController {
         anio
       );
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al obtener los documentos Info IISEC.');
     }
   }
@@ -103,6 +106,7 @@ export class InfoIisecController {
       );
       return results;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de documentos Info IISEC.');
     }
   }
@@ -117,6 +121,7 @@ export class InfoIisecController {
     try {
       return this.infoIisecService.findByTitulo(titulo);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar documentos Info IISEC por título.');
     }
   }
@@ -131,6 +136,7 @@ export class InfoIisecController {
     try {
       return this.infoIisecService.findByAutor(autor);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar documentos Info IISEC por autor.');
     }
   }
@@ -148,6 +154,7 @@ export class InfoIisecController {
       }
       return this.infoIisecService.findById(id);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar el documento Info IISEC por ID.');
     }
   }
@@ -158,16 +165,44 @@ export class InfoIisecController {
   @ApiResponse({ status: 200, description: 'Elimina un documento por su ID.', type: InfoIISEC })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<InfoIISEC> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<InfoIISEC> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.infoIisecService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Eliminar el documento
+      const infoEliminado = await this.infoIisecService.delete(id);
+      if (!infoEliminado) {
+        throw new BadRequestException('Documento no encontrado');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return infoEliminado;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el documento Info IISEC:', error.message);
       throw new InternalServerErrorException('Error al eliminar el documento Info IISEC.');
     }
   }
+
 
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar un documento Info IISEC por su ID' })
@@ -176,10 +211,28 @@ export class InfoIisecController {
   @ApiResponse({ status: 200, description: 'Actualiza un documento por su ID.', type: InfoIISEC })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() infoIISEC: Partial<InfoIISEC>): Promise<InfoIISEC> {
+  async update(
+    @Param('id') id: string, 
+    @Body() infoIISEC: Partial<InfoIISEC>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<InfoIISEC> {
     try {
-      return this.infoIisecService.update(id, infoIISEC);
+
+      const fecha = new Date();
+      // Actualizar el libro
+      const infoIISECActualizado = await this.infoIisecService.update(id, infoIISEC);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return infoIISECActualizado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el documento Info IISEC.');
     }
   }
@@ -217,7 +270,8 @@ export class InfoIisecController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() infoIISECData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<InfoIISEC> {
     try {
       if (!file) {
@@ -226,6 +280,8 @@ export class InfoIisecController {
       if (!infoIISECData || !infoIISECData.titulo || !infoIISECData.anio_publicacion || !infoIISECData.autores) {
         throw new BadRequestException('Faltan datos obligatorios del documento Info IISEC');
       }
+
+      const fecha = new Date();
 
       const autoresArray = typeof infoIISECData.autores === 'string'
         ? infoIISECData.autores.split(',').map((autor: string) => autor.trim())
@@ -249,8 +305,18 @@ export class InfoIisecController {
         direccion_archivo: procesado.path,
       };
 
-      return this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
+      const infoCreado = await this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
+      
+      await this.logsService.createLogDocument({
+          id_usuario: usuarioId,
+          id_documento:  infoCreado.id, // Usamos el ID del usuario retornado
+          accion: 'Creacion documento',
+          fecha: fecha,
+      });
+      
+      return infoCreado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear el documento Info IISEC.');
     }
   }
@@ -261,22 +327,41 @@ export class InfoIisecController {
   @ApiResponse({ status: 201, description: 'Crea un documento sin archivo de carga.', type: InfoIISEC })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() infoIISEC: InfoIISEC): Promise<InfoIISEC> {
+  async createWithoutFile(
+    @Body() infoIISECData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<InfoIISEC> {
     try {
-      if (!infoIISEC) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!infoIISECData || !infoIISECData.titulo || !infoIISECData.anio_publicacion || !infoIISECData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del documento Info IISEC');
       }
 
+      const fecha = new Date();
+
+      const autoresArray = typeof infoIISECData.autores === 'string'
+        ? infoIISECData.autores.split(',').map((autor: string) => autor.trim())
+        : infoIISECData.autores;
+
       const nuevoInfoIISEC: Partial<InfoIISEC> = {
-        titulo: infoIISEC.titulo,
-        anio_publicacion: infoIISEC.anio_publicacion,
-        autores: infoIISEC.autores,
-        observaciones: infoIISEC.observaciones,
-        link_pdf: infoIISEC.link_pdf,
+          titulo: infoIISECData.titulo,
+          anio_publicacion: parseInt(infoIISECData.anio_publicacion, 10),
+          autores: autoresArray,
+          observaciones: infoIISECData.observaciones,
+          link_pdf: infoIISECData.link_pdf
       };
 
-      return this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
+      const infoCreado = await this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
+
+      await this.logsService.createLogDocument({
+          id_usuario: usuarioId,
+          id_documento:  infoCreado.id, // Usamos el ID del usuario retornado
+          accion: 'Creacion documento',
+          fecha: fecha,
+      });
+      
+      return infoCreado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear el documento Info IISEC sin archivo.');
     }
   }

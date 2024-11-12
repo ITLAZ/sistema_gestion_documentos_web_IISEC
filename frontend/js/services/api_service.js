@@ -1,8 +1,8 @@
 
-export async function getDocumentsByType(documentType, page, size) {
+export async function getDocumentsByType(documentType, page, size, sortBy, sortOrder) {
     try {
         // Construir la URL usando el tipo de documento
-        const url = `http://localhost:3000/${documentType}?page=${page}&size=${size}`;
+        const url = `http://localhost:3000/${documentType}?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -18,13 +18,15 @@ export async function getDocumentsByType(documentType, page, size) {
     }
 }
 
-export async function getAllDocuments(query = '', page, size) {
+export async function getAllDocuments(query = '', page, size, sortBy = 'anio_publicacion', sortOrder) {
     try {
         // Construir la URL con los parámetros de consulta
         const url = new URL('http://localhost:3000/all-types/all');
         url.searchParams.append('query', query);
         url.searchParams.append('page', page);
         url.searchParams.append('size', size);
+        url.searchParams.append('sortBy', sortBy);
+        url.searchParams.append('sortOrder', sortOrder);
 
         const response = await fetch(url.toString());
         if (!response.ok) {
@@ -67,10 +69,13 @@ export async function getDocumentById(documentType, id) {
 
 
 
-export async function deleteDocumentById(documentType, id) {
+export async function deleteDocumentById(documentType, id, usuarioId) {
     try {
         const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
             method: 'DELETE',
+            headers: {
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
         });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -84,12 +89,13 @@ export async function deleteDocumentById(documentType, id) {
 }
 
 
-export async function updateDocumentById(documentType, id, updatedData) {
+export async function updateDocumentById(documentType, id, updatedData, usuarioId) {
     try {
         const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(updatedData),
         });
@@ -105,7 +111,7 @@ export async function updateDocumentById(documentType, id, updatedData) {
 }
 
 
-export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '') {
+export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '', sortBy = 'anio_publicacion', sortOrder) {
     try {
         const url = new URL(`http://localhost:3000/${documentType}/search`);
         const params = {
@@ -113,7 +119,9 @@ export async function searchDocuments(documentType, query, page = 1, size = 10, 
             page,
             size,
             anio_publicacion,
-            autores
+            autores,
+            sortBy,
+            sortOrder
         };
 
         // Agregar los parámetros a la URL

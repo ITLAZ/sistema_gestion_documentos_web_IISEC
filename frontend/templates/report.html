@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
     <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="../css/styles.css"></noscript>
+    <noscript>
+        <link rel="stylesheet" href="../css/styles.css">
+    </noscript>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
     <div id="menu-container"></div>
     <div class="container">
+
+        <!-- Formulario de generación de reportes -->
         <aside class="report-filter">
             <h2>Generación de Reportes</h2>
             <form id="report-form">
-                <!-- Nuevo combo box para seleccionar categoría -->
                 <div class="input-group">
                     <label for="category">Tipo de Documento:</label>
                     <select id="category" name="category" required>
@@ -29,6 +35,7 @@
                     </select>
                 </div>
 
+
                 <div class="input-group">
                     <label for="author">Nombre del Autor:</label>
                     <input type="text" id="author" name="author" pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
@@ -41,17 +48,39 @@
                     <label for="endDate">Año Final:</label>
                     <input type="number" min="1900" max="2099" step="1" id="endDate" name="endDate">
                 </div>
+                <div id="compare-selection" class="compare-selection">
+                    <h3>Documentos adicionales a mostrar (conteo):</h3>
+                    <label><input type="checkbox" name="docType" value="libros"> Libros</label>
+                    <label><input type="checkbox" name="docType" value="articulosRevistas"> Articulos de Revista</label>
+                    <label><input type="checkbox" name="docType" value="capitulosLibros"> Capitulos de Libros</label>
+                    <label><input type="checkbox" name="docType" value="documentosTrabajo"> Documentos de
+                        Trabajo</label>
+                    <label><input type="checkbox" name="docType" value="ideasReflexiones"> Ideas y Reflexiones</label>
+                    <label><input type="checkbox" name="docType" value="infoIIsec"> Info IISEC</label>
+                    <label><input type="checkbox" name="docType" value="policiesBriefs"> Policies Briefs</label>
+                </div>
                 <div class="input-group button-group">
                     <button type="submit" class="btn-small">Generar</button>
                     <button type="button" id="download-report" class="btn-small">Descargar</button>
-                </div>                
-                
+                </div>
             </form>
         </aside>
 
-        <main class="report-container" id="report-container">
-            <!-- Aquí se mostrará el reporte generado -->
-        </main>
+        <div class="graph-container">
+            <!-- Selección de tipo de gráfico (fuera del formulario, en la parte superior del contenedor de reportes) -->
+            <div class="chart-selection">
+                <h3>Selecciona el tipo de gráfico:</h3>
+                <label><input type="radio" name="chartType" value="bar" checked> Barra</label>
+                <label><input type="radio" name="chartType" value="line"> Línea</label>
+                <label><input type="radio" name="chartType" value="pie"> Pastel</label>
+                <label><input type="radio" name="chartType" value="none"> Sin Gráfico</label>
+            </div>
+
+            <!-- Contenedor de reportes -->
+            <main class="report-container" id="report-container">
+                <!-- Aquí se mostrará el reporte generado y el gráfico -->
+            </main>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
@@ -59,225 +88,445 @@
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
+        const categorySelect = document.getElementById('category');
+        const compareSelection = document.getElementById('compare-selection');
 
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        
-        // Obtener los datos del formulario
-        const author = document.getElementById('author').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        
-        console.log('Datos del formulario:', { author, startDate, endDate });
+        // Seleccionar automáticamente el checkbox basado en la categoría seleccionada en el combo box
+        categorySelect.addEventListener('change', function () {
+            const selectedCategory = categorySelect.value;
 
-        // Validaciones...
-        if (!author && !startDate && !endDate) {
-            alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
-            return;
-        }
+            // Si se selecciona una categoría específica, marca el checkbox correspondiente y muestra el selector de comparación
+            if (selectedCategory && selectedCategory !== 'all-types') {
+                compareSelection.style.display = 'block';
 
-        if (startDate && !endDate) {
-            alert('Debe ingresar un año final si ha ingresado un año de inicio.');
-            return;
-        }
+                // Desmarca todos los checkboxes
+                compareSelection.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
 
-        if (!startDate && endDate) {
-            alert('Debe ingresar un año de inicio si ha ingresado un año final.');
-            return;
-        }
-
-        if (parseInt(startDate) > parseInt(endDate)) {
-            alert('El año inicial no puede ser mayor que el año final.');
-            return;
-        }
-
-        if (parseInt(startDate) < 1900 || parseInt(endDate) < 1900) {
-            alert('El año debe ser igual o mayor a 1900.');
-            return;
-        }
-
-        console.log('Fechas validadas correctamente.');
-        
-        const url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
-        console.log('URL del endpoint:', url);
-        
-        try {
-            const response = await fetch(url);
-            console.log('Respuesta del fetch:', response);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                // Marca el checkbox de la categoría seleccionada en el combo box
+                const selectedCheckbox = compareSelection.querySelector(`input[value="${selectedCategory}"]`);
+                if (selectedCheckbox) {
+                    selectedCheckbox.checked = true;
+                }
+            } else {
+                // Si se selecciona "Todos los documentos", oculta el selector de comparación y desmarca los checkboxes
+                compareSelection.style.display = 'none';
+                compareSelection.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
             }
-            
-            const data = await response.json();
-            console.log('Datos recibidos del backend:', data);
-            
-            reportContainer.innerHTML = '';
+        });
 
-            const filterByAuthor = (items, author) => {
-                const lowerCaseAuthor = author.toLowerCase();
-                return items.filter(item => 
-                    item.autores.some(a => a.toLowerCase().includes(lowerCaseAuthor))
-                );
-            };
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
 
-            const filteredLibros = filterByAuthor(data.libros, author);
-            const filteredArticulos = filterByAuthor(data.articulosRevistas, author);
-            const filteredCapitulos = filterByAuthor(data.capitulosLibros, author);
-            const filteredDocumentosTrabajo = filterByAuthor(data.documentosTrabajo, author);
-            const filteredIdeasReflexiones = filterByAuthor(data.ideasReflexiones, author);
-            const filteredInfoIIsec = filterByAuthor(data.infoIIsec, author);
-            const filteredPoliciesBriefs = filterByAuthor(data.policiesBriefs, author);
+            // Obtener los datos del formulario
+            const category = document.getElementById('category').value;
+            const author = document.getElementById('author').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
 
-            // Crear contenedor de resumen
-            const summaryContainer = document.createElement('div');
-            summaryContainer.classList.add('summary-container');
+            console.log('Datos del formulario:', { category, author, startDate, endDate });
 
-        // Agregar el contenedor de resúmenes al contenedor del reporte
-        reportContainer.appendChild(summaryContainer);
+            // Validaciones
+            if (!author && !startDate && !endDate) {
+                alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
+                return;
+            }
 
-            // Calcular los totales
-            const counts = [
-                { type: 'Libros', count: filteredLibros.length },
-                { type: 'Artículos', count: filteredArticulos.length },
-                { type: 'Capítulos de Libros', count: filteredCapitulos.length },
-                { type: 'Documentos de Trabajo', count: filteredDocumentosTrabajo.length },
-                { type: 'Ideas y Reflexiones', count: filteredIdeasReflexiones.length },
-                { type: 'Info IISEC', count: filteredInfoIIsec.length },
-                { type: 'Policies Briefs', count: filteredPoliciesBriefs.length }
-            ];
+            if (startDate && !endDate) {
+                alert('Debe ingresar un año final si ha ingresado un año de inicio.');
+                return;
+            }
 
-            const totalDocuments = counts.reduce((acc, item) => acc + item.count, 0);
-            const maxCount = Math.max(...counts.map(item => item.count));
-            const minCount = Math.min(...counts.map(item => item.count));
+            if (!startDate && endDate) {
+                alert('Debe ingresar un año de inicio si ha ingresado un año final.');
+                return;
+            }
 
-            const documentsWithMostResults = counts.filter(item => item.count === maxCount);
-            const documentsWithLeastResults = counts.filter(item => item.count === minCount);
+            if (parseInt(startDate) > parseInt(endDate)) {
+                alert('El año inicial no puede ser mayor que el año final.');
+                return;
+            }
 
-            // Función para crear tarjetas cuadradas de resumen
-            const createSummaryCard = (title, value) => {
-                const card = document.createElement('div');
-                card.classList.add('summary-card');
-                card.innerHTML = `
-                    <h3>${title}</h3>
-                    <p>${value}</p>
-                `;
-                return card;
-            };
+            console.log('Fechas validadas correctamente.');
 
-            // Generar descripciones para las tarjetas de "Más resultados" y "Menos resultados"
-            const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
-            const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
+            // Construir la URL según la selección en el combo box
+            let url;
+            if (category === "all-types") {
+                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
+            } else {
+                url = `http://localhost:3000/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
+            }
 
-            // Añadir las tarjetas de resumen
-            summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
-            summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
-            summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
+            console.log(`URL del endpoint ${category === "all-types" ? 'general' : 'filtrado por categoría'}:`, url);
 
-            // Agregar el contenedor de resúmenes al contenedor del reporte
-            reportContainer.appendChild(summaryContainer);
+            try {
+                const response = await fetch(url);
 
-            // Renderizar cada tipo de documento debajo de las tarjetas de resumen
-            const renderSection = (sectionTitle, items, titleKey, dateKey) => {
-                console.log(`Renderizando sección: ${sectionTitle} con ${items.length} elementos`);
-                if (items.length > 0) {
-                    const section = document.createElement('section');
-                    section.classList.add('report-section');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
 
-                    // Crear encabezado
-                    const header = document.createElement('h2');
-                    header.textContent = `${sectionTitle} (${items.length})`;
+                const data = await response.json();
 
-                    // Crear lista
-                    const ul = document.createElement('ul');
-                    ul.classList.add('card-info');
+                reportContainer.innerHTML = '';
 
-                    items.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `${item[titleKey]} - Publicado el ${item[dateKey]}`;
-                        ul.appendChild(li);
+                // Preparar datos filtrados para una categoría específica
+                let filteredData;
+                if (category === "all-types") {
+                    filteredData = {
+                        libros: data.libros || [],
+                        articulosRevistas: data.articulosRevistas || [],
+                        capitulosLibros: data.capitulosLibros || [],
+                        documentosTrabajo: data.documentosTrabajo || [],
+                        ideasReflexiones: data.ideasReflexiones || [],
+                        infoIIsec: data.infoIIsec || [],
+                        policiesBriefs: data.policiesBriefs || []
+                    };
+                } else {
+                    // Solo datos de la categoría específica
+                    filteredData = data;
+                }
+
+
+                // Crear contenedor de resumen solo si se selecciona "Todos los documentos"
+                if (category === "all-types") {
+                    const summaryContainer = document.createElement('div');
+                    summaryContainer.classList.add('summary-container');
+                    reportContainer.appendChild(summaryContainer);
+
+                    // Calcular los totales
+                    const counts = Object.keys(filteredData).map(type => ({
+                        type,
+                        count: filteredData[type].length
+                    }));
+
+                    const totalDocuments = counts.reduce((acc, item) => acc + item.count, 0);
+                    const maxCount = Math.max(...counts.map(item => item.count));
+                    const minCount = Math.min(...counts.map(item => item.count));
+
+                    const documentsWithMostResults = counts.filter(item => item.count === maxCount);
+                    const documentsWithLeastResults = counts.filter(item => item.count === minCount);
+
+                    // Crear tarjetas de resumen
+                    const createSummaryCard = (title, value) => {
+                        const card = document.createElement('div');
+                        card.classList.add('summary-card');
+                        card.innerHTML = `
+                            <h3>${title}</h3>
+                            <p>${value}</p>
+                        `;
+                        return card;
+                    };
+
+                    const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
+                    const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
+
+                    summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
+                    summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
+                    summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
+                }
+
+                // Renderizar listado en reportContainer para una categoría específica
+                const renderSection = (sectionTitle, items) => {
+                    if (items.length > 0) {
+                        const section = document.createElement('section');
+                        section.classList.add('report-section');
+
+                        const header = document.createElement('h2');
+                        header.textContent = `${sectionTitle} (${items.length})`;
+
+                        const ul = document.createElement('ul');
+                        ul.classList.add('card-info');
+
+                        items.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = `${item.titulo || item.titulo_capitulo} - Publicado el ${item.anio_publicacion || item.anio_revista}`;
+                            ul.appendChild(li);
+                        });
+
+                        section.appendChild(header);
+                        section.appendChild(ul);
+                        reportContainer.appendChild(section);
+                    }
+                };
+
+                if (category === "all-types") {
+                    renderSection('Libros', filteredData.libros);
+                    renderSection('Artículos de Revista', filteredData.articulosRevistas);
+                    renderSection('Capítulos de Libros', filteredData.capitulosLibros);
+                    renderSection('Documentos de Trabajo', filteredData.documentosTrabajo);
+                    renderSection('Ideas y Reflexiones', filteredData.ideasReflexiones);
+                    renderSection('Info IISEC', filteredData.infoIIsec);
+                    renderSection('Policies Briefs', filteredData.policiesBriefs);
+                } else {
+                    renderSection(category.charAt(0).toUpperCase() + category.slice(1), filteredData);
+                }
+
+                // Generar gráficos según las condiciones
+                const chartType = document.querySelector('input[name="chartType"]:checked').value;
+
+                let chartContainer = document.getElementById('chart-container');
+                if (!chartContainer) {
+                    chartContainer = document.createElement('div');
+                    chartContainer.id = 'chart-container';
+                    reportContainer.appendChild(chartContainer);
+                }
+
+                // Si se selecciona "Sin Gráfico", salimos de la función aquí para no crear gráficos
+                if (chartType === 'none') {
+                    chartContainer.innerHTML = ''; // Asegura que el contenedor esté vacío
+                    return;
+                }
+
+                chartContainer.innerHTML = '';
+
+                if (category === "all-types") {
+                    // Realiza una solicitud al endpoint countByTypes para el primer gráfico
+                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}`);
+                    if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
+                    const countByTypesData = await countByTypesResponse.json();
+                    // Gráfico de Conteo de Documentos por Categoría
+                    const ctx1 = document.createElement('canvas');
+                    chartContainer.appendChild(ctx1);
+                    new Chart(ctx1, {
+                        type: chartType,
+                        data: {
+                            labels: countByTypesData.map(item => item.tipo),
+                            datasets: [{
+                                label: 'Conteo de Documentos por Categoría',
+                                data: countByTypesData.map(item => item.cantidad),
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        }
                     });
 
-                    // Agregar encabezado y lista a la sección
-                    section.appendChild(header);
-                    section.appendChild(ul);
+                    // Gráficos adicionales solo si se especifica un rango de años
+                    if (startDate || endDate) {
+                        // Gráfico 1: Cantidad total de documentos por año
+                        const documentsByYear = {};
+                        Object.values(filteredData).forEach(items => {
+                            items.forEach(item => {
+                                const year = item.anio_publicacion || item.anio_revista;
+                                if (year) {
+                                    documentsByYear[year] = (documentsByYear[year] || 0) + 1;
+                                }
+                            });
+                        });
 
-                    // Agregar la sección al contenedor del reporte
-                    reportContainer.appendChild(section);
-                } else {
-                    console.log(`No hay elementos para mostrar en la sección: ${sectionTitle}`);
+                        const ctx2 = document.createElement('canvas');
+                        chartContainer.appendChild(ctx2);
+                        new Chart(ctx2, {
+                            type: chartType,
+                            data: {
+                                labels: Object.keys(documentsByYear),
+                                datasets: [{
+                                    label: 'Cantidad de Documentos por Año',
+                                    data: Object.values(documentsByYear),
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    borderWidth: 1
+                                }]
+                            }
+                        });
+
+                        // Gráfico 2: Tipo de documentos por año
+                        const typesByYear = {};
+                        Object.keys(filteredData).forEach(type => {
+                            filteredData[type].forEach(item => {
+                                const year = item.anio_publicacion || item.anio_revista;
+                                if (year) {
+                                    if (!typesByYear[year]) {
+                                        typesByYear[year] = { libros: 0, articulosRevistas: 0, capitulosLibros: 0, documentosTrabajo: 0, ideasReflexiones: 0, infoIIsec: 0, policiesBriefs: 0 };
+                                    }
+                                    typesByYear[year][type] += 1;
+                                }
+                            });
+                        });
+
+                        const years = Object.keys(typesByYear);
+                        const ctx3 = document.createElement('canvas');
+                        chartContainer.appendChild(ctx3);
+                        new Chart(ctx3, {
+                            type: chartType,
+                            data: {
+                                labels: years,
+                                datasets: Object.keys(filteredData).map(type => ({
+                                    label: `Cantidad de ${type} por Año`,
+                                    data: years.map(year => typesByYear[year][type] || 0),
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }))
+                            }
+                        });
+                    }
                 }
-            };
+                else {
+                    const yearCounts = {};
+                    filteredData.forEach(item => {
+                        const year = item.anio_publicacion || item.anio_revista;
+                        if (year) {
+                            yearCounts[year] = (yearCounts[year] || 0) + 1;
+                        }
+                    });
 
-            renderSection('Libros', filteredLibros, 'titulo', 'anio_publicacion');
-            renderSection('Artículos', filteredArticulos, 'titulo', 'anio_revista');
-            renderSection('Capítulos de Libros', filteredCapitulos, 'titulo_capitulo', 'anio_publicacion');
-            renderSection('Documentos de Trabajo', filteredDocumentosTrabajo, 'titulo', 'anio_publicacion');
-            renderSection('Ideas y Reflexiones', filteredIdeasReflexiones, 'titulo', 'anio_publicacion');
-            renderSection('Info IISEC', filteredInfoIIsec, 'titulo', 'anio_publicacion');
-            renderSection('Policies Briefs', filteredPoliciesBriefs, 'titulo', 'anio_publicacion');
+                    // Crear gráfico principal para la categoría específica
+                    const ctx = document.createElement('canvas');
+                    chartContainer.appendChild(ctx);
+                    new Chart(ctx, {
+                        type: chartType,
+                        data: {
+                            labels: Object.keys(yearCounts),
+                            datasets: [{
+                                label: `Documentos en ${category} por Año`,
+                                data: Object.values(yearCounts),
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        }
+                    });
 
-            if (reportContainer.children.length === 1) { // Solo contiene el resumen y ningún otro resultado
-                reportContainer.innerHTML += '<p>No se encontraron resultados para los criterios de búsqueda.</p>';
+                    // Obtener las categorías seleccionadas en los checkboxes
+                    const selectedCheckboxes = Array.from(compareSelection.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+
+                    // Si hay dos o más categorías seleccionadas, genera el gráfico adicional
+                    if (selectedCheckboxes.length >= 2) {
+                        generateAdditionalChart(selectedCheckboxes, startDate, endDate);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error al obtener el reporte:', error);
+                reportContainer.innerHTML = '<p>Error al generar el reporte. Inténtalo de nuevo más tarde.</p>';
             }
-
-        } catch (error) {
-            console.error('Error al obtener el reporte:', error);
-            reportContainer.innerHTML = '<p>Error al generar el reporte. Inténtalo de nuevo más tarde.</p>';
-        }
-    });
-
-
-
-// Lógica para descargar el reporte como PDF
-downloadButton.addEventListener('click', () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.text("Reporte de Documentos", 10, 10);
-    let y = 20;
-
-    // Incluir la información de las tarjetas de resumen en el PDF
-    const summaryCards = document.querySelectorAll('.summary-card');
-    summaryCards.forEach(card => {
-        const title = card.querySelector('h3').textContent;
-        const value = card.querySelector('p').textContent;
-
-        doc.text(`${title}: ${value}`, 10, y);
-        y += 10;
-
-        if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
-            doc.addPage();
-            y = 10;
-        }
-    });
-
-    // Incluir los detalles de los documentos de cada sección
-    const sections = reportContainer.querySelectorAll('.report-section');
-    sections.forEach(section => {
-        const header = section.querySelector('h2').textContent;
-        doc.text(header, 10, y);
-        y += 10;
-
-        const items = section.querySelectorAll('li');
-        items.forEach(item => {
-            if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
-                doc.addPage();
-                y = 10;
-            }
-            doc.text(item.textContent, 10, y);
-            y += 10;
         });
-    });
 
-    // Descargar el PDF
-    doc.save('reporte.pdf');
-});
+
+        // Función para generar un gráfico adicional con las categorías seleccionadas
+        async function generateAdditionalChart(selectedCategories, startDate, endDate) {
+            const chartContainer = document.getElementById('chart-container');
+            if (!chartContainer) return;
+
+            try {
+                // Construir la URL para el gráfico adicional
+                const params = new URLSearchParams();
+                selectedCategories.forEach(category => params.append('categorias', category));
+                params.append('anioInicio', startDate);
+                params.append('anioFin', endDate);
+
+                const additionalChartUrl = `http://localhost:3000/reports/countByTypes?${params.toString()}`;
+                console.log(`URL para el gráfico adicional: ${additionalChartUrl}`);
+
+                const response = await fetch(additionalChartUrl);
+                if (!response.ok) {
+                    throw new Error('Error al obtener datos para el gráfico adicional');
+                }
+
+                const additionalData = await response.json();
+
+                // Crear un nuevo gráfico en el contenedor
+                const additionalCtx = document.createElement('canvas');
+                chartContainer.appendChild(additionalCtx);
+
+                const chartType = document.querySelector('input[name="chartType"]:checked').value;
+
+                new Chart(additionalCtx, {
+                    type: chartType,
+                    data: {
+                        labels: additionalData.map(item => item.tipo),
+                        datasets: [{
+                            label: 'Conteo de Documentos por Categoría Seleccionada',
+                            data: additionalData.map(item => item.cantidad),
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    }
+                });
+            } catch (error) {
+                console.error('Error al generar el gráfico adicional:', error);
+            }
+        }
+
+
+
+
+
+
+
+        // Lógica para descargar el reporte como PDF
+        downloadButton.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("Reporte de Documentos", 10, 10);
+            let y = 20;
+
+            // Incluir la información de las tarjetas de resumen en el PDF
+            const summaryCards = document.querySelectorAll('.summary-card');
+            summaryCards.forEach(card => {
+                const title = card.querySelector('h3').textContent;
+                const value = card.querySelector('p').textContent;
+
+                doc.text(`${title}: ${value}`, 10, y);
+                y += 10;
+
+                if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
+                    doc.addPage();
+                    y = 10;
+                }
+            });
+
+            // Incluir los detalles de los documentos de cada sección
+            const sections = reportContainer.querySelectorAll('.report-section');
+            sections.forEach(section => {
+                const header = section.querySelector('h2').textContent;
+                doc.text(header, 10, y);
+                y += 10;
+
+                const items = section.querySelectorAll('li');
+                items.forEach(item => {
+                    if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
+                        doc.addPage();
+                        y = 10;
+                    }
+                    doc.text(item.textContent, 10, y);
+                    y += 10;
+                });
+            });
+            // Incluir gráficos en el PDF si existen
+            const chartCanvases = document.querySelectorAll('.graph-container canvas');
+            for (const canvas of chartCanvases) {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 180;  // Ajuste de ancho en el PDF
+                const imgHeight = (canvas.height / canvas.width) * imgWidth;
+
+                if (y + imgHeight > 280) {  // Crear una nueva página si es necesario
+                    doc.addPage();
+                    y = 10;
+                }
+
+                doc.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
+                y += imgHeight + 10;
+            }
+
+            alert("Se generó exitosamente el PDF");
+
+            // Descargar el PDF
+            doc.save('reporte.pdf');
+        });
 
 
 
 
     </script>
 </body>
+
 </html>
 <script src="js/main.js" type="module"></script>

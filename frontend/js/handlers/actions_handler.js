@@ -1,6 +1,19 @@
 import { deleteDocumentById, updateDocumentById, getDocumentById } from '../services/api_service.js';
 
+function getCookieValue(name) {
+    const cookieString = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='));
+    
+    return cookieString ? cookieString.split('=')[1] : null;
+}
+
+
 export async function handleDocumentDeletion(documentType, documentId, cardElement) {
+
+    let  usuarioId = getCookieValue('id_usuario');
+    console.log('ID de usuario:', usuarioId);
+
     // Mostrar ventana emergente de confirmación
     const userConfirmation = prompt("Realmente desea eliminar este archivo? \nDe ser así, escriba: \"si, deseo eliminar este archivo\"");
 
@@ -12,7 +25,7 @@ export async function handleDocumentDeletion(documentType, documentId, cardEleme
                 // Llamada al endpoint para eliminar el documento
                 console.log("documentos",documentType);
                 console.log("documentos",documentId);
-                await deleteDocumentById(documentType, documentId);
+                await deleteDocumentById(documentType, documentId, usuarioId);
                 alert("El documento ha sido eliminado exitosamente.");
                 // Remover la tarjeta del DOM
                 console.log("llego hasta aqui");
@@ -172,7 +185,8 @@ function displayFieldsByType(type) {
     form.appendChild(buttonsContainer);
 }
 
-export async function handleDocumentUpdate(documentType, documentId) {
+export async function handleDocumentUpdate(documentType, documentId, usuarioId) {
+
     try {
         // Obtener los valores de los campos del formulario.
         const currentYear = new Date().getFullYear();
@@ -319,7 +333,7 @@ export async function handleDocumentUpdate(documentType, documentId) {
 
         // Enviar la solicitud de actualización solo si hay datos modificados.
         if (Object.keys(updatedData).length > 0) {
-            await updateDocumentById(documentType, documentId, updatedData);
+            await updateDocumentById(documentType, documentId, updatedData, usuarioId);
             alert('Documento actualizado exitosamente.');
         } else {
             alert('No se detectaron cambios para actualizar.');

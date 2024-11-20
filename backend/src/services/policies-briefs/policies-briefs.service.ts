@@ -87,7 +87,8 @@ export class PoliciesBriefsService {
           titulo: policy.titulo,              // Campo para búsquedas
           autores: policy.autores,            // Campo para búsquedas
           anio_publicacion: policy.anio_publicacion, // Campo para filtros o búsquedas
-          mensaje_clave: policy.mensaje_clave         // Campo opcional para mejorar el resultado de búsqueda
+          mensaje_clave: policy.mensaje_clave,
+          eliminado: policy.eliminado,         // Campo opcional para mejorar el resultado de búsqueda
         }
       );
     }

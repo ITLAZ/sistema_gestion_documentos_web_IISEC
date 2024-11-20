@@ -5,6 +5,10 @@ import { ApiProperty } from '@nestjs/swagger';
 @Schema({ collection: 'InfoIISEC' })
 export class InfoIISEC extends Document {
 
+  @ApiProperty({ example: 'http://example.com/portada.jpg', description: 'URL de la portada del libro', required: true })
+  @Prop({ trim: true })
+  portada: string;
+
   @ApiProperty({ example: 'Título del informe IISEC', description: 'Título del documento de información de IISEC', required: true })
   @Prop({ required: true, trim: true })
   titulo: string;
@@ -28,6 +32,10 @@ export class InfoIISEC extends Document {
   @ApiProperty({ example: '/path/to/file', description: 'Dirección física del archivo PDF', required: false })
   @Prop({ trim: true })
   direccion_archivo: string;
+  
+  @ApiProperty({ example: 'false', description: 'Estado del documento(eliminado o no)', required: true })
+  @Prop({ trim: true })
+  eliminado: boolean;
 }
 
 export const InfoIISECSchema = SchemaFactory.createForClass(InfoIISEC);

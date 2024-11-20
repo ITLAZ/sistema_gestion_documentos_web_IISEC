@@ -254,7 +254,7 @@ db.createCollection("Libros", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["portada", "anio_publicacion", "titulo", "autores"],
+      required: ["anio_publicacion", "titulo", "autores"],
       properties: {
         portada: {
           bsonType: "string",
@@ -290,6 +290,10 @@ db.createCollection("Libros", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }
@@ -304,6 +308,14 @@ db.createCollection("ArticulosRevistas", {
       bsonType: "object",
       required: ["titulo", "autores", "nombre_revista", "anio_revista"],
       properties: {
+        portada: {
+          bsonType: "string",
+          description: "Debe ser una URL válida para la imagen de la portada"
+        },
+        numero_identificacion: {
+          bsonType: "string",
+          description: "Identificador del capítulo de libro"
+        },
         numero_articulo: {
           bsonType: "string",
           description: "Debe ser el número o identificación del artículo"
@@ -342,6 +354,10 @@ db.createCollection("ArticulosRevistas", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }
@@ -354,6 +370,10 @@ db.createCollection("CapitulosLibros", {
       bsonType: "object",
       required: ["titulo_libro", "titulo_capitulo", "autores", "anio_publicacion"],
       properties: {
+        portada: {
+          bsonType: "string",
+          description: "Debe ser una URL válida para la imagen de la portada"
+        },
         numero_identificacion: {
           bsonType: "string",
           description: "Identificador del capítulo de libro"
@@ -395,6 +415,10 @@ db.createCollection("CapitulosLibros", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }
@@ -407,6 +431,10 @@ db.createCollection("DocumentosTrabajo", {
       bsonType: "object",
       required: ["titulo", "autores", "anio_publicacion"],
       properties: {
+        portada: {
+          bsonType: "string",
+          description: "Debe ser una URL válida para la imagen de la portada"
+        },
         numero_identificacion: {
           bsonType: "string",
           description: "Identificador del documento de trabajo"
@@ -437,6 +465,10 @@ db.createCollection("DocumentosTrabajo", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }
@@ -449,6 +481,10 @@ db.createCollection("IdeasReflexiones", {
       bsonType: "object",
       required: ["titulo", "autores", "anio_publicacion"],
       properties: {
+        portada: {
+          bsonType: "string",
+          description: "Debe ser una URL válida para la imagen de la portada"
+        },
         autores: {
           bsonType: "array",
           items: {
@@ -475,6 +511,10 @@ db.createCollection("IdeasReflexiones", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }
@@ -487,6 +527,10 @@ db.createCollection("PoliciesBriefs", {
       bsonType: "object",
       required: ["titulo", "autores", "anio_publicacion"],
       properties: {
+        portada: {
+          bsonType: "string",
+          description: "Debe ser una URL válida para la imagen de la portada"
+        },
         autores: {
           bsonType: "array",
           items: {
@@ -513,6 +557,10 @@ db.createCollection("PoliciesBriefs", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }
@@ -525,6 +573,10 @@ db.createCollection("InfoIISEC", {
       bsonType: "object",
       required: ["titulo", "autores", "anio_publicacion"],
       properties: {
+        portada: {
+          bsonType: "string",
+          description: "Debe ser una URL válida para la imagen de la portada"
+        },
         autores: {
           bsonType: "array",
           items: {
@@ -551,6 +603,10 @@ db.createCollection("InfoIISEC", {
         direccion_archivo: {
           bsonType: "string",
           description: "Es la dirección donde se encuentra almacenado el archivo"
+        },
+        eliminado: {
+          bsonType: "bool",
+          description: "Indica si el libro está eliminado"
         }
       }
     }

@@ -461,6 +461,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentYear = new Date().getFullYear();
 
   // Botones de ordenamiento
+  const sortTitleButton = document.getElementById("sort-title");
+  const sortAuthorButton = document.getElementById("sort-author");
   const sortYearButton = document.getElementById("sort-year");
   const dateOrderButton = document.getElementById("date-order");
 
@@ -536,11 +538,50 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-dateOrderButton.innerHTML = "Ascendente" 
+dateOrderButton.innerHTML = "Cambiar Orden" 
 // Configurar evento para el botón de orden ascendente/descendente
 dateOrderButton.addEventListener("click", () => {
   // Alternar el valor de sortOrder y actualizar el texto del botón
   sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  
+  // Ejecutar la función correspondiente dependiendo del modo (búsqueda o visualización)
+  if (isSearchMode) {
+    // Llamar a executeSearch solo si estamos en modo de búsqueda
+    console.log(isSearchMode);
+    executeSearch(
+      typeSelector.value,
+      keywordsInput.value.trim(),
+      publicationDateInput.value,
+      authorInput.value.trim()
+    );
+  } else {
+    // Llamar a fetchAndRenderDocuments en modo de visualización
+    console.log(isSearchMode);
+    fetchAndRenderDocuments();
+  }
+});
+
+
+sortTitleButton.addEventListener("click", () => {
+  
+  // Ejecutar la función correspondiente dependiendo del modo (búsqueda o visualización)
+  if (isSearchMode) {
+    // Llamar a executeSearch solo si estamos en modo de búsqueda
+    console.log(isSearchMode);
+    executeSearch(
+      typeSelector.value,
+      keywordsInput.value.trim(),
+      publicationDateInput.value,
+      authorInput.value.trim()
+    );
+  } else {
+    // Llamar a fetchAndRenderDocuments en modo de visualización
+    console.log(isSearchMode);
+    fetchAndRenderDocuments();
+  }
+});
+
+sortAuthorButton.addEventListener("click", () => {
   
   // Ejecutar la función correspondiente dependiendo del modo (búsqueda o visualización)
   if (isSearchMode) {
@@ -630,7 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Evento para el botón de búsqueda
-  searchButton.addEventListener("click", showYearAndOrderButtonsOnly);
+  searchButton.addEventListener("click", showAllSortButtons);
 
   // Evento para el combo box
   typeSelector.addEventListener("change", showAllSortButtons);

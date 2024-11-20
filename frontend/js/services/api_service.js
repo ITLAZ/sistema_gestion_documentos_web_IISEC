@@ -18,7 +18,7 @@ export async function getDocumentsByType(documentType, page, size, sortBy, sortO
     }
 }
 
-export async function getAllDocuments(query = '', page, size, sortBy = 'anio_publicacion', sortOrder) {
+export async function getAllDocuments(query = '', page, size, sortBy = 'anio_publicacion', sortOrder= 'asc') {
     try {
         // Construir la URL con los parámetros de consulta
         const url = new URL('http://localhost:3000/all-types/all');

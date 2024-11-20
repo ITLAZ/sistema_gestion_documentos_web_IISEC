@@ -143,9 +143,22 @@
         console.error('No se encontró el tipo de documento o el ID.');
     }
 
+    function getCookieValue(name) {
+        const cookieString = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(name + '='));
+
+        return cookieString ? cookieString.split('=')[1] : null;
+    }
+
+
     function onSaveButtonClick() {
+
+        const  usuarioId = getCookieValue('id_usuario');
+        console.log('ID de usuario:', usuarioId);
+
         if (documentType && documentId) {
-            handleDocumentUpdate(documentType, documentId)
+            handleDocumentUpdate(documentType, documentId, usuarioId)
                 .catch(error => console.error('Error al actualizar el documento:', error));
 
         } else {

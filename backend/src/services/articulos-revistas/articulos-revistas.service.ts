@@ -82,7 +82,8 @@ export class ArticulosRevistasService {
           autores: articulo.autores,    // Campo para búsquedas
           nombre_revista: articulo.nombre_revista,    // Campo para búsquedas          
           anio_revista: articulo.anio_revista, // Campo para filtros o búsquedas
-          abstract: articulo.abstract           // Campo opcional para mejorar el resultado de búsqueda
+          abstract: articulo.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: articulo.eliminado,
         }
       );
     }

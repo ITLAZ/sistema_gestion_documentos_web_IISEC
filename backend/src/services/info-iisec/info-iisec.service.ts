@@ -93,7 +93,8 @@ export class InfoIisecService {
           titulo: info.titulo,              // Campo para búsquedas
           autores: info.autores,            // Campo para búsquedas
           anio_publicacion: info.anio_publicacion, // Campo para filtros o búsquedas
-          observaciones: info.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+          observaciones: info.observaciones,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: info.eliminado,
         }
       );
     }

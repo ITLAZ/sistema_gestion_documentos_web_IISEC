@@ -90,6 +90,7 @@ export class CapitulosLibrosService {
           anio_publicacion: capitulo.anio_publicacion, // Campo para filtros o búsquedas
           editorial: capitulo.editorial,  
           editores: capitulo.editores,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: capitulo.eliminado,
         }
       );
     }

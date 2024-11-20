@@ -28,7 +28,8 @@ export class LibrosService {
           titulo: libro.titulo,              // Campo para búsquedas
           autores: libro.autores,            // Campo para búsquedas
           anio_publicacion: libro.anio_publicacion, // Campo para filtros o búsquedas
-          abstract: libro.abstract           // Campo opcional para mejorar el resultado de búsqueda
+          abstract: libro.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: libro.eliminado,  
         }
       );
     }

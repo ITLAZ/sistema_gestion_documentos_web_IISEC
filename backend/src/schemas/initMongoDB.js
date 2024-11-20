@@ -31,7 +31,7 @@ async function initDatabase() {
       validator: {
         $jsonSchema: {
           bsonType: "object",
-          required: ["portada", "anio_publicacion", "titulo", "autores"],
+          required: ["anio_publicacion", "titulo", "autores"],
           properties: {
             portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
             anio_publicacion: { bsonType: "int", description: "Año de publicación" },
@@ -44,7 +44,8 @@ async function initDatabase() {
             editorial: { bsonType: "string", description: "Nombre de la editorial" },
             abstract: { bsonType: "string", description: "Resumen del libro (opcional)" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del libro" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },
@@ -57,7 +58,8 @@ async function initDatabase() {
           bsonType: "object",
           required: ["titulo", "autores", "nombre_revista", "anio_revista"],
           properties: {
-            numero_articulo: { bsonType: "string", description: "Número o identificación del artículo" },
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
+            numero_identificacion: { bsonType: "string", description: "Número o identificación del artículo" },
             titulo: { bsonType: "string", description: "Título del artículo" },
             autores: {
               bsonType: "array",
@@ -69,7 +71,8 @@ async function initDatabase() {
             editorial: { bsonType: "string", description: "Nombre de la editorial" },
             abstract: { bsonType: "string", description: "Resumen del artículo (opcional)" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del artículo" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },
@@ -82,6 +85,7 @@ async function initDatabase() {
           bsonType: "object",
           required: ["titulo_libro", "titulo_capitulo", "autores", "anio_publicacion"],
           properties: {
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
             numero_identificacion: { bsonType: "string", description: "Identificador del capítulo" },
             titulo_capitulo: { bsonType: "string", description: "Título del capítulo" },
             autores: {
@@ -98,7 +102,8 @@ async function initDatabase() {
             anio_publicacion: { bsonType: "int", description: "Año de publicación del capítulo" },
             editorial: { bsonType: "string", description: "Nombre de la editorial" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del capítulo" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },
@@ -111,6 +116,7 @@ async function initDatabase() {
           bsonType: "object",
           required: ["titulo", "autores", "anio_publicacion"],
           properties: {
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
             numero_identificacion: { bsonType: "string", description: "Identificador del documento" },
             titulo: { bsonType: "string", description: "Título del documento" },
             autores: {
@@ -121,7 +127,8 @@ async function initDatabase() {
             anio_publicacion: { bsonType: "int", description: "Año de publicación" },
             abstract: { bsonType: "string", description: "Resumen del documento (opcional)" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },
@@ -134,6 +141,7 @@ async function initDatabase() {
           bsonType: "object",
           required: ["titulo", "autores", "anio_publicacion"],
           properties: {
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
             autores: {
               bsonType: "array",
               items: { bsonType: "string" },
@@ -143,7 +151,8 @@ async function initDatabase() {
             titulo: { bsonType: "string", description: "Título del documento" },
             observaciones: { bsonType: "string", description: "Observaciones del documento" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },
@@ -156,6 +165,7 @@ async function initDatabase() {
           bsonType: "object",
           required: ["titulo", "autores", "anio_publicacion"],
           properties: {
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
             autores: {
               bsonType: "array",
               items: { bsonType: "string" },
@@ -165,7 +175,8 @@ async function initDatabase() {
             titulo: { bsonType: "string", description: "Título del documento" },
             mensaje_clave: { bsonType: "string", description: "Mensaje clave del documento" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },
@@ -178,6 +189,7 @@ async function initDatabase() {
           bsonType: "object",
           required: ["titulo", "autores", "anio_publicacion"],
           properties: {
+            portada: { bsonType: "string", description: "URL válida para la imagen de la portada" },
             autores: {
               bsonType: "array",
               items: { bsonType: "string" },
@@ -187,7 +199,8 @@ async function initDatabase() {
             titulo: { bsonType: "string", description: "Título del documento" },
             observaciones: { bsonType: "string", description: "Observaciones del documento" },
             link_pdf: { bsonType: "string", description: "URL válida al PDF del documento" },
-            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" }
+            direccion_archivo: { bsonType: "string", description: "Dirección donde se almacena el archivo" },
+            eliminado: { bsonType: "bool", description: "Indica si el libro está eliminado" }
           },
         },
       },

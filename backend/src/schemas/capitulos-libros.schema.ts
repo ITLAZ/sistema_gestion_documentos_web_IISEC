@@ -5,6 +5,10 @@ import { ApiProperty } from '@nestjs/swagger';
 @Schema({ collection: 'CapitulosLibros' })
 export class CapituloLibro extends Document {
 
+  @ApiProperty({ example: 'http://example.com/portada.jpg', description: 'URL de la portada del libro', required: true })
+  @Prop({ trim: true })
+  portada: string;
+
   @ApiProperty({ example: '08/4', description: 'Número de identificación del capítulo', required: false })
   @Prop({ trim: true })
   numero_identificacion: string;
@@ -40,6 +44,10 @@ export class CapituloLibro extends Document {
   @ApiProperty({ example: '/path/to/file', description: 'Dirección física del archivo PDF', required: false })
   @Prop({ trim: true })
   direccion_archivo: string;
+
+  @ApiProperty({ example: 'false', description: 'Estado del documento(eliminado o no)', required: true })
+  @Prop({ trim: true })
+  eliminado: boolean;
 }
 
 export const CapituloLibroSchema = SchemaFactory.createForClass(CapituloLibro);

@@ -28,6 +28,10 @@ export class PolicyBrief extends Document {
   @ApiProperty({ example: '/path/to/file', description: 'Dirección física del archivo PDF', required: false })
   @Prop({ trim: true })
   direccion_archivo: string;
+
+  @ApiProperty({ example: 'false', description: 'Estado del documento(eliminado o no)', required: true })
+  @Prop({ trim: true })
+  eliminado: boolean;
 }
 
 export const PolicyBriefSchema = SchemaFactory.createForClass(PolicyBrief);

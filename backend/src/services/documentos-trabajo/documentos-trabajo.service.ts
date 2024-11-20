@@ -87,7 +87,8 @@ export class DocumentosTrabajoService {
           titulo: documento.titulo,              // Campo para búsquedas
           autores: documento.autores,            // Campo para búsquedas
           anio_publicacion: documento.anio_publicacion, // Campo para filtros o búsquedas
-          abstract: documento.abstract           // Campo opcional para mejorar el resultado de búsqueda
+          abstract: documento.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: documento.eliminado,
         }
       );
     }

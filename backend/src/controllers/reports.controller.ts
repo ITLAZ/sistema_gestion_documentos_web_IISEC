@@ -59,4 +59,56 @@ export class ReportsController {
         );
     }
 
+
+    @Get('countByTypes')
+    @ApiQuery({ name: 'categorias', required: true, isArray: true, description: 'Array de tipos de documento a contar (e.g., libros, articulosRevistas, etc.)' })
+    @ApiQuery({ name: 'anioInicio', required: false, description: 'Año de inicio para filtrar los resultados', type: String })
+    @ApiQuery({ name: 'anioFin', required: false, description: 'Año de fin para filtrar los resultados', type: String })
+    @ApiQuery({ name: 'autores', required: false, description: 'Nombre del autor para filtrar los resultados', type: String })
+    @ApiResponse({ status: 200, description: 'Cantidad de documentos por tipo según los criterios especificados', type: Array })
+    @ApiResponse({ status: 400, description: 'Error de validación si los parámetros son incorrectos' })
+    async countByTypes(
+    @Query('categorias') categorias: string[], // Array de tipos de documento (libros, articulosRevistas, etc.)
+    @Query('anioInicio') anioInicio?: string, // Año de inicio opcional (recibido como string desde la query)
+    @Query('anioFin') anioFin?: string, // Año de fin opcional (recibido como string desde la query)
+    @Query('autores') autores?: string // Autor opcional
+    ): Promise<{ tipo: string; cantidad: number }[]> {
+        // Convertimos los años a números si están presentes
+        const anioInicioNumber = anioInicio ? parseInt(anioInicio, 10) : undefined;
+        const anioFinNumber = anioFin ? parseInt(anioFin, 10) : undefined;
+
+        // Llamamos al servicio que cuenta los documentos por tipo
+        return await this.reportsService.findCount(
+            categorias,
+            anioInicioNumber,
+            anioFinNumber,
+            autores
+        );
+    }
+
+    @Get('distributionByYear')
+    @ApiQuery({ name: 'categorias', required: true, isArray: true, description: 'Array de tipos de documento a distribuir por año (e.g., libros, articulosRevistas, etc.)' })
+    @ApiQuery({ name: 'anioInicio', required: false, description: 'Año de inicio para filtrar los resultados', type: String })
+    @ApiQuery({ name: 'anioFin', required: false, description: 'Año de fin para filtrar los resultados', type: String })
+    @ApiQuery({ name: 'autores', required: false, description: 'Nombre del autor para filtrar los resultados', type: String })
+    @ApiResponse({ status: 200, description: 'Distribución de documentos por año y tipo según los criterios especificados', type: Array })
+    @ApiResponse({ status: 400, description: 'Error de validación si los parámetros son incorrectos' })
+    async distributionByYear(
+    @Query('categorias') categorias: string[], // Array de tipos de documento (libros, articulosRevistas, etc.)
+    @Query('anioInicio') anioInicio?: string, // Año de inicio opcional (recibido como string desde la query)
+    @Query('anioFin') anioFin?: string, // Año de fin opcional (recibido como string desde la query)
+    @Query('autores') autores?: string // Autor opcional
+    ): Promise<{ tipo: string; anio: number; cantidad: number }[]> {
+        // Convertimos los años a números si están presentes
+        const anioInicioNumber = anioInicio ? parseInt(anioInicio, 10) : undefined;
+        const anioFinNumber = anioFin ? parseInt(anioFin, 10) : undefined;
+
+        // Llamamos al servicio que obtiene la distribución de documentos por año y tipo
+        return await this.reportsService.findDistributionByYear(
+            categorias,
+            anioInicioNumber,
+            anioFinNumber,
+            autores
+        );
+    }
 }

@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { CapitulosLibrosService } from 'src/services/capitulos-libros/capitulos-libros.service';
 import { CapituloLibro } from 'src/schemas/capitulos-libros.schema';
 import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';  
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody, getSchemaPath } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { CapituloLibroResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -18,6 +19,7 @@ export class CapitulosLibrosController {
   constructor(
     private readonly capitulosLibrosService: CapitulosLibrosService,
     private readonly searchService: SearchService,
+    private readonly logsService: LogsService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -53,6 +55,7 @@ export class CapitulosLibrosController {
         anio
       );
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al obtener los capítulos de libros.');
     }
   }
@@ -103,6 +106,7 @@ export class CapitulosLibrosController {
       );
       return results;
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de capítulos de libros.');
     }
   }
@@ -117,6 +121,7 @@ export class CapitulosLibrosController {
     try {
       return this.capitulosLibrosService.findByTitulo(titulo);
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al buscar capítulos por título.');
     }
   }
@@ -131,6 +136,7 @@ export class CapitulosLibrosController {
     try {
       return this.capitulosLibrosService.findByAutor(autor);
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al buscar capítulos por autor.');
     }
   }
@@ -148,6 +154,7 @@ export class CapitulosLibrosController {
       }
       return this.capitulosLibrosService.findById(id);
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al buscar el capítulo por ID.');
     }
   }
@@ -159,10 +166,28 @@ export class CapitulosLibrosController {
   @ApiResponse({ status: 200, description: 'Actualiza un capítulo por su ID.', type: CapituloLibro })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() capitulo: Partial<CapituloLibro>): Promise<CapituloLibro> {
+  async update(
+    @Param('id') id: string,
+    @Body() capitulo: Partial<CapituloLibro>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<CapituloLibro> {
     try {
-      return this.capitulosLibrosService.update(id, capitulo);
+
+      const fecha = new Date();
+      // Actualizar el libro
+      const capituloActualizado = await this.capitulosLibrosService.update(id, capitulo);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return capituloActualizado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el capítulo.');
     }
   }
@@ -173,16 +198,44 @@ export class CapitulosLibrosController {
   @ApiResponse({ status: 200, description: 'Elimina un capítulo por su ID.', type: CapituloLibro })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<CapituloLibro> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<CapituloLibro> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.capitulosLibrosService.delete(id);
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Eliminar el capítulo
+      const capituloEliminado = await this.capitulosLibrosService.delete(id);
+      if (!capituloEliminado) {
+        throw new BadRequestException('Capítulo no encontrado');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+
+      return capituloEliminado;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el capítulo:', error.message);
       throw new InternalServerErrorException('Error al eliminar el capítulo.');
     }
   }
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un capítulo de libro con archivo de PDF' })
@@ -224,7 +277,8 @@ export class CapitulosLibrosController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() capituloData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<CapituloLibro> {
     try {
       if (!file) {
@@ -233,6 +287,8 @@ export class CapitulosLibrosController {
       if (!capituloData || !capituloData.titulo_capitulo || !capituloData.anio_publicacion || !capituloData.autores) {
         throw new BadRequestException('Faltan datos obligatorios del capítulo');
       }
+
+      const fecha = new Date();
 
       const autoresArray = typeof capituloData.autores === 'string'
         ? capituloData.autores.split(',').map((autor: string) => autor.trim())
@@ -259,8 +315,19 @@ export class CapitulosLibrosController {
         direccion_archivo: procesado.path,
       };
 
-      return this.capitulosLibrosService.create(nuevoCapitulo as CapituloLibro);
+      const capituloCreado = await this.capitulosLibrosService.create(nuevoCapitulo as CapituloLibro);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  capituloCreado.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return capituloCreado;
+
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el capítulo.');
     }
   }
@@ -271,25 +338,44 @@ export class CapitulosLibrosController {
   @ApiResponse({ status: 201, description: 'Crea un capítulo sin archivo de carga.', type: CapituloLibro })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() capitulo: CapituloLibro): Promise<CapituloLibro> {
+  async createWithoutFile(
+    @Body() capituloData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<CapituloLibro> {
     try {
-      if (!capitulo) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!capituloData || !capituloData.titulo_capitulo || !capituloData.anio_publicacion || !capituloData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del capítulo');
       }
 
+      const fecha = new Date();
+
+      const autoresArray = typeof capituloData.autores === 'string'
+        ? capituloData.autores.split(',').map((autor: string) => autor.trim())
+        : capituloData.autores;
+
       const nuevoCapitulo: Partial<CapituloLibro> = {
-        numero_identificacion: capitulo.numero_identificacion,
-        titulo_libro: capitulo.titulo_libro,
-        titulo_capitulo: capitulo.titulo_capitulo,
-        anio_publicacion: capitulo.anio_publicacion,
-        autores: capitulo.autores,
-        editorial: capitulo.editorial,
-        editores: capitulo.editores,
-        link_pdf: capitulo.link_pdf,
+        numero_identificacion: capituloData.numero_identificacion,
+        titulo_libro: capituloData.titulo_libro,
+        titulo_capitulo: capituloData.titulo_capitulo,
+        anio_publicacion: parseInt(capituloData.anio_publicacion, 10),
+        autores: autoresArray,
+        editorial: capituloData.editorial,
+        editores: capituloData.editores,
+        link_pdf: capituloData.link_pdf
       };
 
-      return this.capitulosLibrosService.create(nuevoCapitulo as CapituloLibro);
+      const capituloCreado = await this.capitulosLibrosService.create(nuevoCapitulo as CapituloLibro);
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  capituloCreado.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return capituloCreado;
     } catch (error) {
+      console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el capítulo sin archivo.');
     }
   }

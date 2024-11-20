@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException ,Headers} from '@nestjs/common';
 import { ArticulosRevistasService } from 'src/services/articulos-revistas/articulos-revistas.service';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody, getSchemaPath } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody, ApiHeader} from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { ArticuloRevistaResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -18,6 +19,7 @@ export class ArticulosRevistasController {
   constructor(
     private readonly articulosRevistasService: ArticulosRevistasService,
     private readonly searchService: SearchService,
+    private readonly logsService: LogsService,
     private readonly fileUploadService: FileUploadService
   ) {}
 
@@ -53,6 +55,7 @@ export class ArticulosRevistasController {
         anio,
       );
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al obtener los artículos de revistas.');
     }
   }
@@ -103,6 +106,7 @@ export class ArticulosRevistasController {
       );
       return results;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de artículos de revistas.');
     }
   }
@@ -117,6 +121,7 @@ export class ArticulosRevistasController {
     try {
       return this.articulosRevistasService.findByTitulo(titulo);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar artículos por título.');
     }
   }
@@ -131,6 +136,7 @@ export class ArticulosRevistasController {
     try {
       return this.articulosRevistasService.findByAutor(autor);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar artículos por autor.');
     }
   }
@@ -148,6 +154,7 @@ export class ArticulosRevistasController {
       }
       return this.articulosRevistasService.findById(id);
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al buscar el artículo por ID.');
     }
   }
@@ -159,10 +166,27 @@ export class ArticulosRevistasController {
   @ApiResponse({ status: 200, description: 'Actualiza un artículo por su ID.', type: ArticuloRevista })
   @ApiResponse({ status: 400, description: 'Datos inválidos o ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async update(@Param('id') id: string, @Body() articulo: Partial<ArticuloRevista>): Promise<ArticuloRevista> {
+  async update(
+    @Param('id') id: string, 
+    @Body() articulo: Partial<ArticuloRevista>,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<ArticuloRevista> {
     try {
-      return this.articulosRevistasService.update(id, articulo);
+      const fecha = new Date();
+      // Actualizar el libro
+      const articuloActualizado = await this.articulosRevistasService.update(id, articulo);
+
+      // Registrar el log de la acción
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,  // Usamos el ID del libro que se está actualizando
+        accion: 'Actualización documento',
+        fecha: fecha,
+      });
+
+      return articuloActualizado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al actualizar el artículo.');
     }
   }
@@ -171,18 +195,45 @@ export class ArticulosRevistasController {
   @ApiOperation({ summary: 'Eliminar un artículo por su ID' })
   @ApiParam({ name: 'id', description: 'ID del artículo a eliminar', example: '6716be4bbd17f2acd13f7308' })
   @ApiResponse({ status: 200, description: 'Elimina un artículo por su ID.', type: ArticuloRevista })
-  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 400, description: 'ID no válido o usuario no proporcionado' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(@Param('id') id: string): Promise<ArticuloRevista> {
+  async delete(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<ArticuloRevista> {
     try {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      return this.articulosRevistasService.delete(id);
+      
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+  
+      const articuloEliminado = await this.articulosRevistasService.delete(id);
+      if (!articuloEliminado) {
+        throw new BadRequestException('Artículo no encontrado');
+      }
+  
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación documento',
+        fecha: fecha,
+      });
+  
+      return articuloEliminado;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al eliminar el artículo:', error.message);
       throw new InternalServerErrorException('Error al eliminar el artículo.');
     }
   }
+  
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un artículo con archivo de PDF' })
@@ -220,7 +271,8 @@ export class ArticulosRevistasController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async create(
     @Body() articuloData: any,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('x-usuario-id') usuarioId: string
   ): Promise<ArticuloRevista> {
     try {
       if (!file) {
@@ -229,7 +281,7 @@ export class ArticulosRevistasController {
       if (!articuloData || !articuloData.titulo || !articuloData.anio_revista || !articuloData.autores) {
         throw new BadRequestException('Faltan datos obligatorios del artículo');
       }
-
+      const fecha = new Date();
       const autoresArray = typeof articuloData.autores === 'string'
         ? articuloData.autores.split(',').map((autor: string) => autor.trim())
         : articuloData.autores;
@@ -255,8 +307,18 @@ export class ArticulosRevistasController {
         direccion_archivo: procesado.path,
       };
 
-      return this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista);
+      const articuloCreado = await this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista)
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  articuloCreado.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return articuloCreado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear el artículo.');
     }
   }
@@ -267,25 +329,43 @@ export class ArticulosRevistasController {
   @ApiResponse({ status: 201, description: 'Crea un artículo sin archivo de carga.', type: ArticuloRevista })
   @ApiResponse({ status: 400, description: 'Faltan datos necesarios' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async createWithoutFile(@Body() articulo: ArticuloRevista): Promise<ArticuloRevista> {
+  async createWithoutFile(
+    @Body() articuloData: any,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<ArticuloRevista> {
     try {
-      if (!articulo) {
-        throw new BadRequestException('Faltan datos necesarios');
+      if (!articuloData || !articuloData.titulo || !articuloData.anio_revista || !articuloData.autores) {
+        throw new BadRequestException('Faltan datos obligatorios del artículo');
       }
+      const fecha = new Date();
+
+      const autoresArray = typeof articuloData.autores === 'string'
+      ? articuloData.autores.split(',').map((autor: string) => autor.trim())
+      : articuloData.autores;
 
       const nuevoArticulo: Partial<ArticuloRevista> = {
-        numero_articulo: articulo.numero_articulo,
-        titulo: articulo.titulo,
-        anio_revista: articulo.anio_revista,
-        autores: articulo.autores,
-        nombre_revista: articulo.nombre_revista,
-        editorial: articulo.editorial,
-        abstract: articulo.abstract,
-        link_pdf: articulo.link_pdf,
+        numero_articulo: articuloData.numero_articulo,
+        titulo: articuloData.titulo,
+        anio_revista: parseInt(articuloData.anio_revista, 10),
+        autores: autoresArray,
+        nombre_revista: articuloData.nombre_revista,
+        editorial: articuloData.editorial,
+        abstract: articuloData.abstract,
+        link_pdf: articuloData.link_pdf,
       };
 
-      return this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista);
+      const articuloCreado = await this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista)
+
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento:  articuloCreado.id, // Usamos el ID del usuario retornado
+        accion: 'Creacion documento',
+        fecha: fecha,
+      });
+
+      return articuloCreado;
     } catch (error) {
+      console.error(error.message);
       throw new InternalServerErrorException('Error al crear el artículo sin archivo.');
     }
   }

@@ -364,5 +364,19 @@ export class PoliciesBriefsController {
       throw new InternalServerErrorException('Error al crear el documento Policy Brief sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los documentos Policy Briefs eliminados' })
+  @ApiResponse({ status: 200, description: 'Documentos Policy Briefs eliminados obtenidos correctamente', type: PolicyBrief, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<PolicyBrief[]> {
+    try {
+      return await this.policiesBriefsService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los documentos Policy Briefs eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los documentos Policy Briefs eliminados.');
+    }
+  }
+
 }
   

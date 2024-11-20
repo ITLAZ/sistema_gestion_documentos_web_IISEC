@@ -104,4 +104,9 @@ export class IdeasReflexionesService {
       );
     }
   }
+
+  async findDeleted(): Promise<IdeaReflexion[]> {
+    return this.IdeaReflexionModel.find({ eliminado: true }).exec();
+  }
+  
 }

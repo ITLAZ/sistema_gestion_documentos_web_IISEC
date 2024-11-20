@@ -365,4 +365,18 @@ export class InfoIisecController {
       throw new InternalServerErrorException('Error al crear el documento Info IISEC sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los documentos Info IISEC eliminados' })
+  @ApiResponse({ status: 200, description: 'Documentos Info IISEC eliminados obtenidos correctamente', type: InfoIISEC, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<InfoIISEC[]> {
+    try {
+      return await this.infoIisecService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los documentos Info IISEC eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los documentos Info IISEC eliminados.');
+    }
+  }
+
 }

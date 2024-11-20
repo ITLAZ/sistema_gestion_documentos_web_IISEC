@@ -9,9 +9,13 @@ export class UsuariosService {
   constructor(@InjectModel(Usuario.name) private UsuarioModel: Model<Usuario>) {}
 
   async create(usuarioDto: Partial<Usuario>): Promise<Usuario> {
-    const nuevoUsuario = new this.UsuarioModel(usuarioDto);
+    const nuevoUsuario = new this.UsuarioModel({
+      ...usuarioDto,
+      admin: usuarioDto.admin ?? false, // Si no se proporciona, se establece como `false`
+    });
     return nuevoUsuario.save();
   }
+  
 
   async validatePassword(usuario: string, plainPassword: string): Promise<boolean> {
     const user = await this.UsuarioModel.findOne({ usuario });

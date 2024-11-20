@@ -240,7 +240,7 @@ db.createCollection("Usuarios", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["usuario","nombre", "contrasenia", "theme"],
+      required: ["usuario","nombre", "contrasenia", "theme", "admin"],
       properties: {
         usuario: {
           bsonType: "string",
@@ -258,6 +258,10 @@ db.createCollection("Usuarios", {
           bsonType: "int",
           description: "Debe ser el codigo del tema que estan utilizando en su perfil"
         },
+        admin: {
+          bsonType: "bool",
+          description: "Indica si tiene permisos de administrador"
+        }
       }
     }
   }

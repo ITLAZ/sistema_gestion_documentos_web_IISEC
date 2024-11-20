@@ -34,6 +34,13 @@ export class Usuario extends Document {
   @Prop({ required: true })
   theme: number;
 
+  @ApiProperty({
+    example: false,
+    description: 'Indica si el usuario tiene permisos de administrador',
+  })
+  @Prop({ required: true, default: false }) 
+  admin: boolean;
+
   async compararContrasenia(plainPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, this.contrasenia);
   }

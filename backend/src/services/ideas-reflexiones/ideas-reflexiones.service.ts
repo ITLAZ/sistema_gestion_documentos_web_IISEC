@@ -98,7 +98,8 @@ export class IdeasReflexionesService {
           titulo: idea.titulo,              // Campo para búsquedas
           autores: idea.autores,            // Campo para búsquedas
           anio_publicacion: idea.anio_publicacion, // Campo para filtros o búsquedas
-          observaciones: idea.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+          observaciones: idea.observaciones,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: idea.eliminado,
         }
       );
     }

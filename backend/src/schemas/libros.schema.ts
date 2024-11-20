@@ -6,7 +6,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class Libro extends Document {
 
   @ApiProperty({ example: 'http://example.com/portada.jpg', description: 'URL de la portada del libro', required: true })
-  @Prop({ required: true, trim: true })
+  @Prop({ trim: true })
   portada: string;
 
   @ApiProperty({ example: 2023, description: 'Año de publicación del libro', required: true })
@@ -36,6 +36,10 @@ export class Libro extends Document {
   @ApiProperty({ example: '/path/to/file', description: 'Dirección física del archivo PDF', required: false })
   @Prop({ trim: true })
   direccion_archivo: string;
+
+  @ApiProperty({ example: 'false', description: 'Estado del documento(eliminado o no)', required: true })
+  @Prop({ trim: true })
+  eliminado: boolean;
 }
 
 export const LibroSchema = SchemaFactory.createForClass(Libro);

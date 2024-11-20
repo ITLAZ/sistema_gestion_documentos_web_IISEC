@@ -93,4 +93,9 @@ export class DocumentosTrabajoService {
       );
     }
   }
+
+  async findDeleted(): Promise<DocumentoTrabajo[]> {
+    return this.DocumentoTrabajoModel.find({ eliminado: true }).exec();
+  }
+  
 }

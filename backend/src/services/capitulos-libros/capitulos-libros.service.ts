@@ -95,4 +95,9 @@ export class CapitulosLibrosService {
       );
     }
   }
+
+  async findDeleted(): Promise<CapituloLibro[]> {
+    return this.CapituloLibroModel.find({ eliminado: true }).exec();
+  }
+  
 }

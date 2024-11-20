@@ -369,4 +369,18 @@ export class ArticulosRevistasController {
       throw new InternalServerErrorException('Error al crear el artículo sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los artículos de revistas eliminados' })
+  @ApiResponse({ status: 200, description: 'Artículos eliminados obtenidos correctamente', type: ArticuloRevista, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<ArticuloRevista[]> {
+    try {
+      return await this.articulosRevistasService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los artículos eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los artículos eliminados.');
+    }
+  }
+
 }

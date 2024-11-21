@@ -4,7 +4,15 @@ import { getUserById } from './user_services.js';
 
 export async function loadNavbar() {
     try {
-        // Obtener el ID del usuario desde la cookie antes de cargar el menú
+        // Cargar el menú de navegación
+        const response = await fetch('/components/menu_navegacion.html');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.text();
+        document.getElementById('menu-container').innerHTML = data;
+
+        // Obtener el ID del usuario desde la cookie
         const idUsuario = getCookie('id_usuario');
 
         if (!idUsuario) {
@@ -18,37 +26,27 @@ export async function loadNavbar() {
 
             // Verificar si el usuario está activo
             if (!user.activo) {
-                // Redirigir al login y detener la carga de contenido
-                window.location.href = '/login';
-                alert('La cuenta no esta activa. Contacte con un adminsitrador.');
+                alert('La cuenta no está activa. Contacte con un administrador.');
+                window.location.href = '/login'; // Redirigir al login
                 return;
             }
+
+            // Mostrar u ocultar opciones del admin en el menú
+            const usuariosOption = document.querySelector('.navbar-links li a[href="/usuarios"]').parentElement;
+            const restoreOption = document.querySelector('.navbar-links li a[href="/restore"]').parentElement;
+
+            if (user.admin) {
+                usuariosOption.style.display = 'list-item';
+                restoreOption.style.display = 'list-item';
+            } else {
+                usuariosOption.style.display = 'none';
+                restoreOption.style.display = 'none';
+            }
+
         } catch (error) {
             console.error('Error al verificar el estado del usuario:', error);
             alert('Hubo un problema al verificar tu cuenta. Intenta más tarde.');
             window.location.href = '/login';
-            return; // Detener la ejecución
-        }
-
-        // Si todo está bien, cargar el menú de navegación
-        const response = await fetch('/components/menu_navegacion.html');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.text();
-        document.getElementById('menu-container').innerHTML = data;
-
-        // Mostrar u ocultar opciones del admin en el menú
-        const user = await getUserById(idUsuario); // Obtener los datos del usuario nuevamente
-        const usuariosOption = document.querySelector('.navbar-links li a[href="/usuarios"]').parentElement;
-        const restoreOption = document.querySelector('.navbar-links li a[href="/restore"]').parentElement;
-
-        if (user.admin) {
-            usuariosOption.style.display = 'list-item';
-            restoreOption.style.display = 'list-item';
-        } else {
-            usuariosOption.style.display = 'none';
-            restoreOption.style.display = 'none';
         }
 
         // Añadir evento de logout después de cargar el menú

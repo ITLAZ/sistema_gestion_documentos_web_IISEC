@@ -89,7 +89,26 @@ export class UsuariosService {
   }
   
 
-  async findAll2(): Promise<Usuario[]> {
-    return this.UsuarioModel.find().exec();
+  async toggleActivo(id: string): Promise<Usuario> {
+    try {
+        // Busca el usuario por ID
+        const usuario = await this.UsuarioModel.findById(id);
+        if (!usuario) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        // Cambia el valor de `activo`
+        const nuevoEstado = !usuario.activo;
+
+        // Actualiza el documento en la base de datos
+        usuario.activo = nuevoEstado;
+        await usuario.save();
+
+        return usuario;
+    } catch (error) {
+        console.error('Error en toggleActivo:', error);
+        throw error;
+    }
   }
+  
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Usuario } from 'src/schemas/usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
@@ -226,16 +226,31 @@ export class UsuariosController {
         }
     }
 
-    @Get('findAll')
-    @ApiOperation({ summary: 'Obtener lista de usuarios con filtrado opcional' })
-    @ApiQuery({ name: 'activo', required: false, type: Boolean, description: 'Filtrar por estado activo (true o false)' })
+    @Patch('activar/:id')
+    @ApiOperation({ summary: 'Cambiar el estado activo de un usuario' })
+    @ApiParam({
+        name: 'id',
+        description: 'ID del usuario cuyo estado se quiere cambiar',
+        type: String,
+    })
     @ApiResponse({
         status: 200,
-        description: 'Datos del usuario recuperados exitosamente',
+        description: 'Estado activo del usuario cambiado exitosamente',
         type: Usuario,
     })
-    @ApiResponse({ status: 400, description: 'Filtro activo inválido' })
-    async findAll(): Promise<Usuario[]> {
-        return await this.usuariosService.findAll();
+    @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+    @ApiResponse({ status: 500, description: 'Error al cambiar el estado activo del usuario' })
+    async toggleActivo(@Param('id') id: string): Promise<Usuario> {
+        try {
+            const updatedUser = await this.usuariosService.toggleActivo(id);
+            return updatedUser;
+        } catch (error) {
+            console.error('Error en toggleActivo:', error); // Log del error
+            if (error.message === 'Usuario no encontrado') {
+                throw new NotFoundException('Usuario no encontrado');
+            }
+            throw new InternalServerErrorException('Error al cambiar el estado activo del usuario');
+        }
     }
+
 }

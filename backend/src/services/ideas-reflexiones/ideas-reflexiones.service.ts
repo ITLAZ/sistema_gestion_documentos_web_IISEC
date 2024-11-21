@@ -81,9 +81,17 @@ export class IdeasReflexionesService {
     }).exec();
   }
 
-  // Eliminar un IdeaReflexion por su id
+  // Cambiar estado a eliminado lógico
   async delete(id: string): Promise<IdeaReflexion> {
-    return this.IdeaReflexionModel.findByIdAndDelete(id).exec();
+    const ideaReflexion = await this.IdeaReflexionModel.findById(id);
+
+    if (!ideaReflexion) {
+      throw new Error('Idea o reflexión no encontrada');
+    }
+
+    ideaReflexion.eliminado = false;
+
+    return ideaReflexion.save();
   }
 
   //Metodos ElasticSearch

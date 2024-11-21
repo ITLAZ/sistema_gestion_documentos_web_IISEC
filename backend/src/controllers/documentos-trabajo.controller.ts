@@ -192,13 +192,13 @@ export class DocumentosTrabajoController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un documento de trabajo por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del documento a eliminar', example: '6716be60bd17f2acd13f7b5d' })
-  @ApiResponse({ status: 200, description: 'Elimina un documento por su ID.', type: DocumentoTrabajo })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de un documento por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del documento a eliminar lógicamente', example: '6716be60bd17f2acd13f7b5d' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente un documento por su ID.', type: DocumentoTrabajo })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<DocumentoTrabajo> {
@@ -211,18 +211,14 @@ export class DocumentosTrabajoController {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
 
-      // Eliminar el documento
       const documentoEliminado = await this.documentosTrabajoService.delete(id);
-      if (!documentoEliminado) {
-        throw new BadRequestException('Documento no encontrado');
-      }
 
       // Registrar el log de la acción
       const fecha = new Date();
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
 
@@ -231,8 +227,8 @@ export class DocumentosTrabajoController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar el documento:', error.message);
-      throw new InternalServerErrorException('Error al eliminar el documento.');
+      console.error('Error al realizar la eliminación lógica del documento:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica del documento.');
     }
   }
 

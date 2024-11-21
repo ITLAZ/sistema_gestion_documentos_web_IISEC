@@ -192,13 +192,13 @@ export class CapitulosLibrosController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un capítulo por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del capítulo a eliminar', example: '6716be59bd17f2acd13f76d5' })
-  @ApiResponse({ status: 200, description: 'Elimina un capítulo por su ID.', type: CapituloLibro })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de un capítulo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del capítulo a eliminar lógicamente', example: '6716be59bd17f2acd13f76d5' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente un capítulo por su ID.', type: CapituloLibro })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<CapituloLibro> {
@@ -211,18 +211,14 @@ export class CapitulosLibrosController {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
 
-      // Eliminar el capítulo
       const capituloEliminado = await this.capitulosLibrosService.delete(id);
-      if (!capituloEliminado) {
-        throw new BadRequestException('Capítulo no encontrado');
-      }
 
       // Registrar el log de la acción
       const fecha = new Date();
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
 
@@ -231,8 +227,8 @@ export class CapitulosLibrosController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar el capítulo:', error.message);
-      throw new InternalServerErrorException('Error al eliminar el capítulo.');
+      console.error('Error al realizar la eliminación lógica del capítulo:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica del capítulo.');
     }
   }
 

@@ -70,9 +70,17 @@ export class DocumentosTrabajoService {
     return this.DocumentoTrabajoModel.findOneAndUpdate({ _id: id }, DocumentoTrabajo, { new: true }).exec();
   }
 
-  // Eliminar un DocumentoTrabajo por su id
+  // Eliminado lógico
   async delete(id: string): Promise<DocumentoTrabajo> {
-    return this.DocumentoTrabajoModel.findByIdAndDelete(id).exec();
+    const documento = await this.DocumentoTrabajoModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento no encontrado');
+    }
+
+    documento.eliminado = false;
+
+    return documento.save();
   }
 
   //Metodos ElasticSearch

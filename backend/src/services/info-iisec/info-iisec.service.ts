@@ -76,9 +76,16 @@ export class InfoIisecService {
     }).exec();
   }
 
-  // Eliminar un InfoIISEC por su id
+  // Cambiar estado a eliminado lógico
   async delete(id: string): Promise<InfoIISEC> {
-    return this.InfoIISECModel.findByIdAndDelete(id).exec();
+    const documento = await this.InfoIISECModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Info IISEC no encontrado');
+    }
+
+    documento.eliminado = false;
+    return documento.save();
   }
 
   //Metodos ElasticSearch

@@ -191,13 +191,13 @@ export class ArticulosRevistasController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un artículo por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del artículo a eliminar', example: '6716be4bbd17f2acd13f7308' })
-  @ApiResponse({ status: 200, description: 'Elimina un artículo por su ID.', type: ArticuloRevista })
-  @ApiResponse({ status: 400, description: 'ID no válido o usuario no proporcionado' })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de un artículo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del artículo a eliminar lógicamente', example: '6716be4bbd17f2acd13f7308' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente un artículo por su ID.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<ArticuloRevista> {
@@ -205,31 +205,29 @@ export class ArticulosRevistasController {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      
+
       if (!usuarioId) {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
-  
+
       const articuloEliminado = await this.articulosRevistasService.delete(id);
-      if (!articuloEliminado) {
-        throw new BadRequestException('Artículo no encontrado');
-      }
-  
+
+      // Registrar el log de la acción
       const fecha = new Date();
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
-  
+
       return articuloEliminado;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar el artículo:', error.message);
-      throw new InternalServerErrorException('Error al eliminar el artículo.');
+      console.error('Error al realizar la eliminación lógica del artículo:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica del artículo.');
     }
   }
   

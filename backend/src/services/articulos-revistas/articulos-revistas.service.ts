@@ -66,8 +66,17 @@ export class ArticulosRevistasService {
     return this.articuloRevistaModel.findOneAndUpdate({ _id: id }, ArticuloRevista, { new: true }).exec();
   }
 
+  // Eliminado lógico
   async delete(id: string): Promise<ArticuloRevista> {
-    return this.articuloRevistaModel.findByIdAndDelete(id).exec();
+    const articulo = await this.articuloRevistaModel.findById(id);
+
+    if (!articulo) {
+      throw new Error('Artículo no encontrado');
+    }
+
+    articulo.eliminado = false;
+
+    return articulo.save();
   }
 
   async syncArticulosWithElasticsearch() {

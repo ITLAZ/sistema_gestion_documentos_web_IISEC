@@ -71,8 +71,8 @@ export async function getDocumentById(documentType, id) {
 
 export async function deleteDocumentById(documentType, id, usuarioId) {
     try {
-        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
-            method: 'DELETE',
+        const response = await fetch(`http://localhost:3000/${documentType}/eliminar-logico/${id}`, {
+            method: 'PUT',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },

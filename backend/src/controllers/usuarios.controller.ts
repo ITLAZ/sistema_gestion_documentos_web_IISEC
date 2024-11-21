@@ -1,10 +1,10 @@
-import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Usuario } from 'src/schemas/usuarios.schema';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import { UsuariosService } from 'src/services/usuarios/usuarios.service';
 
-@ApiTags('Usuarios') 
+@ApiTags('usuarios') 
 @Controller('usuarios')
 export class UsuariosController {
     constructor(
@@ -21,7 +21,9 @@ export class UsuariosController {
                 usuario: 'jdoe',
                 nombre: 'John Doe',
                 contrasenia: 'password123',
-                theme: 1
+                theme: 1,
+                admin: false,
+                activo: true
             }
         }
     })
@@ -126,7 +128,7 @@ export class UsuariosController {
     }
 
     // Endpoint para obtener un usuario por su id
-    @Get(':id_usuario')
+    @Get('getById/:id_usuario')
     @ApiOperation({ summary: 'Obtener usuario por ID' })
     @ApiParam({
         name: 'id_usuario',
@@ -195,4 +197,60 @@ export class UsuariosController {
         throw new InternalServerErrorException('Error al actualizar el theme');   
       }
     }
+
+    // Endpoint para obtener un usuario por su id
+    @Get('getAll')
+    @ApiOperation({ summary: 'Obtener lista de usuarios con filtrado opcional' })
+    @ApiQuery({ name: 'activo', required: false, type: Boolean, description: 'Filtrar por estado activo (true o false)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Datos del usuario recuperados exitosamente',
+        type: Usuario,
+    })
+    @ApiResponse({ status: 400, description: 'Filtro activo inválido' })
+    @ApiResponse({ status: 500, description: 'Error al obtener los usuarios' })
+    async getAllUser(@Query('activo') activo?: string): Promise<Usuario[]> {
+        try {
+            console.log('Parámetro activo recibido:', activo); // Log para depurar
+            if (activo !== undefined && activo !== 'true' && activo !== 'false') {
+                throw new BadRequestException('El parámetro "activo" debe ser "true" o "false".');
+            }
+            const isActive = activo !== undefined ? activo === 'true' : undefined;
+            return await this.usuariosService.getAllUsers(isActive);
+        } catch (error) {
+            console.error('Error en getAllUser:', error); // Log del error
+            if (error instanceof BadRequestException) {
+                throw new BadRequestException(error.message);
+            }
+            throw new InternalServerErrorException(error.message);
+        }
+    }
+
+    @Patch('activar/:id')
+    @ApiOperation({ summary: 'Cambiar el estado activo de un usuario' })
+    @ApiParam({
+        name: 'id',
+        description: 'ID del usuario cuyo estado se quiere cambiar',
+        type: String,
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Estado activo del usuario cambiado exitosamente',
+        type: Usuario,
+    })
+    @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+    @ApiResponse({ status: 500, description: 'Error al cambiar el estado activo del usuario' })
+    async toggleActivo(@Param('id') id: string): Promise<Usuario> {
+        try {
+            const updatedUser = await this.usuariosService.toggleActivo(id);
+            return updatedUser;
+        } catch (error) {
+            console.error('Error en toggleActivo:', error); // Log del error
+            if (error.message === 'Usuario no encontrado') {
+                throw new NotFoundException('Usuario no encontrado');
+            }
+            throw new InternalServerErrorException('Error al cambiar el estado activo del usuario');
+        }
+    }
+
 }

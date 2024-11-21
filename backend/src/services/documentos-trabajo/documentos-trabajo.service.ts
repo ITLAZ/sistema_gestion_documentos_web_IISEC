@@ -70,10 +70,31 @@ export class DocumentosTrabajoService {
     return this.DocumentoTrabajoModel.findOneAndUpdate({ _id: id }, DocumentoTrabajo, { new: true }).exec();
   }
 
-  // Eliminar un DocumentoTrabajo por su id
+  // Eliminado lógico
   async delete(id: string): Promise<DocumentoTrabajo> {
-    return this.DocumentoTrabajoModel.findByIdAndDelete(id).exec();
+    const documento = await this.DocumentoTrabajoModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento no encontrado');
+    }
+
+    documento.eliminado = true;
+
+    return documento.save();
   }
+
+  // Restaurar un Documento de Trabajo por su ID
+  async restore(id: string): Promise<DocumentoTrabajo> {
+    const documento = await this.DocumentoTrabajoModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento de Trabajo no encontrado');
+    }
+
+    documento.eliminado = false; // Cambia el estado de eliminado
+    return documento.save();
+  }
+
 
   //Metodos ElasticSearch
   async syncDocumentosWithElasticsearch() {
@@ -93,4 +114,9 @@ export class DocumentosTrabajoService {
       );
     }
   }
+
+  async findDeleted(): Promise<DocumentoTrabajo[]> {
+    return this.DocumentoTrabajoModel.find({ eliminado: true }).exec();
+  }
+  
 }

@@ -232,6 +232,51 @@ export class CapitulosLibrosController {
     }
   }
 
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un capítulo de libro eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del capítulo a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Capítulo restaurado exitosamente.', type: CapituloLibro })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<CapituloLibro> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el capítulo (cambiar eliminado a false)
+      const capituloRestaurado = await this.capitulosLibrosService.restore(id);
+      if (!capituloRestaurado) {
+        throw new BadRequestException('Capítulo no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return capituloRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el capítulo de libro:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el capítulo de libro.');
+    }
+  }
+
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un capítulo de libro con archivo de PDF' })

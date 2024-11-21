@@ -84,9 +84,22 @@ export class InfoIisecService {
       throw new Error('Documento Info IISEC no encontrado');
     }
 
-    documento.eliminado = false;
+    documento.eliminado = true;
     return documento.save();
   }
+
+  // Restaurar un Documento Info IISEC por su ID
+  async restore(id: string): Promise<InfoIISEC> {
+    const documento = await this.InfoIISECModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Info IISEC no encontrado');
+    }
+
+    documento.eliminado = false; // Cambiar el estado de eliminado a falso
+    return documento.save();
+  }
+
 
   //Metodos ElasticSearch
   async syncInfoIisecWithElasticsearch() {

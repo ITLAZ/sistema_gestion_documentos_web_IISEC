@@ -78,10 +78,23 @@ export class DocumentosTrabajoService {
       throw new Error('Documento no encontrado');
     }
 
-    documento.eliminado = false;
+    documento.eliminado = true;
 
     return documento.save();
   }
+
+  // Restaurar un Documento de Trabajo por su ID
+  async restore(id: string): Promise<DocumentoTrabajo> {
+    const documento = await this.DocumentoTrabajoModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento de Trabajo no encontrado');
+    }
+
+    documento.eliminado = false; // Cambia el estado de eliminado
+    return documento.save();
+  }
+
 
   //Metodos ElasticSearch
   async syncDocumentosWithElasticsearch() {

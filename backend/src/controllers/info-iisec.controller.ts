@@ -198,6 +198,49 @@ export class InfoIisecController {
     }
   }
 
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un documento Info IISEC eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del documento Info IISEC a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Documento Info IISEC restaurado exitosamente.', type: InfoIISEC })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<InfoIISEC> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el documento Info IISEC (cambiar eliminado a false)
+      const documentoRestaurado = await this.infoIisecService.restore(id);
+      if (!documentoRestaurado) {
+        throw new BadRequestException('Documento Info IISEC no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return documentoRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el documento Info IISEC:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el documento Info IISEC.');
+    }
+  }
 
 
   @Put(':id')

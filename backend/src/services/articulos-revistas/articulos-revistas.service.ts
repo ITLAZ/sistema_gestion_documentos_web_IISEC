@@ -74,10 +74,23 @@ export class ArticulosRevistasService {
       throw new Error('Artículo no encontrado');
     }
 
-    articulo.eliminado = false;
+    articulo.eliminado = true;
 
     return articulo.save();
   }
+
+  // Restaurar un Artículo de Revista por su ID
+  async restore(id: string): Promise<ArticuloRevista> {
+    const articulo = await this.articuloRevistaModel.findById(id);
+
+    if (!articulo) {
+      throw new Error('Artículo de Revista no encontrado');
+    }
+
+    articulo.eliminado = false;
+    return articulo.save();
+  }
+
 
   async syncArticulosWithElasticsearch() {
     const articulos = await this.articuloRevistaModel.find().exec();

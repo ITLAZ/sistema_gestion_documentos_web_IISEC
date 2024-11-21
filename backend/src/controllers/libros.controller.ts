@@ -248,6 +248,50 @@ export class LibrosController {
     }
   }
 
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un libro eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del libro a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Libro restaurado exitosamente.', type: Libro })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<Libro> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el libro (cambiar eliminado a false)
+      const libroRestaurado = await this.librosService.restore(id);
+      if (!libroRestaurado) {
+        throw new BadRequestException('Libro no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return libroRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el libro:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el libro.');
+    }
+  }
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un libro con archivo de PDF' })

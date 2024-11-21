@@ -232,6 +232,51 @@ export class DocumentosTrabajoController {
     }
   }
 
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un documento de trabajo eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del documento a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Documento restaurado exitosamente.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<DocumentoTrabajo> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el documento (cambiar eliminado a false)
+      const documentoRestaurado = await this.documentosTrabajoService.restore(id);
+      if (!documentoRestaurado) {
+        throw new BadRequestException('Documento no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return documentoRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el documento de trabajo:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el documento de trabajo.');
+    }
+  }
+
+
   @Post('upload')
   @ApiOperation({ summary: 'Crear un documento de trabajo con archivo de PDF' })
   @UseInterceptors(

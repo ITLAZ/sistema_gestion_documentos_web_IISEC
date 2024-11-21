@@ -89,9 +89,21 @@ export class IdeasReflexionesService {
       throw new Error('Idea o reflexión no encontrada');
     }
 
-    ideaReflexion.eliminado = false;
+    ideaReflexion.eliminado = true;
 
     return ideaReflexion.save();
+  }
+
+  // Restaurar una Idea o Reflexión por su ID
+  async restore(id: string): Promise<IdeaReflexion> {
+    const documento = await this.IdeaReflexionModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Idea o Reflexión no encontrada');
+    }
+
+    documento.eliminado = false; // Cambiar el estado de eliminado a falso
+    return documento.save();
   }
 
   //Metodos ElasticSearch

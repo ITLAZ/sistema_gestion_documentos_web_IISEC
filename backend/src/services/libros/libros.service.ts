@@ -120,10 +120,23 @@ export class LibrosService {
       throw new Error('Libro no encontrado');
     }
 
-    libro.eliminado = false;
+    libro.eliminado = true;
 
     return libro.save();
   }
+
+  // Restaurar un Libro por su ID
+  async restore(id: string): Promise<Libro> {
+    const libro = await this.libroModel.findById(id);
+
+    if (!libro) {
+      throw new Error('Libro no encontrado');
+    }
+
+    libro.eliminado = false; // Cambiar el estado de eliminado a falso
+    return libro.save();
+  }
+
 
   // Buscar libros eliminados
   async findDeleted(): Promise<Libro[]> {

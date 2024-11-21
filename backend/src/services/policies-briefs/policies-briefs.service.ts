@@ -78,9 +78,22 @@ export class PoliciesBriefsService {
       throw new Error('Documento Policy Brief no encontrado');
     }
 
+    documento.eliminado = true;
+    return documento.save();
+  }
+
+  // Restaurar un documento Policy Brief por su ID
+  async restore(id: string): Promise<PolicyBrief> {
+    const documento = await this.PolicyBriefModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Policy Brief no encontrado');
+    }
+
     documento.eliminado = false;
     return documento.save();
   }
+
 
   //Metodos ElasticSearch
   async syncPoliciesWithElasticsearch() {

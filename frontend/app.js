@@ -37,6 +37,10 @@ app.get('/edits', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates','editar.html'));
 });
 
+app.get('/usuarios', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','usuarios.html'));
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="../css/styles.css">
+    </noscript>
+
+</head>
+
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <div class="users-table">
+            <div class="input-group">
+                <button type="button" id="add-user-button">Añadir Usuario</button>
+            </div>
+            <div id="add-user-modal" class="modal"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const users = [
+            {
+                usuario: "user1",
+                nombre: "Juan Pérez",
+                contrasenia: "password123",
+                theme: 0,
+                admin: false
+            },
+            {
+                usuario: "user2",
+                nombre: "María Gómez",
+                contrasenia: "securepassword456",
+                theme: 0,
+                admin: false
+            },
+            {
+                usuario: "admin1",
+                nombre: "Administrador Principal",
+                contrasenia: "adminpassword789",
+                theme: 0,
+                admin: true
+            }
+        ];
+
+        const tbody = document.querySelector("tbody");
+        const addUserButton = document.getElementById("add-user-button");
+        const addUserModal = document.getElementById("add-user-modal");
+
+        // Crear la superposición para el modal
+        const modalOverlay = document.createElement("div");
+        modalOverlay.classList.add("modal-overlay");
+        document.body.appendChild(modalOverlay);
+
+        // Función para renderizar la tabla de usuarios
+        function renderUsers() {
+            tbody.innerHTML = "";
+            users.forEach((user, index) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                <td>${user.usuario}</td>
+                <td>${user.nombre}</td>
+                <td>${user.admin ? "Administrador" : "Usuario"}</td>
+                <td>
+                    <div class="input-group">
+                        <button type="button" class="del-user-button" data-index="${index}">Eliminar</button>
+                    </div>
+                </td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Mostrar el modal
+        addUserButton.addEventListener("click", () => {
+            addUserModal.classList.add("show");
+            modalOverlay.classList.add("show");
+            addUserModal.innerHTML = `
+            <h2>Añadir Usuario</h2>
+            <form id="add-user-form">
+                <label>
+                    Usuario:
+                    <input type="text" name="usuario" required>
+                </label>
+                <label>
+                    Nombre:
+                    <input type="text" name="nombre" required>
+                </label>
+                <label>
+                    Contraseña:
+                    <input type="password" name="contrasenia" required>
+                </label>
+                <label>
+                    ¿Administrador?
+                    <input type="checkbox" name="admin">
+                </label>
+                <button type="submit">Guardar</button>
+                <button type="button" id="cancel-add-user">Cancelar</button>
+            </form>
+        `;
+        });
+
+        // Cerrar el modal al hacer clic en "Cancelar" o en la superposición
+        modalOverlay.addEventListener("click", closeModal);
+        addUserModal.addEventListener("click", (e) => {
+            if (e.target.id === "cancel-add-user") {
+                closeModal();
+            }
+        });
+
+        // Manejar el envío del formulario
+        addUserModal.addEventListener("submit", (e) => {
+            if (e.target.id === "add-user-form") {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newUser = {
+                    usuario: formData.get("usuario"),
+                    nombre: formData.get("nombre"),
+                    contrasenia: formData.get("contrasenia"),
+                    theme: 0, // Valor predeterminado
+                    admin: formData.get("admin") === "on"
+                };
+                users.push(newUser);
+                closeModal();
+                renderUsers();
+            }
+        });
+
+        // Función para cerrar el modal
+        function closeModal() {
+            addUserModal.classList.remove("show");
+            modalOverlay.classList.remove("show");
+        }
+
+        // Renderizar usuarios iniciales
+        renderUsers();
+    });
+
+</script>
+<script src="../js/main.js" type="module"></script>
+
+</html>

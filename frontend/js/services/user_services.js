@@ -23,11 +23,5 @@ export async function getUserById(usuarioId) {
     }
 }
 
-//Función para Obtener id_usuario de la Cookie
-function getCookieValue(name) {
-    const cookieString = document.cookie
-        .split('; ')
-        .find(row => row.startsWith(name + '='));
-    
-    return cookieString ? cookieString.split('=')[1] : null;
-}
+
+

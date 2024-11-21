@@ -12,6 +12,7 @@ export class UsuariosService {
     const nuevoUsuario = new this.UsuarioModel({
       ...usuarioDto,
       admin: usuarioDto.admin ?? false, // Si no se proporciona, se establece como `false`
+      activo: usuarioDto.activo ?? true, // Si no se proporciona, se establece como `true`
     });
     return nuevoUsuario.save();
   }

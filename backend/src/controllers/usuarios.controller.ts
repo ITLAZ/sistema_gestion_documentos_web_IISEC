@@ -21,7 +21,9 @@ export class UsuariosController {
                 usuario: 'jdoe',
                 nombre: 'John Doe',
                 contrasenia: 'password123',
-                theme: 1
+                theme: 1,
+                admin: false,
+                activo: true
             }
         }
     })

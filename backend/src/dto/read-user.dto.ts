@@ -15,4 +15,7 @@ export class CreateLibroDto {
 
   @IsBoolean()
   admin: boolean; 
+
+  @IsBoolean()
+  activo: boolean;
 }

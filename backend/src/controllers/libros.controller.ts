@@ -394,4 +394,17 @@ export class LibrosController {
       throw new InternalServerErrorException('Error al crear el libro sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los libros eliminados' })
+  @ApiResponse({ status: 200, description: 'Libros eliminados obtenidos correctamente', type: Libro, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeletedBooks(): Promise<Libro[]> {
+    try {
+      return await this.librosService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los libros eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los libros eliminados.');
+    }
+  }
 }

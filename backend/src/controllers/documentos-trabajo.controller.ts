@@ -365,4 +365,18 @@ export class DocumentosTrabajoController {
       throw new InternalServerErrorException('Error al crear el documento sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los documentos de trabajo eliminados' })
+  @ApiResponse({ status: 200, description: 'Documentos eliminados obtenidos correctamente', type: DocumentoTrabajo, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<DocumentoTrabajo[]> {
+    try {
+      return await this.documentosTrabajoService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los documentos eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los documentos eliminados.');
+    }
+  }
+
 }

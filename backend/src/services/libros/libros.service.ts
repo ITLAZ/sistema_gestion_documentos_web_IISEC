@@ -117,6 +117,11 @@ export class LibrosService {
     return this.libroModel.findByIdAndDelete(id).exec();
   }
 
+  // Buscar libros eliminados
+  async findDeleted(): Promise<Libro[]> {
+    return this.libroModel.find({ eliminado: true }).exec();
+  }
+
 }
 
 

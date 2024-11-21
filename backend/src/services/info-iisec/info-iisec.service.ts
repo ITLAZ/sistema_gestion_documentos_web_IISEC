@@ -99,4 +99,9 @@ export class InfoIisecService {
       );
     }
   }
+
+  async findDeleted(): Promise<InfoIISEC[]> {
+    return this.InfoIISECModel.find({ eliminado: true }).exec();
+  }
+  
 }

@@ -89,6 +89,11 @@ export class ArticulosRevistasService {
     }
   }
 
+  async findDeleted(): Promise<ArticuloRevista[]> {
+    return this.articuloRevistaModel.find({ eliminado: true }).exec();
+  }
+  
+
 }
 
 

@@ -379,4 +379,18 @@ export class CapitulosLibrosController {
       throw new InternalServerErrorException('Error al crear el capítulo sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los capítulos de libros eliminados' })
+  @ApiResponse({ status: 200, description: 'Capítulos eliminados obtenidos correctamente', type: CapituloLibro, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<CapituloLibro[]> {
+    try {
+      return await this.capitulosLibrosService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los capítulos eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los capítulos eliminados.');
+    }
+  }
+
 }

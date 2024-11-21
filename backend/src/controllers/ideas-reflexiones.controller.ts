@@ -365,4 +365,18 @@ export class IdeasReflexionesController {
       throw new InternalServerErrorException('Error al crear la idea o reflexión sin archivo.');
     }
   }
+
+  @Get('eliminadas')
+  @ApiOperation({ summary: 'Obtener todas las ideas y reflexiones eliminadas' })
+  @ApiResponse({ status: 200, description: 'Ideas y reflexiones eliminadas obtenidas correctamente', type: IdeaReflexion, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<IdeaReflexion[]> {
+    try {
+      return await this.ideaReflexionesService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener las ideas y reflexiones eliminadas:', error.message);
+      throw new InternalServerErrorException('Error al obtener las ideas y reflexiones eliminadas.');
+    }
+  }
+
 }

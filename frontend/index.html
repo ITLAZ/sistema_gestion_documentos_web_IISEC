@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio</title>
     <link rel="preload" href="css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
+    <noscript>
+        <link rel="stylesheet" href="css/styles.css">
+    </noscript>
 </head>
 
 <body>
@@ -30,12 +32,15 @@
                 </div>
                 <div class="input-group">
                     <h3>Búsqueda Avanzada:</h3>
-                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave..." pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
-                </div><div class="input-group">
-                    <h3>Autor:</h3>
-                    <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..." pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
+                    <input type="text" name="keywords" id="keywords" placeholder="Ingrese palabras clave..."
+                        pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
                 </div>
                 <div class="input-group">
+                    <h3>Autor:</h3>
+                    <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..."
+                        pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
+                </div>
+                <div class="input-group order">
                     <h3>Año de Publicación:</h3>
                     <input type="number" step="1" name="publication-date" id="publication-date">
                 </div>
@@ -43,19 +48,27 @@
                 <div class="input-group">
                     <button type="button" id="search-button">Buscar</button>
                 </div>
+                <!-- Apartado para ordenamiento -->
+                <div class="input-group order">
+                    <h3>Ordenar por:</h3>
+                    <button type="button" id="sort-title">Título</button>
+                    <button type="button" id="sort-author">Autor</button>
+                    <button type="button" id="sort-year">Año de Publicación</button>
+                    <button type="button" id="date-order">Cambiar Orden</button>
+                </div>
             </form>
         </aside>
         <main>
             <h2>Resultados Encontrados:</h2>
             <div id="cards-container"></div>
 
-        <!-- Controles de paginación -->
-        <div id="pagination-controls" style="display: none;">
-            <button id="prev-page">⬅️ Anterior</button>
-            <span id="page-info"></span>
-            <button id="next-page">Siguiente ➡️</button>
-        </div>
-        </main> 
+            <!-- Controles de paginación -->
+            <div id="pagination-controls" style="display: none;">
+                <button id="prev-page">⬅️ Anterior</button>
+                <span id="page-info"></span>
+                <button id="next-page">Siguiente ➡️</button>
+            </div>
+        </main>
     </div>
 </body>
 <script src="js/main.js" type="module"></script>

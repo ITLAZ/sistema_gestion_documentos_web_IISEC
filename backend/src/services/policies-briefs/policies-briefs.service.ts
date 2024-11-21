@@ -117,5 +117,5 @@ export class PoliciesBriefsService {
   async findDeleted(): Promise<PolicyBrief[]> {
     return this.PolicyBriefModel.find({ eliminado: true }).exec();
   }
-  
+
 }

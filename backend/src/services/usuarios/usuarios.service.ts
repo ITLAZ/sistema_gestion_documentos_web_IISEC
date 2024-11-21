@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -40,7 +40,19 @@ export class UsuariosService {
   
     return usuario;
   }
- 
+
+  async getAllUsers(isActive?: boolean): Promise<Usuario[]> {
+    try {
+        const query: any = {};
+        if (isActive !== undefined) {
+            query.activo = isActive;
+        }
+        return await this.UsuarioModel.find(query).exec();
+    } catch (error) {
+        console.error('Error al consultar usuarios:', error);
+        throw new InternalServerErrorException('Error al consultar la base de datos');
+    }
+  }
 
   async validarCredenciales(usuario: string, plainPassword: string): Promise<string | null> {
     // Buscar el usuario en la base de datos por su nombre de usuario
@@ -76,4 +88,8 @@ export class UsuariosService {
     return usuarioActualizado;
   }
   
+
+  async findAll2(): Promise<Usuario[]> {
+    return this.UsuarioModel.find().exec();
+  }
 }

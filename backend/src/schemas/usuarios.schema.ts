@@ -56,6 +56,7 @@ export class Usuario extends Document {
 export const UsuarioSchema = SchemaFactory.createForClass(Usuario);
 
 UsuarioSchema.pre<Usuario>('save', async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
   const usuario = this;
 
   if (!usuario.isModified('contrasenia')) {

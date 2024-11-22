@@ -9,8 +9,14 @@ export async function getDocumentsByType(documentType, page, size, sortBy, sortO
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
 
-        // Retornar los datos en formato JSON
-        return await response.json();
+        // Obtener los datos en formato JSON
+        const data = await response.json();
+
+        // Filtrar los documentos que tengan eliminado: false
+        //const filteredData = data.filter((doc) => doc.eliminado === false);
+
+        //return filteredData;
+        return data;
     } catch (error) {
         console.error(`Error al obtener los documentos de tipo ${documentType}:`, error);
         alert(`Hubo un problema al obtener los documentos de tipo ${documentType}. Por favor, intenta de nuevo más tarde.`);
@@ -142,9 +148,13 @@ export async function searchDocuments(documentType, query, page = 1, size = 10, 
         // Obtener los datos en formato JSON
         const data = await response.json();
 
-        // Imprimir la respuesta para verificar los datos
-        console.log('Respuesta del backend:', data);
+        // Filtrar los documentos que tengan eliminado: false
+        //const filteredData = data.filter((doc) => doc.eliminado === false);
 
+        // Imprimir la respuesta filtrada para verificar
+        //console.log('Documentos filtrados:', filteredData);
+
+        //return filteredData;
         return data;
     } catch (error) {
         console.error('Error al realizar la búsqueda:', error);
@@ -154,7 +164,7 @@ export async function searchDocuments(documentType, query, page = 1, size = 10, 
 
 
 
-export async function uploadBook(libroData, file) {
+export async function uploadBook(libroData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -184,6 +194,9 @@ export async function uploadBook(libroData, file) {
     try {
         const response = await fetch('http://localhost:3000/libros/upload', {
             method: 'POST',
+            headers: {
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -200,7 +213,7 @@ export async function uploadBook(libroData, file) {
 }
 
 
-export async function uploadBookWithoutFile(libroData) {
+export async function uploadBookWithoutFile(libroData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(libroData.autores) ? libroData.autores : libroData.autores.split(',').map(autor => autor.trim());
 
@@ -221,7 +234,8 @@ export async function uploadBookWithoutFile(libroData) {
         const response = await fetch('http://localhost:3000/libros/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevoLibro)
         });
@@ -239,7 +253,7 @@ export async function uploadBookWithoutFile(libroData) {
 }
 
 ///SUBIDA DE ARCHIVOS ARTICULOS REVISTA
-export async function uploadArt(artData, file) {
+export async function uploadArt(artData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -270,6 +284,10 @@ export async function uploadArt(artData, file) {
     try {
         const response = await fetch('http://localhost:3000/articulos-revistas/upload', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -287,7 +305,7 @@ export async function uploadArt(artData, file) {
 
 
 // SUBIDA SIN ARCHIVO DE ARTICULOS REVISTA
-export async function uploadArtWithoutFile(artData) {
+export async function uploadArtWithoutFile(artData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(artData.autores) ? artData.autores : artData.autores.split(',').map(autor => autor.trim());
 
@@ -309,7 +327,8 @@ export async function uploadArtWithoutFile(artData) {
         const response = await fetch('http://localhost:3000/articulos-revistas/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevoArticulo)
         });
@@ -328,7 +347,7 @@ export async function uploadArtWithoutFile(artData) {
 
 
 // SUBIDA DE ARCHIVOS CAPÍTULOS DE LIBROS
-export async function uploadCapitulo(capituloData, file) {
+export async function uploadCapitulo(capituloData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -372,6 +391,10 @@ export async function uploadCapitulo(capituloData, file) {
     try {
         const response = await fetch('http://localhost:3000/capitulos-libros/upload', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -389,7 +412,7 @@ export async function uploadCapitulo(capituloData, file) {
 
 
 // SUBIDA SIN ARCHIVO DE CAPÍTULOS DE LIBROS
-export async function uploadCapituloWithoutFile(capituloData) {
+export async function uploadCapituloWithoutFile(capituloData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(capituloData.autores) ? capituloData.autores : capituloData.autores.split(',').map(autor => autor.trim());
 
@@ -414,7 +437,8 @@ export async function uploadCapituloWithoutFile(capituloData) {
         const response = await fetch('http://localhost:3000/capitulos-libros/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevoCapitulo)
         });
@@ -432,7 +456,7 @@ export async function uploadCapituloWithoutFile(capituloData) {
 }
 
 // SUBIDA DE ARCHIVOS DOCUMENTOS DE TRABAJO
-export async function uploadDocumentoTrabajo(docData, file) {
+export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -462,6 +486,10 @@ export async function uploadDocumentoTrabajo(docData, file) {
     try {
         const response = await fetch('http://localhost:3000/documentos-trabajo/upload', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -478,6 +506,7 @@ export async function uploadDocumentoTrabajo(docData, file) {
 }
 
 // SUBIDA SIN ARCHIVO DE DOCUMENTOS DE TRABAJO
+//export async function uploadDocumentoTrabajoWithoutFile(docData, usuarioId) {
 export async function uploadDocumentoTrabajoWithoutFile(docData) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(docData.autores) ? docData.autores : docData.autores.split(',').map(autor => autor.trim());
@@ -498,7 +527,8 @@ export async function uploadDocumentoTrabajoWithoutFile(docData) {
         const response = await fetch('http://localhost:3000/documentos-trabajo/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevoDocumento)
         });
@@ -516,6 +546,7 @@ export async function uploadDocumentoTrabajoWithoutFile(docData) {
 }
 
 // SUBIDA DE ARCHIVOS IDEAS Y REFLEXIONES
+//export async function uploadIdeaReflexion(ideaData, file, usuarioId) {
 export async function uploadIdeaReflexion(ideaData, file) {
     const formData = new FormData();
 
@@ -545,6 +576,10 @@ export async function uploadIdeaReflexion(ideaData, file) {
     try {
         const response = await fetch('http://localhost:3000/ideas-reflexiones/upload', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -561,7 +596,7 @@ export async function uploadIdeaReflexion(ideaData, file) {
 }
 
 // SUBIDA SIN ARCHIVO DE IDEAS Y REFLEXIONES
-export async function uploadIdeaReflexionWithoutFile(ideaData) {
+export async function uploadIdeaReflexionWithoutFile(ideaData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(ideaData.autores) ? ideaData.autores : ideaData.autores.split(',').map(autor => autor.trim());
 
@@ -580,7 +615,8 @@ export async function uploadIdeaReflexionWithoutFile(ideaData) {
         const response = await fetch('http://localhost:3000/ideas-reflexiones/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevaIdeaReflexion)
         });
@@ -598,7 +634,7 @@ export async function uploadIdeaReflexionWithoutFile(ideaData) {
 }
 
 // SUBIDA DE ARCHIVOS INFO IISEC
-export async function uploadInfoIISEC(infoData, file) {
+export async function uploadInfoIISEC(infoData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -627,6 +663,10 @@ export async function uploadInfoIISEC(infoData, file) {
     try {
         const response = await fetch('http://localhost:3000/info-iisec/upload', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -643,7 +683,7 @@ export async function uploadInfoIISEC(infoData, file) {
 }
 
 // SUBIDA SIN ARCHIVO DE INFO IISEC
-export async function uploadInfoIISECWithoutFile(infoData) {
+export async function uploadInfoIISECWithoutFile(infoData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(infoData.autores) ? infoData.autores : infoData.autores.split(',').map(autor => autor.trim());
 
@@ -662,7 +702,8 @@ export async function uploadInfoIISECWithoutFile(infoData) {
         const response = await fetch('http://localhost:3000/info-iisec/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevoInfoIISEC)
         });
@@ -680,7 +721,7 @@ export async function uploadInfoIISECWithoutFile(infoData) {
 }
 
 // SUBIDA DE ARCHIVOS POLICY BRIEFS
-export async function uploadPolicyBrief(policyData, file) {
+export async function uploadPolicyBrief(policyData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -709,6 +750,10 @@ export async function uploadPolicyBrief(policyData, file) {
     try {
         const response = await fetch('http://localhost:3000/policies-briefs/upload', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
+            },
             body: formData
         });
 
@@ -725,7 +770,7 @@ export async function uploadPolicyBrief(policyData, file) {
 }
 
 // SUBIDA SIN ARCHIVO DE POLICY BRIEFS
-export async function uploadPolicyBriefWithoutFile(policyData) {
+export async function uploadPolicyBriefWithoutFile(policyData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(policyData.autores) ? policyData.autores : policyData.autores.split(',').map(autor => autor.trim());
 
@@ -744,7 +789,8 @@ export async function uploadPolicyBriefWithoutFile(policyData) {
         const response = await fetch('http://localhost:3000/policies-briefs/no-upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: JSON.stringify(nuevoPolicyBrief)
         });

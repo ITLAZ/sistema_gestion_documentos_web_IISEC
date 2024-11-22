@@ -73,6 +73,28 @@ export async function getAllUsers() {
 }
 
 
+export async function estadoUsuario(id) {
+    try {
+        const response = await fetch(`http://localhost:3000/usuarios/activar/${id}`, {
+            method: 'PATCH', // PATCH porque se está modificando parcialmente un recurso
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error al activar el usuario: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data; // Retorna la respuesta del backend
+    } catch (error) {
+        console.error('Error en activarUsuario:', error);
+        throw error;
+    }
+}
+
+
 
 
 

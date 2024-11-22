@@ -18,4 +18,4 @@ export async function fetchLogs(logType) {
         alert('Hubo un error al cargar los logs. Intente nuevamente.');
         throw error;
     }
-}
+} 

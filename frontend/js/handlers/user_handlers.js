@@ -218,7 +218,7 @@ document.addEventListener("click", function (event) {
                 restoreButton.textContent = 'Restaurar';
                 restoreButton.addEventListener('click', async () => {
                     try {
-                        const result = await restoreFile(file._id, usuarioId); // Restaurar archivo
+                        const result = await restoreFile(fileType,file._id, usuarioId); // Restaurar archivo
                         alert(`Archivo "${file.titulo}" restaurado con éxito.`);
                         renderFiles(fileType); // Actualizar la tabla después de restaurar
                     } catch (error) {

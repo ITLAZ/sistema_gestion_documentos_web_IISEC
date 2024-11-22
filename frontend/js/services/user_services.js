@@ -118,9 +118,9 @@ export async function fetchDeletedFiles(fileType) {
 }
 
 
-export async function restoreFile(fileId, userId) {
+export async function restoreFile(fileType, fileId, userId) {
     try {
-        const endpoint = `http://localhost:3000/policies-briefs/${fileId}/recuperar-eliminado`;
+        const endpoint = `http://localhost:3000/${fileType}/${fileId}/recuperar-eliminado`;
 
         const response = await fetch(endpoint, {
             method: 'PUT',

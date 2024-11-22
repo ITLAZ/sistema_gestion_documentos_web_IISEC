@@ -34,13 +34,16 @@ export async function loadNavbar() {
             // Mostrar u ocultar opciones del admin en el menú
             const usuariosOption = document.querySelector('.navbar-links li a[href="/usuarios"]').parentElement;
             const restoreOption = document.querySelector('.navbar-links li a[href="/restore"]').parentElement;
+            const logsOption = document.querySelector('.navbar-links li a[href="/mostlogs"]').parentElement;
 
             if (user.admin) {
                 usuariosOption.style.display = 'list-item';
                 restoreOption.style.display = 'list-item';
+                logsOption.style.display = 'list-item';
             } else {
                 usuariosOption.style.display = 'none';
                 restoreOption.style.display = 'none';
+                logsOption.style.display = 'none';
             }
 
         } catch (error) {

@@ -45,6 +45,10 @@ app.get('/restore', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates','restaurar.html'));
 });
 
+app.get('/mostlogs', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates','mostrarlogs.html'));
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

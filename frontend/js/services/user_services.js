@@ -54,6 +54,25 @@ export async function createUser(userData) {
 }
 
 
+export async function getAllUsers() {
+    try {
+        const response = await fetch('http://localhost:3000/usuarios/getAll');
+
+        if (!response.ok) {
+            throw new Error(`Error al obtener los usuarios: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Lista de todos los usuarios (user_service)');
+        return data; // Retorna la lista de usuarios
+        
+    } catch (error) {
+        console.error('Error en getAllUsers:', error);
+        throw error;
+    }
+}
+
+
 
 
 

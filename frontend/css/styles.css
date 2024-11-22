@@ -651,16 +651,46 @@ aside .advanced-search{
 .users-table table .input-group{
   display: flex;
   align-self: center;
+  margin-bottom: 0;
 }
 
 .users-table table .input-group button{
   align-self: center;
+  width: 90%;
 }
 
-.users-table th, .users-table td, .restore-table th, .restore-table td{
+.users-table, .restore-table {
+  border-collapse: separate;
+  border-spacing: 0;
   border: var(--border-color) 1px solid;
-  padding: 10px;
+  border-radius: 10px;
+  overflow: hidden; /* Asegura que el borde redondeado no sea sobresalido */
 }
+
+.users-table th, .restore-table th {
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  border-left: var(--border-color) 3px solid;
+  border-right: var(--border-color) 3px solid;
+  border-bottom: var(--border-color) 2px solid; /* Solo añade borde entre filas */
+}
+
+.users-table th, .users-table td, 
+.restore-table th, .restore-table td {
+  padding: 20px 10px;
+  border: none; /* Elimina bordes internos */
+  border-bottom: var(--border-color) 1px solid; /* Solo añade borde entre filas */
+}
+
+.users-table tr:last-child td, 
+.restore-table tr:last-child td {
+  border-bottom: none; /* Elimina el borde inferior de la última fila */
+}
+
+
 
 /* Fondo oscuro para la superposición */
 .modal-overlay {
@@ -682,7 +712,7 @@ aside .advanced-search{
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--background-color);
-  padding: 20px;
+  padding: 30px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   z-index: 1000;
@@ -701,29 +731,22 @@ aside .advanced-search{
 .modal form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
-.modal label {
+.modal h2{
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.modal .input-group button{
   display: flex;
-  flex-direction: column;
+  align-self: normal;
+  justify-content: center;
 }
 
-.modal input,
-.modal button {
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-
-.modal button {
-  background-color: var(--button-bg-color);
-  color: var(--button-text-color);
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.modal button:hover {
-  background-color: var(--button-hover-bg-color);
-  color: var(--button-hover-text-color);
+.modal .input-check{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }

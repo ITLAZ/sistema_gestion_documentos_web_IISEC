@@ -178,6 +178,16 @@ document.addEventListener("click", function (event) {
     const tbody = document.querySelector('tbody');
     const typeSelector = document.getElementById('type-selector');
 
+    // Obtener el ID de usuario desde la cookie
+    const usuarioId = getCookieValue('id_usuario');
+    console.log('ID de usuario:', usuarioId);
+
+    // Verificar si el ID de usuario existe
+    if (!usuarioId) {
+        alert('No se encontró el ID del usuario en las cookies. Asegúrate de haber iniciado sesión.');
+        return;
+    }
+
     // Función para renderizar los archivos en la tabla
     async function renderFiles(fileType) {
         tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
@@ -205,14 +215,8 @@ document.addEventListener("click", function (event) {
                 const restoreButton = document.createElement('button');
                 restoreButton.textContent = 'Restaurar';
                 restoreButton.addEventListener('click', async () => {
-                    const userId = getCookie('userId'); // Obtener el userId dinámicamente desde la cookie
-                    if (!userId) {
-                        alert('No se encontró el ID del usuario. Asegúrate de haber iniciado sesión.');
-                        return;
-                    }
-
                     try {
-                        const result = await restoreFile(file._id, userId); // Restaurar archivo
+                        const result = await restoreFile(file._id, usuarioId); // Restaurar archivo
                         alert(`Archivo "${file.titulo}" restaurado con éxito.`);
                         renderFiles(fileType); // Actualizar la tabla después de restaurar
                     } catch (error) {
@@ -244,6 +248,5 @@ document.addEventListener("click", function (event) {
     // Renderizar todos los archivos eliminados al cargar la página
     renderFiles('');
 });
-
 
 

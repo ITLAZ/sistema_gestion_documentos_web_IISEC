@@ -40,56 +40,6 @@
         </div>
     </div>
 </body>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const files = [
-            {
-                nombre: "Archivo 1",
-                autor: "Autor 1",
-                anio: 2020
-            },
-            {
-                nombre: "Archivo 2",
-                autor: "Autor 2",
-                anio: 2021
-            },
-            {
-                nombre: "Archivo 3",
-                autor: "Autor 3",
-                anio: 2022
-            }
-        ];
-
-        const tbody = document.querySelector("tbody");
-
-        files.forEach((file) => {
-            const tr = document.createElement("tr");
-
-            const nombreTd = document.createElement("td");
-            nombreTd.textContent = file.nombre;
-
-            const autorTd = document.createElement("td");
-            autorTd.textContent = file.autor;
-
-            const anioTd = document.createElement("td");
-            anioTd.textContent = file.anio;
-
-            const accionesTd = document.createElement("td");
-            const restoreButton = document.createElement("button");
-            restoreButton.textContent = "Restaurar";
-            restoreButton.addEventListener("click", () => {
-                alert(`Restaurando archivo ${file.nombre}`);
-            });
-            accionesTd.appendChild(restoreButton);
-
-            tr.appendChild(nombreTd);
-            tr.appendChild(autorTd);
-            tr.appendChild(anioTd);
-            tr.appendChild(accionesTd);
-
-            tbody.appendChild(tr);
-        });
-    });
-</script>
+<script type="module" src="../js/handlers/user_handlers.js"></script>
 <script type="module" src="../js/main.js"></script>
 </html>

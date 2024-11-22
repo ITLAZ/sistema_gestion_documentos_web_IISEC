@@ -118,12 +118,27 @@ export async function fetchDeletedFiles(fileType) {
 }
 
 
+export async function restoreFile(fileId, userId) {
+    try {
+        const endpoint = `http://localhost:3000/policies-briefs/${fileId}/recuperar-eliminado`;
 
+        const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-usuario-id': userId, // Header necesario según la imagen proporcionada
+            },
+        });
 
+        if (!response.ok) {
+            throw new Error(`Error al restaurar el archivo: ${response.status} - ${response.statusText}`);
+        }
 
-
-
-
-
-
+        return await response.json(); // Suponiendo que el backend devuelve algún mensaje o el archivo restaurado
+    } catch (error) {
+        console.error('Error en restoreFile:', error);
+        alert('No se pudo restaurar el archivo. Intente nuevamente.');
+        throw error;
+    }
+}
 

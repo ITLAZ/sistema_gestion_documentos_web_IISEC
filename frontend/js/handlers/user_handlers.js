@@ -1,7 +1,6 @@
 
 //GESTION DE USUARIOS
-import { getAllUsers } from '../services/user_services.js';
-import { createUser } from '../services/user_services.js';
+import { getAllUsers, createUser, estadoUsuario } from '../services/user_services.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.querySelector('tbody');
@@ -32,7 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${user.activo ? 'Activo' : 'Inactivo'}</td>
                     <td>
                         <div class="input-group">
-                            <button type="button" class="del-user-button" data-id="${user._id}">Eliminar</button>
+                            <button type="button" class="toggle-status-button" data-id="${user._id}">
+                                ${user.activo ? 'Desactivar' : 'Activar'}
+                            </button>
                         </div>
                     </td>
                 `;
@@ -40,10 +41,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch (error) {
             console.error('Error al obtener los usuarios:', error);
-            alert('No se pudieron cargar los usuarios. Intente nuevamente.');
+            alert('No se pudieron cargar los usuarios. Por favor, intente más tarde.');
         }
     }
 
+    // Manejar clic en botones "Activar/Desactivar" usando delegación de eventos
+    tbody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('toggle-status-button')) {
+            const userId = e.target.getAttribute('data-id');
+            try {
+                // Cambiar el estado del usuario en el backend
+                const updatedUser = await estadoUsuario(userId);
+
+                // Mostrar mensaje de confirmación
+                alert(`Estado de ${updatedUser.usuario} actualizado a ${updatedUser.activo ? 'Activo' : 'Inactivo'}.`);
+
+                // Volver a renderizar la tabla para reflejar los cambios
+                renderUsers();
+            } catch (error) {
+                console.error('Error al cambiar el estado del usuario:', error);
+                alert('Error al actualizar el estado del usuario. Intente nuevamente.');
+            }
+        }
+    });
 
     // Mostrar el modal
     function showAddUserModal() {
@@ -93,37 +113,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Manejar el envío del formulario de "Añadir Usuario"
     addUserModal.addEventListener('submit', async (e) => {
-      if (e.target.id === 'add-user-form') {+
-          e.preventDefault();
-          const formData = new FormData(e.target);
-          const newUser = {
-              usuario: formData.get('usuario'),
-              nombre: formData.get('nombre'),
-              contrasenia: formData.get('contrasenia'),
-              admin: formData.get('admin') === 'on', // Convertir checkbox a booleano
-          };
-  
-          try {
-              console.log('Enviando datos al backend:', newUser);
-              const createdUser = await createUser(newUser); // Llama a la función corregida
-              console.log('Usuario creado en el backend:', createdUser);
-  
-              // Mostrar mensaje de confirmación
-              alert(`Usuario ${createdUser.usuario} creado exitosamente.`);
-  
-              // Actualizar la lista local y renderizar
-              closeModal();
-              renderUsers(); // Vuelve a renderizar la tabla
-          } catch (error) {
-              alert('Error al crear el usuario. Por favor, intente nuevamente.');
-          }
-      }
-  });
-  
+        if (e.target.id === 'add-user-form') {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newUser = {
+                usuario: formData.get('usuario'),
+                nombre: formData.get('nombre'),
+                contrasenia: formData.get('contrasenia'),
+                admin: formData.get('admin') === 'on', // Convertir checkbox a booleano
+            };
 
-    // Renderizar los usuarios iniciales
+            try {
+                const createdUser = await createUser(newUser);
+                alert(`Usuario ${createdUser.usuario} creado exitosamente.`);
+                closeModal();
+                renderUsers();
+            } catch (error) {
+                alert('Error al crear el usuario. Por favor, intente nuevamente.');
+            }
+        }
+    });
+
+    // Renderizar los usuarios iniciales desde el backend
     renderUsers();
 });
+
 
 
 // Manejo de eventos globales para los dropdowns

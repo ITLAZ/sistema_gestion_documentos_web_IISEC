@@ -27,7 +27,7 @@ export class LogsController {
     try {
         if (tipo === 'documento') {
         // Filtro para acciones relacionadas con documentos
-        return await this.logsService.getLogsByActions(['Creacion documento', 'Actualización documento', 'Eliminación lógica documento']);
+        return await this.logsService.getLogsByActions(['Creacion documento', 'Actualización de documento','Actualización documento','Eliminación lógica de documento', 'Eliminación lógica documento', 'Restauración documento']);
         } else if (tipo === 'login') {
         // Filtro para acciones relacionadas con login/logout
         return await this.logsService.getLogsByActions(['login', 'logout']);

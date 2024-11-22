@@ -407,7 +407,7 @@ export class IdeasReflexionesController {
     }
   }
 
-  @Get('eliminadas')
+  @Get('eliminados')
   @ApiOperation({ summary: 'Obtener todas las ideas y reflexiones eliminadas' })
   @ApiResponse({ status: 200, description: 'Ideas y reflexiones eliminadas obtenidas correctamente', type: IdeaReflexion, isArray: true })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })

@@ -669,6 +669,12 @@ aside .advanced-search{
   overflow: hidden; /* Asegura que el borde redondeado no sea sobresalido */
 }
 
+.restore-table{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .users-table th, .restore-table th {
   background-color: var(--card-bg-color);
   color: var(--card-text-color);

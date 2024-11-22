@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { PoliciesBriefsService } from 'src/services/policies-briefs/policies-briefs.service';
 import { PolicyBrief } from 'src/schemas/policies-briefs.schema';
 import { Types } from 'mongoose';
@@ -184,7 +184,7 @@ export class PoliciesBriefsController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación lógica documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
 
@@ -221,7 +221,7 @@ export class PoliciesBriefsController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 

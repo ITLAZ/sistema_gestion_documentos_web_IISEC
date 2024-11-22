@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { IdeasReflexionesService } from 'src/services/ideas-reflexiones/ideas-reflexiones.service';
 import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { Types } from 'mongoose';
@@ -267,7 +267,7 @@ export class IdeasReflexionesController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 
@@ -407,7 +407,7 @@ export class IdeasReflexionesController {
     }
   }
 
-  @Get('eliminadas')
+  @Get('eliminados')
   @ApiOperation({ summary: 'Obtener todas las ideas y reflexiones eliminadas' })
   @ApiResponse({ status: 200, description: 'Ideas y reflexiones eliminadas obtenidas correctamente', type: IdeaReflexion, isArray: true })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })

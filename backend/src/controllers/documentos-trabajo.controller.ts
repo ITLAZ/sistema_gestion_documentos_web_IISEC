@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers} from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers} from '@nestjs/common';
 import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/documentos-trabajo.service';
 import { DocumentoTrabajo } from 'src/schemas/documentos-trabajo.schema';
 import { Types } from 'mongoose';
@@ -180,7 +180,7 @@ export class DocumentosTrabajoController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 

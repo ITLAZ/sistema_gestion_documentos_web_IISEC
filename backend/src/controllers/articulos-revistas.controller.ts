@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException ,Headers} from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException ,Headers} from '@nestjs/common';
 import { ArticulosRevistasService } from 'src/services/articulos-revistas/articulos-revistas.service';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
@@ -180,7 +180,7 @@ export class ArticulosRevistasController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 

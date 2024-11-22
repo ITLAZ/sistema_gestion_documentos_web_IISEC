@@ -1,10 +1,9 @@
 
 //GESTION DE USUARIOS
-
+import { getAllUsers } from '../services/user_services.js';
 import { createUser } from '../services/user_services.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const users = []; // Lista local de usuarios
     const tbody = document.querySelector('tbody');
     const addUserButton = document.getElementById('add-user-button');
     const addUserModal = document.getElementById('add-user-modal');
@@ -15,23 +14,36 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(modalOverlay);
 
     // Renderizar usuarios en la tabla
-    function renderUsers() {
-        tbody.innerHTML = '';
-        users.forEach((user) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${user.usuario}</td>
-                <td>${user.nombre}</td>
-                <td>${user.admin ? 'Administrador' : 'Usuario'}</td>
-                <td>
-                    <div class="input-group">
-                        <button type="button" class="del-user-button">Eliminar</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+    async function renderUsers() {
+        try {
+            // Obtener usuarios desde el backend
+            const users = await getAllUsers();
+
+            // Limpiar la tabla antes de renderizar
+            tbody.innerHTML = '';
+
+            // Generar filas para cada usuario
+            users.forEach((user) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.usuario}</td>
+                    <td>${user.nombre}</td>
+                    <td>${user.admin ? 'Administrador' : 'Usuario'}</td>
+                    <td>${user.activo ? 'Activo' : 'Inactivo'}</td>
+                    <td>
+                        <div class="input-group">
+                            <button type="button" class="del-user-button" data-id="${user._id}">Eliminar</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Error al obtener los usuarios:', error);
+            alert('No se pudieron cargar los usuarios. Intente nuevamente.');
+        }
     }
+
 
     // Mostrar el modal
     function showAddUserModal() {
@@ -81,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Manejar el envío del formulario de "Añadir Usuario"
     addUserModal.addEventListener('submit', async (e) => {
-      if (e.target.id === 'add-user-form') {
+      if (e.target.id === 'add-user-form') {+
           e.preventDefault();
           const formData = new FormData(e.target);
           const newUser = {

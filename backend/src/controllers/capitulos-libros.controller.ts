@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { CapitulosLibrosService } from 'src/services/capitulos-libros/capitulos-libros.service';
 import { CapituloLibro } from 'src/schemas/capitulos-libros.schema';
 import { Types } from 'mongoose';

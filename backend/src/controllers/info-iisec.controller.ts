@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { InfoIisecService } from 'src/services/info-iisec/info-iisec.service';
 import { InfoIISEC } from 'src/schemas/info-iisec.schema';
 import { Types } from 'mongoose';

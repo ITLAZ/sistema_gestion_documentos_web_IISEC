@@ -1,7 +1,13 @@
 
 //GESTION DE USUARIOS
-import { getAllUsers, createUser, estadoUsuario } from '../services/user_services.js';
-
+import { getAllUsers, createUser, estadoUsuario, fetchDeletedFiles, restoreFile } from '../services/user_services.js';
+function getCookieValue(name) {
+    const cookieString = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='));
+    
+    return cookieString ? cookieString.split('=')[1] : null;
+}
 document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.querySelector('tbody');
     const addUserButton = document.getElementById('add-user-button');
@@ -167,3 +173,77 @@ document.addEventListener("click", function (event) {
       window.location.href = targetUrl;
     }
   });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const tbody = document.querySelector('tbody');
+    const typeSelector = document.getElementById('type-selector');
+
+    // Función para renderizar los archivos en la tabla
+    async function renderFiles(fileType) {
+        tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+        try {
+            // Obtener datos del backend
+            const files = await fetchDeletedFiles(fileType);
+
+            // Limpiar tabla
+            tbody.innerHTML = '';
+
+            // Llenar tabla con los datos obtenidos
+            files.forEach((file) => {
+                const tr = document.createElement('tr');
+
+                const nombreTd = document.createElement('td');
+                nombreTd.textContent = file.titulo;
+
+                const autorTd = document.createElement('td');
+                autorTd.textContent = file.autores.join(', ');
+
+                const anioTd = document.createElement('td');
+                anioTd.textContent = file.anio_publicacion;
+
+                const accionesTd = document.createElement('td');
+                const restoreButton = document.createElement('button');
+                restoreButton.textContent = 'Restaurar';
+                restoreButton.addEventListener('click', async () => {
+                    const userId = getCookie('userId'); // Obtener el userId dinámicamente desde la cookie
+                    if (!userId) {
+                        alert('No se encontró el ID del usuario. Asegúrate de haber iniciado sesión.');
+                        return;
+                    }
+
+                    try {
+                        const result = await restoreFile(file._id, userId); // Restaurar archivo
+                        alert(`Archivo "${file.titulo}" restaurado con éxito.`);
+                        renderFiles(fileType); // Actualizar la tabla después de restaurar
+                    } catch (error) {
+                        console.error('Error al restaurar el archivo:', error);
+                        alert('No se pudo restaurar el archivo. Intente nuevamente.');
+                    }
+                });
+
+                accionesTd.appendChild(restoreButton);
+
+                tr.appendChild(nombreTd);
+                tr.appendChild(autorTd);
+                tr.appendChild(anioTd);
+                tr.appendChild(accionesTd);
+
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Error al renderizar los archivos:', error);
+        }
+    }
+
+    // Actualizar tabla cuando se cambia el tipo de archivo
+    typeSelector.addEventListener('change', () => {
+        const selectedType = typeSelector.value;
+        renderFiles(selectedType);
+    });
+
+    // Renderizar todos los archivos eliminados al cargar la página
+    renderFiles('');
+});
+
+
+

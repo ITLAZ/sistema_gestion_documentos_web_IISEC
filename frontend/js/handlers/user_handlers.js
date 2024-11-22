@@ -78,24 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
         addUserModal.innerHTML = `
             <h2>Añadir Usuario</h2>
             <form id="add-user-form">
-                <label>
-                    Usuario:
+                <div class="input-group">
+                    <h3>Usuario:</h3>
                     <input type="text" name="usuario" required>
-                </label>
-                <label>
-                    Nombre:
+                </div>
+                <div class="input-group">
+                    <h3>Nombre:</h3>
                     <input type="text" name="nombre" required>
-                </label>
-                <label>
-                    Contraseña:
+                </div>
+                <div class="input-group">
+                    <h3>Contraseña:</h3>
                     <input type="password" name="contrasenia" required>
-                </label>
-                <label>
-                    ¿Administrador?
+                </div>
+                <div class="input-check">
+                    <h3>¿Es administrador?</h3>
                     <input type="checkbox" name="admin">
-                </label>
+                </div>
+                <div class="input-group">
                 <button type="submit">Guardar</button>
                 <button type="button" id="cancel-add-user">Cancelar</button>
+                </div>
             </form>
         `;
     }

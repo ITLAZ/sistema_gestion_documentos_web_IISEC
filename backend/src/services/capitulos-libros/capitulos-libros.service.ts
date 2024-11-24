@@ -69,10 +69,32 @@ export class CapitulosLibrosService {
   async update(id: string, CapituloLibro: Partial<CapituloLibro>): Promise<CapituloLibro> {
     return this.CapituloLibroModel.findOneAndUpdate({ _id: id }, CapituloLibro, { new: true }).exec();
   }
-  // Eliminar un capítulo por su id
+  
+  // Eliminado lógico
   async delete(id: string): Promise<CapituloLibro> {
-    return this.CapituloLibroModel.findByIdAndDelete(id).exec();
+    const capitulo = await this.CapituloLibroModel.findById(id);
+
+    if (!capitulo) {
+      throw new Error('Capítulo no encontrado');
+    }
+
+    capitulo.eliminado = true;
+
+    return capitulo.save();
   }
+
+  // Restaurar un Capítulo de Libro por su ID
+  async restore(id: string): Promise<CapituloLibro> {
+    const capitulo = await this.CapituloLibroModel.findById(id);
+
+    if (!capitulo) {
+      throw new Error('Capítulo de Libro no encontrado');
+    }
+
+    capitulo.eliminado = false;
+    return capitulo.save();
+  }
+
 
 
   // Metodos ElasticSearch

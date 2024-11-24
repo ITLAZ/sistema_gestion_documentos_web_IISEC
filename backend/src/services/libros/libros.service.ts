@@ -112,10 +112,31 @@ export class LibrosService {
     return this.libroModel.findOneAndUpdate({ _id: id }, libro, { new: true }).exec();
   }
 
-   // Eliminar un libro por su id
-   async delete(id: string): Promise<Libro> {
-    return this.libroModel.findByIdAndDelete(id).exec();
+  // Eliminar de forma lógica
+  async delete(id: string): Promise<Libro> {
+    const libro = await this.libroModel.findById(id);
+
+    if (!libro) {
+      throw new Error('Libro no encontrado');
+    }
+
+    libro.eliminado = true;
+
+    return libro.save();
   }
+
+  // Restaurar un Libro por su ID
+  async restore(id: string): Promise<Libro> {
+    const libro = await this.libroModel.findById(id);
+
+    if (!libro) {
+      throw new Error('Libro no encontrado');
+    }
+
+    libro.eliminado = false; // Cambiar el estado de eliminado a falso
+    return libro.save();
+  }
+
 
   // Buscar libros eliminados
   async findDeleted(): Promise<Libro[]> {

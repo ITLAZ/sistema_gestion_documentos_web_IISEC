@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers} from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers} from '@nestjs/common';
 import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/documentos-trabajo.service';
 import { DocumentoTrabajo } from 'src/schemas/documentos-trabajo.schema';
 import { Types } from 'mongoose';
@@ -180,7 +180,7 @@ export class DocumentosTrabajoController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 
@@ -192,13 +192,13 @@ export class DocumentosTrabajoController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un documento de trabajo por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del documento a eliminar', example: '6716be60bd17f2acd13f7b5d' })
-  @ApiResponse({ status: 200, description: 'Elimina un documento por su ID.', type: DocumentoTrabajo })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de un documento por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del documento a eliminar lógicamente', example: '6716be60bd17f2acd13f7b5d' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente un documento por su ID.', type: DocumentoTrabajo })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<DocumentoTrabajo> {
@@ -211,18 +211,14 @@ export class DocumentosTrabajoController {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
 
-      // Eliminar el documento
       const documentoEliminado = await this.documentosTrabajoService.delete(id);
-      if (!documentoEliminado) {
-        throw new BadRequestException('Documento no encontrado');
-      }
 
       // Registrar el log de la acción
       const fecha = new Date();
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
 
@@ -231,10 +227,55 @@ export class DocumentosTrabajoController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar el documento:', error.message);
-      throw new InternalServerErrorException('Error al eliminar el documento.');
+      console.error('Error al realizar la eliminación lógica del documento:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica del documento.');
     }
   }
+
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un documento de trabajo eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del documento a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Documento restaurado exitosamente.', type: DocumentoTrabajo })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<DocumentoTrabajo> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el documento (cambiar eliminado a false)
+      const documentoRestaurado = await this.documentosTrabajoService.restore(id);
+      if (!documentoRestaurado) {
+        throw new BadRequestException('Documento no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return documentoRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el documento de trabajo:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el documento de trabajo.');
+    }
+  }
+
 
   @Post('upload')
   @ApiOperation({ summary: 'Crear un documento de trabajo con archivo de PDF' })

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mostrar Logs</title>
+    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="../css/styles.css">
+    </noscript>
+</head>
+
+<body>
+    <div id="menu-container"></div>
+        <div class="container">  
+            <div class="users-table">
+                <div class="input-group">
+                    <h3>Filtrado de Logs:</h3>
+                    <select name="document-type" id="type-selector">
+                        <option value="">Escoge una opción</option>
+                        <option value="all-logs">Obtener todos</option>
+                        <option value="login">Login y Logout</option>
+                        <option value="documento">Documentos</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Accion</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <script type="module" src="../js/handlers/logs_handler.js"></script>
+    <script src="../js/main.js" type="module"></script>
+</body>
+
+</html>

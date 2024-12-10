@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { IdeasReflexionesService } from 'src/services/ideas-reflexiones/ideas-reflexiones.service';
 import { IdeaReflexion } from 'src/schemas/ideas-reflexiones.schema';
 import { Types } from 'mongoose';
@@ -159,13 +159,13 @@ export class IdeasReflexionesController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar una idea o reflexión por su ID' })
-  @ApiParam({ name: 'id', description: 'ID de la idea o reflexión a eliminar', example: '6716be67bd17f2acd13f804b' })
-  @ApiResponse({ status: 200, description: 'Elimina una idea o reflexión por su ID.', type: IdeaReflexion })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de una idea o reflexión por su ID' })
+  @ApiParam({ name: 'id', description: 'ID de la idea o reflexión a eliminar lógicamente', example: '6716be67bd17f2acd13f804b' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente una idea o reflexión por su ID.', type: IdeaReflexion })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<IdeaReflexion> {
@@ -178,10 +178,50 @@ export class IdeasReflexionesController {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
 
-      // Eliminar la idea o reflexión
-      const ideaReflexionEliminada = await this.ideaReflexionesService.delete(id);
-      if (!ideaReflexionEliminada) {
-        throw new BadRequestException('Idea o reflexión no encontrada');
+      const ideaEliminada = await this.ideaReflexionesService.delete(id);
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Eliminación lógica de documento',
+        fecha: fecha,
+      });
+
+      return ideaEliminada;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al realizar la eliminación lógica de la idea o reflexión:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica de la idea o reflexión.');
+    }
+  }
+
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar una idea o reflexión eliminada lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID de la idea o reflexión a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Idea o Reflexión restaurada exitosamente.', type: IdeaReflexion })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<IdeaReflexion> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar la idea o reflexión (cambiar eliminado a false)
+      const documentoRestaurado = await this.ideaReflexionesService.restore(id);
+      if (!documentoRestaurado) {
+        throw new BadRequestException('Idea o Reflexión no encontrada o no se pudo restaurar');
       }
 
       // Registrar el log de la acción
@@ -189,19 +229,20 @@ export class IdeasReflexionesController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Restauración documento',
         fecha: fecha,
       });
 
-      return ideaReflexionEliminada;
+      return documentoRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar la idea o reflexión:', error.message);
-      throw new InternalServerErrorException('Error al eliminar la idea o reflexión.');
+      console.error('Error al restaurar la idea o reflexión:', error.message);
+      throw new InternalServerErrorException('Error al restaurar la idea o reflexión.');
     }
   }
+
 
 
   @Put(':id')
@@ -226,7 +267,7 @@ export class IdeasReflexionesController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 
@@ -365,4 +406,18 @@ export class IdeasReflexionesController {
       throw new InternalServerErrorException('Error al crear la idea o reflexión sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todas las ideas y reflexiones eliminadas' })
+  @ApiResponse({ status: 200, description: 'Ideas y reflexiones eliminadas obtenidas correctamente', type: IdeaReflexion, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<IdeaReflexion[]> {
+    try {
+      return await this.ideaReflexionesService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener las ideas y reflexiones eliminadas:', error.message);
+      throw new InternalServerErrorException('Error al obtener las ideas y reflexiones eliminadas.');
+    }
+  }
+
 }

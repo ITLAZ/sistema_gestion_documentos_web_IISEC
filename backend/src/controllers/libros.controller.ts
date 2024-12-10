@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query, InternalServerErrorException, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, UploadedFile, UseInterceptors, BadRequestException, Query, InternalServerErrorException, Headers } from '@nestjs/common';
 import { LibrosService } from 'src/services/libros/libros.service';
 import { Libro } from 'src/schemas/libros.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -208,13 +208,13 @@ export class LibrosController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un libro por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del libro a eliminar', example: '6715d835ce1db7b621aa7790' })
-  @ApiResponse({ status: 200, description: 'Elimina un libro por su ID.', type: Libro })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de un libro por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del libro a eliminar lógicamente', example: '6715d835ce1db7b621aa7790' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente un libro por su ID.', type: Libro })
   @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<Libro> {
@@ -226,19 +226,15 @@ export class LibrosController {
       if (!usuarioId) {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
-      
-      // Eliminar el libro
+
       const libroEliminado = await this.librosService.delete(id);
-      if (!libroEliminado) {
-        throw new BadRequestException('Libro no encontrado');
-      }
 
       // Registrar el log de la acción
       const fecha = new Date();
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
 
@@ -247,8 +243,52 @@ export class LibrosController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar el libro:', error.message);
-      throw new InternalServerErrorException('Error al eliminar el libro.');
+      console.error('Error al realizar la eliminación lógica del libro:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica del libro.');
+    }
+  }
+
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un libro eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del libro a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Libro restaurado exitosamente.', type: Libro })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<Libro> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el libro (cambiar eliminado a false)
+      const libroRestaurado = await this.librosService.restore(id);
+      if (!libroRestaurado) {
+        throw new BadRequestException('Libro no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return libroRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el libro:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el libro.');
     }
   }
 
@@ -392,6 +432,19 @@ export class LibrosController {
     } catch (error) {
       console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al crear el libro sin archivo.');
+    }
+  }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los libros eliminados' })
+  @ApiResponse({ status: 200, description: 'Libros eliminados obtenidos correctamente', type: Libro, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeletedBooks(): Promise<Libro[]> {
+    try {
+      return await this.librosService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los libros eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los libros eliminados.');
     }
   }
 }

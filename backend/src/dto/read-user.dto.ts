@@ -1,4 +1,5 @@
-import { IsString, IsInt} from 'class-validator';
+import { IsString, IsInt, IsBoolean } from 'class-validator';
+
 export class CreateLibroDto {
   @IsString()
   usuario: string;
@@ -11,4 +12,10 @@ export class CreateLibroDto {
 
   @IsInt()
   theme: number;
+
+  @IsBoolean()
+  admin: boolean; 
+
+  @IsBoolean()
+  activo: boolean;
 }

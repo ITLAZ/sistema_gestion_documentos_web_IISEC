@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Delete, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException ,Headers} from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, BadRequestException, UploadedFile, UseInterceptors, Query, InternalServerErrorException ,Headers} from '@nestjs/common';
 import { ArticulosRevistasService } from 'src/services/articulos-revistas/articulos-revistas.service';
 import { ArticuloRevista } from 'src/schemas/articulos-revistas.schema';
 import { Types } from 'mongoose';
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody, ApiHeader} from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, ApiBody} from '@nestjs/swagger';
 import { SearchService } from 'src/services/search/search.service';
 import { ArticuloRevistaResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
@@ -180,7 +180,7 @@ export class ArticulosRevistasController {
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
-        accion: 'Actualización documento',
+        accion: 'Actualización de documento',
         fecha: fecha,
       });
 
@@ -191,13 +191,13 @@ export class ArticulosRevistasController {
     }
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un artículo por su ID' })
-  @ApiParam({ name: 'id', description: 'ID del artículo a eliminar', example: '6716be4bbd17f2acd13f7308' })
-  @ApiResponse({ status: 200, description: 'Elimina un artículo por su ID.', type: ArticuloRevista })
-  @ApiResponse({ status: 400, description: 'ID no válido o usuario no proporcionado' })
+  @Put('eliminar-logico/:id')
+  @ApiOperation({ summary: 'Realizar un eliminado lógico de un artículo por su ID' })
+  @ApiParam({ name: 'id', description: 'ID del artículo a eliminar lógicamente', example: '6716be4bbd17f2acd13f7308' })
+  @ApiResponse({ status: 200, description: 'Elimina lógicamente un artículo por su ID.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async delete(
+  async deleteLogically(
     @Param('id') id: string,
     @Headers('x-usuario-id') usuarioId: string
   ): Promise<ArticuloRevista> {
@@ -205,33 +205,76 @@ export class ArticulosRevistasController {
       if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException('ID no válido');
       }
-      
+
       if (!usuarioId) {
         throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
       }
-  
+
       const articuloEliminado = await this.articulosRevistasService.delete(id);
-      if (!articuloEliminado) {
-        throw new BadRequestException('Artículo no encontrado');
-      }
-  
+
+      // Registrar el log de la acción
       const fecha = new Date();
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento: id,
-        accion: 'Eliminación documento',
+        accion: 'Eliminación lógica de documento',
         fecha: fecha,
       });
-  
+
       return articuloEliminado;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      console.error('Error al eliminar el artículo:', error.message);
-      throw new InternalServerErrorException('Error al eliminar el artículo.');
+      console.error('Error al realizar la eliminación lógica del artículo:', error.message);
+      throw new InternalServerErrorException('Error al realizar la eliminación lógica del artículo.');
     }
   }
+
+  @Put(':id/recuperar-eliminado')
+  @ApiOperation({ summary: 'Restaurar un artículo de revista eliminado lógicamente' })
+  @ApiParam({ name: 'id', description: 'ID del artículo a restaurar', example: '6716be70bd17f2acd13f83c6' })
+  @ApiResponse({ status: 200, description: 'Artículo restaurado exitosamente.', type: ArticuloRevista })
+  @ApiResponse({ status: 400, description: 'ID no válido' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async restore(
+    @Param('id') id: string,
+    @Headers('x-usuario-id') usuarioId: string
+  ): Promise<ArticuloRevista> {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID no válido');
+      }
+
+      if (!usuarioId) {
+        throw new BadRequestException('ID del usuario no proporcionado en el header x-usuario-id');
+      }
+
+      // Restaurar el artículo (cambiar eliminado a false)
+      const articuloRestaurado = await this.articulosRevistasService.restore(id);
+      if (!articuloRestaurado) {
+        throw new BadRequestException('Artículo no encontrado o no se pudo restaurar');
+      }
+
+      // Registrar el log de la acción
+      const fecha = new Date();
+      await this.logsService.createLogDocument({
+        id_usuario: usuarioId,
+        id_documento: id,
+        accion: 'Restauración documento',
+        fecha: fecha,
+      });
+
+      return articuloRestaurado;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error al restaurar el artículo de revista:', error.message);
+      throw new InternalServerErrorException('Error al restaurar el artículo de revista.');
+    }
+  }
+
   
 
 
@@ -369,4 +412,18 @@ export class ArticulosRevistasController {
       throw new InternalServerErrorException('Error al crear el artículo sin archivo.');
     }
   }
+
+  @Get('eliminados')
+  @ApiOperation({ summary: 'Obtener todos los artículos de revistas eliminados' })
+  @ApiResponse({ status: 200, description: 'Artículos eliminados obtenidos correctamente', type: ArticuloRevista, isArray: true })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async findDeleted(): Promise<ArticuloRevista[]> {
+    try {
+      return await this.articulosRevistasService.findDeleted();
+    } catch (error) {
+      console.error('Error al obtener los artículos eliminados:', error.message);
+      throw new InternalServerErrorException('Error al obtener los artículos eliminados.');
+    }
+  }
+
 }

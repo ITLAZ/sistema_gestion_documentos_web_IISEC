@@ -55,7 +55,9 @@ export class SearchService {
     ) {
       const from = (page - 1) * size;
       const filterConditions = [];
-    
+      
+      filterConditions.push({ term: { 'eliminado': false } });
+
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
         filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
@@ -141,7 +143,9 @@ export class SearchService {
       const from = (page - 1) * size;
     
       const filterConditions = [];
-    
+      
+      filterConditions.push({ term: { 'eliminado': false } });
+
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
         filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
@@ -227,7 +231,9 @@ export class SearchService {
       const from = (page - 1) * size;
   
       const filterConditions = [];
-  
+      
+      filterConditions.push({ term: { 'eliminado': false } });
+      
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
         filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });

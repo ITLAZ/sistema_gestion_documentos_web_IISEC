@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Función para obtener y renderizar documentos
 export async function fetchAndRenderDocuments() {
   try {
+    console.log(`Obteniendo documentos en orden ${sortOrder}`);
     let documentsData;
     if (selectedType === "all-types") {
       documentsData = await getAllDocuments("", currentPage, itemsPerPage);
@@ -542,7 +543,7 @@ dateOrderButton.innerHTML = "Cambiar Orden"
 // Configurar evento para el botón de orden ascendente/descendente
 dateOrderButton.addEventListener("click", () => {
   // Alternar el valor de sortOrder y actualizar el texto del botón
-  sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  //sortOrder = sortOrder === "asc" ? "desc" : "asc";
   
   // Ejecutar la función correspondiente dependiendo del modo (búsqueda o visualización)
   if (isSearchMode) {

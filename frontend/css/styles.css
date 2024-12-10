@@ -128,9 +128,9 @@ main {
   background-color: var(--navbar-bg-color);
   border-radius: 20px;
   gap: 10px;
-  overflow-y: scroll;
-  scrollbar-color: #ddd var(--navbar-bg-color);
-  scrollbar-width: none;
+  overflow-y: auto;
+  scrollbar-color: var(--border-color) var(--card-bg-color);
+  scrollbar-width: 1px;
   border: 2px solid var(--border-color);
 }
 
@@ -140,12 +140,15 @@ main h2 {
 
 aside {
   width: 30%;
-  height: 80vh;
+  height: 90vh;
   padding: 20px;
   background-color: var(--card-bg-color);
   border-radius: 20px;
   border: 2px solid var(--border-color);
   color: var(--card-text-color);
+  overflow-y: auto;
+  scrollbar-color: var(--border-color) var(--card-bg-color);
+  scrollbar-width: 1px;
 }
 
 /* Reglas Card */
@@ -204,6 +207,7 @@ aside {
 .card .card-info p {
   display: -webkit-box;
   -webkit-line-clamp: 8;
+  line-clamp: 8;
   /* Número de líneas antes de cortar */
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -213,6 +217,7 @@ aside {
 .card .card-body .card-text {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   white-space: normal;
@@ -271,6 +276,8 @@ aside .advanced-search{
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 80vh;
+  overflow: hidden;
 }
 
 .input-group,
@@ -369,41 +376,131 @@ aside .advanced-search{
   color: var(--button-hover-text-color);
 }
 
+
+/* Tarjetas resumen - reportes */
+.summary-container {
+  display: flex;
+  justify-content: space-between; /* Cambiado para ajustar el espacio entre tarjetas */
+  gap: 15px; /* Reducción del espacio entre tarjetas */
+  margin-bottom: 15px; /* Menor separación inferior */
+}
+
+.summary-card {
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* Bordes menos redondeados */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra más ligera */
+  width: 32%; /* Ajustado para una fila de tres tarjetas más pequeñas */
+  height: 120px; /* Reducido para hacer la tarjeta más compacta */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px; /* Padding reducido */
+  text-align: center;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.summary-card h3 {
+  font-size: 1em; /* Tamaño de fuente reducido */
+  margin-bottom: 5px; /* Menor separación entre título y contenido */
+  color: var(--card-text-color);
+  transition: color 0.3s ease;
+}
+
+.summary-card p {
+  font-size: 0.9em; /* Tamaño de texto reducido */
+  margin: 0;
+  font-weight: bold;
+  color: var(--card-text-color);
+  transition: color 0.3s ease;
+}
+
+/* Formulario de reportes */
 #report-form {
-  padding: 20px;
+  padding: 15px; /* Padding reducido */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Espacio entre campos del formulario reducido */
+}
+
+/* Filtro de reportes */
+.report-filter {
+  gap: 15px;
+  width: 25%; /* Ajustado para dar más espacio al contenedor de resultados */
+}
+
+.chart-selection h3 {
+  margin: 0;
+  font-size: 1em;
+  color: var(--text-color);
+}
+
+.chart-selection label {
+  font-size: 0.9em;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.report-section {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
-.report-filter {
-  gap: 20px;
-  width: 20%;
+.chart-selection, .compare-selection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: var(--background-color);
+  border: var(--border-color) 2px solid;
+  color: var(--text-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
 }
 
 .report-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  width: 80%;
+  width: 100%;
+  padding: 20px;
+  background-color: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
+
+
+
+/* Listado de resultados */
 .report-container ul {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px; /* Espacio reducido */
   list-style: none;
-  padding: 20px;
+  padding: 10px; /* Padding reducido */
+  background-color: var(--text-color);
+  border-radius: 8px;
 }
 
 .report-container ul li {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding: 8px; /* Padding reducido */
   background-color: var(--card-bg-color);
   color: var(--card-text-color);
-  border-radius: 10px;
+  border-radius: 8px;
+  font-size: 0.9em; /* Fuente reducida */
 }
+
 
 #document-form {
   padding: 20px;
@@ -479,44 +576,195 @@ aside .advanced-search{
   gap: 10px;
 }
 
-/*Tarjetas resumen - reportes*/
-.summary-container {
+
+/* Contenedor de los botones en línea */
+.button-group {
   display: flex;
-  justify-content: space-around;
-  gap: 20px; /* Espacio entre las tarjetas */
-  margin-bottom: 20px; /* Separación inferior */
+  gap: 5px; /* Espacio entre botones */
+  justify-content: flex-start; /* Alinea los botones al inicio */
 }
 
-.summary-card {
-  background-color: var(--card-bg-color);
-  color: var(--card-text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 30%;
-  height: 150px;
+/* Estilo para botones aún más pequeños */
+.btn-small {
+  padding: 3px 8px; /* Tamaño más reducido */
+  font-size: 0.8em; /* Tamaño de fuente más pequeño */
+  border: none;
+  border-radius: 3px;
+  background-color: var(--button-bg-color, #444);
+  color: var(--button-text-color, #fff);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover para botones */
+.btn-small:hover {
+  background-color: var(--button-hover-bg-color, #007bff);
+  color: var(--button-hover-text-color, #fff);
+}
+
+.order{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.order h3{
+  grid-column: 1 / 3;
+}
+
+.order input{
+  grid-column: 1 / 2;
+}
+
+.graph-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+  background-color: var(--card-bg-color);
+  border: var(--border-color) 2px solid;
+  border-radius: 8px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+.users-table, .restore-table{
+  width: 100%;
+  border-collapse: collapse;
+  border: var(--border-color) 2px solid;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.users-table .input-group{
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.users-table .input-group button{
+  align-self: flex-end;
+}
+
+.users-table table, .restore-table table{
+  width: 100%;
   text-align: center;
-  transition: background-color 0.5s, color 0.5s;
+  font-size: 20px;
+}
+
+.users-table table .input-group{
+  display: flex;
+  align-self: center;
+  margin-bottom: 0;
+}
+
+.users-table table .input-group button{
+  align-self: center;
+  width: 90%;
+}
+
+.users-table, .restore-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: var(--border-color) 1px solid;
+  border-radius: 10px;
+  overflow: hidden; /* Asegura que el borde redondeado no sea sobresalido */
+}
+
+.restore-table{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.users-table th, .restore-table th {
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  border-left: var(--border-color) 3px solid;
+  border-right: var(--border-color) 3px solid;
+  border-bottom: var(--border-color) 2px solid; /* Solo añade borde entre filas */
+}
+
+.users-table th, .users-table td, 
+.restore-table th, .restore-table td {
+  padding: 20px 10px;
+  border: none; /* Elimina bordes internos */
+  border-bottom: var(--border-color) 1px solid; /* Solo añade borde entre filas */
+}
+
+.users-table tr:last-child td, 
+.restore-table tr:last-child td {
+  border-bottom: none; /* Elimina el borde inferior de la última fila */
 }
 
 
 
-.summary-card h3 {
-  font-size: 1.2em; /* Tamaño de la fuente para el título */
-  margin-bottom: 10px; /* Separación del título y el contenido */
-  color: var(--card-text-color); /* Cambiar color según el tema */
-  transition: color 0.3s ease; /* Transición suave para el cambio de color */
+/* Fondo oscuro para la superposición */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
 }
 
-.summary-card p {
-  font-size: 1.0em; /* Tamaño del texto para el valor */
-  margin: 0;
-  font-weight: bold; /* Negrita para destacar el número */
-  color: var(--card-text-color); /* Cambiar color según el tema */
-  transition: color 0.3s ease; /* Transición suave para el cambio de color */
+/* Contenedor del modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--background-color);
+  padding: 30px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  z-index: 1000;
+  width: 90%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* Cuando el modal está visible */
+.modal.show,
+.modal-overlay.show {
+  display: block;
+}
+
+/* Estilos del formulario */
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal h2{
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.modal .input-group input{
+  font-size: 20px;
+}
+
+.modal .input-group button{
+  display: flex;
+  align-self: normal;
+  justify-content: center;
+}
+
+.modal .input-check{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.modal .input-check input{
+  width: 20px;
+  height: 20px; 
 }

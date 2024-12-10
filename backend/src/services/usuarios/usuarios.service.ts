@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -9,9 +9,14 @@ export class UsuariosService {
   constructor(@InjectModel(Usuario.name) private UsuarioModel: Model<Usuario>) {}
 
   async create(usuarioDto: Partial<Usuario>): Promise<Usuario> {
-    const nuevoUsuario = new this.UsuarioModel(usuarioDto);
+    const nuevoUsuario = new this.UsuarioModel({
+      ...usuarioDto,
+      admin: usuarioDto.admin ?? false, // Si no se proporciona, se establece como `false`
+      activo: usuarioDto.activo ?? true, // Si no se proporciona, se establece como `true`
+    });
     return nuevoUsuario.save();
   }
+  
 
   async validatePassword(usuario: string, plainPassword: string): Promise<boolean> {
     const user = await this.UsuarioModel.findOne({ usuario });
@@ -35,7 +40,19 @@ export class UsuariosService {
   
     return usuario;
   }
- 
+
+  async getAllUsers(isActive?: boolean): Promise<Usuario[]> {
+    try {
+        const query: any = {};
+        if (isActive !== undefined) {
+            query.activo = isActive;
+        }
+        return await this.UsuarioModel.find(query).exec();
+    } catch (error) {
+        console.error('Error al consultar usuarios:', error);
+        throw new InternalServerErrorException('Error al consultar la base de datos');
+    }
+  }
 
   async validarCredenciales(usuario: string, plainPassword: string): Promise<string | null> {
     // Buscar el usuario en la base de datos por su nombre de usuario
@@ -69,6 +86,29 @@ export class UsuariosService {
     }
   
     return usuarioActualizado;
+  }
+  
+
+  async toggleActivo(id: string): Promise<Usuario> {
+    try {
+        // Busca el usuario por ID
+        const usuario = await this.UsuarioModel.findById(id);
+        if (!usuario) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        // Cambia el valor de `activo`
+        const nuevoEstado = !usuario.activo;
+
+        // Actualiza el documento en la base de datos
+        usuario.activo = nuevoEstado;
+        await usuario.save();
+
+        return usuario;
+    } catch (error) {
+        console.error('Error en toggleActivo:', error);
+        throw error;
+    }
   }
   
 }

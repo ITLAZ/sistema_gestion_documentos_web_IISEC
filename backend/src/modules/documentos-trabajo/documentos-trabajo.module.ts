@@ -6,11 +6,16 @@ import { DocumentosTrabajoService } from 'src/services/documentos-trabajo/docume
 import { FileUploadService } from 'src/services/file-upload/file-upload.service';
 import { SearchService } from 'src/services/search/search.service';
 import { MyElasticsearchModule } from '../my-elasticsearch/my-elasticsearch.module';
+import { Log, LogSchema } from 'src/schemas/logs.schema';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: DocumentoTrabajo.name, schema: DocumentoTrabajoSchema }]), MyElasticsearchModule],
+  imports: [MongooseModule.forFeature([
+    { name: DocumentoTrabajo.name, schema: DocumentoTrabajoSchema },
+    { name: Log.name, schema: LogSchema },
+  ]), MyElasticsearchModule],
   controllers: [DocumentosTrabajoController],
-  providers: [DocumentosTrabajoService, FileUploadService, SearchService],
+  providers: [DocumentosTrabajoService, FileUploadService, SearchService, LogsService],
   exports: [DocumentosTrabajoService],
 })
 export class DocumentosTrabajoModule {}

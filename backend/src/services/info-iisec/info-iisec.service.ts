@@ -76,10 +76,30 @@ export class InfoIisecService {
     }).exec();
   }
 
-  // Eliminar un InfoIISEC por su id
+  // Cambiar estado a eliminado lógico
   async delete(id: string): Promise<InfoIISEC> {
-    return this.InfoIISECModel.findByIdAndDelete(id).exec();
+    const documento = await this.InfoIISECModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Info IISEC no encontrado');
+    }
+
+    documento.eliminado = true;
+    return documento.save();
   }
+
+  // Restaurar un Documento Info IISEC por su ID
+  async restore(id: string): Promise<InfoIISEC> {
+    const documento = await this.InfoIISECModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Info IISEC no encontrado');
+    }
+
+    documento.eliminado = false; // Cambiar el estado de eliminado a falso
+    return documento.save();
+  }
+
 
   //Metodos ElasticSearch
   async syncInfoIisecWithElasticsearch() {
@@ -93,9 +113,15 @@ export class InfoIisecService {
           titulo: info.titulo,              // Campo para búsquedas
           autores: info.autores,            // Campo para búsquedas
           anio_publicacion: info.anio_publicacion, // Campo para filtros o búsquedas
-          observaciones: info.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+          observaciones: info.observaciones,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: info.eliminado,
         }
       );
     }
   }
+
+  async findDeleted(): Promise<InfoIISEC[]> {
+    return this.InfoIISECModel.find({ eliminado: true }).exec();
+  }
+  
 }

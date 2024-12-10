@@ -30,6 +30,17 @@ import { uploadPolicyBriefWithoutFile } from './api_service.js';
 // Cargar el navbar inmediatamente
 loadNavbar(); 
 
+function getCookieValue(name) {
+    const cookieString = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='));
+    
+    return cookieString ? cookieString.split('=')[1] : null;
+}
+
+let  usuarioId = getCookieValue('id_usuario');
+console.log('ID de usuario:', usuarioId);
+
 document.addEventListener('DOMContentLoaded', () => {
     const typeSelector = document.getElementById('type');
     const form = document.getElementById('document-form');
@@ -257,17 +268,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir libro con archivo
-                    const result = await uploadBook(libroData, file);
+                    const result = await uploadBook(libroData, file, usuarioId);
                     alert('Libro subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadBookWithoutFile(libroData);
+                    const result = await uploadBookWithoutFile(libroData, usuarioId);
                     alert('Libro subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
 
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir el libro:', error);
             }
@@ -290,17 +301,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir artículo con archivo
-                    const result = await uploadArt(artData, file);
+                    const result = await uploadArt(artData, file, usuarioId);
                     alert('Artículo de revista subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadArtWithoutFile(artData);
+                    const result = await uploadArtWithoutFile(artData, usuarioId);
                     alert('Artículo de revista subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
     
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir el artículo de revista:', error);
             }
@@ -323,17 +334,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir capítulo con archivo
-                    const result = await uploadCapitulo(capituloData, file);
+                    const result = await uploadCapitulo(capituloData, file, usuarioId);
                     alert('Capítulo de libro subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadCapituloWithoutFile(capituloData);
+                    const result = await uploadCapituloWithoutFile(capituloData, usuarioId);
                     alert('Capítulo de libro subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
         
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir el capítulo de libro:', error);
             }
@@ -353,17 +364,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir documento con archivo
-                    const result = await uploadDocumentoTrabajo(docData, file);
+                    const result = await uploadDocumentoTrabajo(docData, file, usuarioId);
                     alert('Documento de trabajo subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadDocumentoTrabajoWithoutFile(docData);
+                    const result = await uploadDocumentoTrabajoWithoutFile(docData, usuarioId);
                     alert('Documento de trabajo subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
         
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir el documento de trabajo:', error);
             }
@@ -382,17 +393,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir idea/reflexión con archivo
-                    const result = await uploadIdeaReflexion(ideaData, file);
+                    const result = await uploadIdeaReflexion(ideaData, file, usuarioId);
                     alert('Idea o reflexión subida exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadIdeaReflexionWithoutFile(ideaData);
+                    const result = await uploadIdeaReflexionWithoutFile(ideaData, usuarioId);
                     alert('Idea o reflexión subida exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
         
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir la idea o reflexión:', error);
             }
@@ -411,17 +422,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir Info IISEC con archivo
-                    const result = await uploadInfoIISEC(infoData, file);
+                    const result = await uploadInfoIISEC(infoData, file, usuarioId);
                     alert('Documento Info IISEC subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadInfoIISECWithoutFile(infoData);
+                    const result = await uploadInfoIISECWithoutFile(infoData, usuarioId);
                     alert('Documento Info IISEC subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
         
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir el documento Info IISEC:', error);
             }
@@ -440,17 +451,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (file) {
                     // Si hay un archivo, consumir el endpoint de subir Policy Brief con archivo
-                    const result = await uploadPolicyBrief(policyData, file);
+                    const result = await uploadPolicyBrief(policyData, file, usuarioId);
                     alert('Policy Brief subido exitosamente con archivo!');
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
-                    const result = await uploadPolicyBriefWithoutFile(policyData);
+                    const result = await uploadPolicyBriefWithoutFile(policyData, usuarioId);
                     alert('Policy Brief subido exitosamente sin archivo!');
                     console.log('Resultado:', result);
                 }
         
-                clearFields();
+                //clearFields();
             } catch (error) {
                 console.error('Error al subir el Policy Brief:', error);
             }

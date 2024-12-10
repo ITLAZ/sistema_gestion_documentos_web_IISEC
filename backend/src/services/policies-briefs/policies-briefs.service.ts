@@ -70,10 +70,30 @@ export class PoliciesBriefsService {
     return this.PolicyBriefModel.findOneAndUpdate({ _id: id }, PolicyBrief, { new: true }).exec();
   }
 
-  // Eliminar un PolicyBrief por su id
+  // Eliminado lógico
   async delete(id: string): Promise<PolicyBrief> {
-    return this.PolicyBriefModel.findByIdAndDelete(id).exec();
+    const documento = await this.PolicyBriefModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Policy Brief no encontrado');
+    }
+
+    documento.eliminado = true;
+    return documento.save();
   }
+
+  // Restaurar un documento Policy Brief por su ID
+  async restore(id: string): Promise<PolicyBrief> {
+    const documento = await this.PolicyBriefModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Documento Policy Brief no encontrado');
+    }
+
+    documento.eliminado = false;
+    return documento.save();
+  }
+
 
   //Metodos ElasticSearch
   async syncPoliciesWithElasticsearch() {
@@ -87,9 +107,15 @@ export class PoliciesBriefsService {
           titulo: policy.titulo,              // Campo para búsquedas
           autores: policy.autores,            // Campo para búsquedas
           anio_publicacion: policy.anio_publicacion, // Campo para filtros o búsquedas
-          mensaje_clave: policy.mensaje_clave         // Campo opcional para mejorar el resultado de búsqueda
+          mensaje_clave: policy.mensaje_clave,
+          eliminado: policy.eliminado,         // Campo opcional para mejorar el resultado de búsqueda
         }
       );
     }
   }
+
+  async findDeleted(): Promise<PolicyBrief[]> {
+    return this.PolicyBriefModel.find({ eliminado: true }).exec();
+  }
+
 }

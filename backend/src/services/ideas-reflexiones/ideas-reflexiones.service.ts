@@ -81,9 +81,29 @@ export class IdeasReflexionesService {
     }).exec();
   }
 
-  // Eliminar un IdeaReflexion por su id
+  // Cambiar estado a eliminado lógico
   async delete(id: string): Promise<IdeaReflexion> {
-    return this.IdeaReflexionModel.findByIdAndDelete(id).exec();
+    const ideaReflexion = await this.IdeaReflexionModel.findById(id);
+
+    if (!ideaReflexion) {
+      throw new Error('Idea o reflexión no encontrada');
+    }
+
+    ideaReflexion.eliminado = true;
+
+    return ideaReflexion.save();
+  }
+
+  // Restaurar una Idea o Reflexión por su ID
+  async restore(id: string): Promise<IdeaReflexion> {
+    const documento = await this.IdeaReflexionModel.findById(id);
+
+    if (!documento) {
+      throw new Error('Idea o Reflexión no encontrada');
+    }
+
+    documento.eliminado = false; // Cambiar el estado de eliminado a falso
+    return documento.save();
   }
 
   //Metodos ElasticSearch
@@ -98,9 +118,15 @@ export class IdeasReflexionesService {
           titulo: idea.titulo,              // Campo para búsquedas
           autores: idea.autores,            // Campo para búsquedas
           anio_publicacion: idea.anio_publicacion, // Campo para filtros o búsquedas
-          observaciones: idea.observaciones         // Campo opcional para mejorar el resultado de búsqueda
+          observaciones: idea.observaciones,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: idea.eliminado,
         }
       );
     }
   }
+
+  async findDeleted(): Promise<IdeaReflexion[]> {
+    return this.IdeaReflexionModel.find({ eliminado: true }).exec();
+  }
+  
 }

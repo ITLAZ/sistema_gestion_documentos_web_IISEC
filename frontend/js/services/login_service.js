@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const result = await loginUser(usuario, contrasenia);
+            console.log(result);
 
             if (result && result.id_usuario) {
                 // Guardar el token en una cookie

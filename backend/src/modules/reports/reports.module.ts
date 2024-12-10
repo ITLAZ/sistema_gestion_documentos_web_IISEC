@@ -9,7 +9,7 @@ import { InfoIISEC, InfoIISECSchema } from 'src/schemas/info-iisec.schema';
 import { Libro, LibroSchema } from 'src/schemas/libros.schema';
 import { Log, LogSchema } from 'src/schemas/logs.schema';
 import { PolicyBrief, PolicyBriefSchema } from 'src/schemas/policies-briefs.schema';
-import { Usuario, UsuarioSchema } from 'src/schemas/Usuarios.schema';
+import { Usuario, UsuarioSchema } from 'src/schemas/usuarios.schema';
 import { ReportsService } from 'src/services/reports/reports.service';
 
 @Module({

@@ -37,6 +37,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { FileHandlerController } from './controllers/file-handler.controller';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReportsService } from './services/reports/reports.service';
+import { LogsModuleModule } from './modules/logs-module/logs-module.module';
 
 @Module({
   imports: [
@@ -75,7 +76,8 @@ import { ReportsService } from './services/reports/reports.service';
     PoliciesBriefsModule,
 
     //Modulo de Reportes
-    ReportsModule
+    ReportsModule,
+    LogsModuleModule
   ], 
 
   controllers: [
@@ -99,6 +101,7 @@ import { ReportsService } from './services/reports/reports.service';
     AllTypesService,
     SearchService,
     ReportsService,
+    LogsService
   ],
 })
 export class AppModule {}

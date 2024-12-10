@@ -66,9 +66,31 @@ export class ArticulosRevistasService {
     return this.articuloRevistaModel.findOneAndUpdate({ _id: id }, ArticuloRevista, { new: true }).exec();
   }
 
+  // Eliminado lógico
   async delete(id: string): Promise<ArticuloRevista> {
-    return this.articuloRevistaModel.findByIdAndDelete(id).exec();
+    const articulo = await this.articuloRevistaModel.findById(id);
+
+    if (!articulo) {
+      throw new Error('Artículo no encontrado');
+    }
+
+    articulo.eliminado = true;
+
+    return articulo.save();
   }
+
+  // Restaurar un Artículo de Revista por su ID
+  async restore(id: string): Promise<ArticuloRevista> {
+    const articulo = await this.articuloRevistaModel.findById(id);
+
+    if (!articulo) {
+      throw new Error('Artículo de Revista no encontrado');
+    }
+
+    articulo.eliminado = false;
+    return articulo.save();
+  }
+
 
   async syncArticulosWithElasticsearch() {
     const articulos = await this.articuloRevistaModel.find().exec();
@@ -82,11 +104,17 @@ export class ArticulosRevistasService {
           autores: articulo.autores,    // Campo para búsquedas
           nombre_revista: articulo.nombre_revista,    // Campo para búsquedas          
           anio_revista: articulo.anio_revista, // Campo para filtros o búsquedas
-          abstract: articulo.abstract           // Campo opcional para mejorar el resultado de búsqueda
+          abstract: articulo.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: articulo.eliminado,
         }
       );
     }
   }
+
+  async findDeleted(): Promise<ArticuloRevista[]> {
+    return this.articuloRevistaModel.find({ eliminado: true }).exec();
+  }
+  
 
 }
 

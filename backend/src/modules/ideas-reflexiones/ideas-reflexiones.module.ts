@@ -6,11 +6,16 @@ import { FileUploadService } from 'src/services/file-upload/file-upload.service'
 import { IdeasReflexionesService } from 'src/services/ideas-reflexiones/ideas-reflexiones.service';
 import { SearchService } from 'src/services/search/search.service';
 import { MyElasticsearchModule } from '../my-elasticsearch/my-elasticsearch.module';
+import { Log, LogSchema } from 'src/schemas/logs.schema';
+import { LogsService } from 'src/services/logs_service/logs.service';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: IdeaReflexion.name, schema: IdeaReflexionSchema }]), MyElasticsearchModule],
+  imports: [MongooseModule.forFeature([
+    { name: IdeaReflexion.name, schema: IdeaReflexionSchema },
+    { name: Log.name, schema: LogSchema },
+  ]), MyElasticsearchModule],
   controllers: [IdeasReflexionesController],
-  providers: [IdeasReflexionesService, FileUploadService, SearchService],
+  providers: [IdeasReflexionesService, FileUploadService, SearchService, LogsService],
   exports: [IdeasReflexionesService],
 })
 export class IdeasReflexionesModule {}

@@ -17,4 +17,22 @@ export class LogsService {
       throw new InternalServerErrorException('No se pudo crear el log');
     }
   }
+
+  async createLogDocument(logData: Partial<Log>): Promise<Log>{
+    try{
+      const newLog = new this.logModel(logData);
+      return await newLog.save();
+    } catch(error) {
+      console.error("Error el crear log: ",error);
+      throw new InternalServerErrorException('No se pudo crear el log');
+    }
+  }
+  
+  async getAll(): Promise<Log[]> {
+    return this.logModel.find().exec();
+  }
+
+  async getLogsByActions(actions: string[]): Promise<Log[]> {
+    return this.logModel.find({ accion: { $in: actions } }).exec();
+  }
 }

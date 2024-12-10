@@ -480,18 +480,24 @@ document.addEventListener("DOMContentLoaded", () => {
   // Manejar el evento de clic del botón de búsqueda
   searchButton.addEventListener("click", async () => {
     const documentType = typeSelector.value;
-    const query = keywordsInput.value.trim(); // Palabra clave (obligatoria)
+    const query = ""; // Palabra clave (obligatoria)
     const author = authorInput.value.trim();
     const anio_publicacion = publicationDateInput.value;
+
+    console.log("valor keyword: "+keywordsInput.value);
+
+    if(keywordsInput.value != ""){
+      query = keywordsInput.value.trim(); // Palabra clave (obligatoria)
+    }
 
     isSearchMode = true; // Cambiar a modo búsqueda
     sortBy = "anio_publicacion"; // Fijar el ordenamiento por año en modo de búsqueda
 
     // Validar que se ingrese una palabra clave
-    if (!query) {
+    /*if (!query) {
       alert("Por favor, ingrese una palabra clave para realizar la búsqueda.");
       return;
-    }
+    }*/
 
     if (anio_publicacion) {
       if (

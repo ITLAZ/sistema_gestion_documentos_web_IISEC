@@ -7,6 +7,9 @@ import {
 } from "./services/api_service.js";
 import { loadNavbar } from "./services/navbar_service.js";
 
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
+
 
 // Verificar si el usuario está autenticado
 (function verificarAutenticacion() {
@@ -350,7 +353,7 @@ function displayDocumentDetails(data, documentType) {
 
     default:
       console.error("Tipo de documento desconocido:", documentType);
-      alert("El tipo de documento no está disponible.");
+      Sweetalert2.fire("El tipo de documento no está disponible.");
       return; // Detener si no hay tipo
   }
 
@@ -488,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Validar que se ingrese una palabra clave
     if (!query) {
-      alert("Por favor, ingrese una palabra clave para realizar la búsqueda.");
+      Sweetalert2.fire("Por favor, ingrese una palabra clave para realizar la búsqueda.");
       return;
     }
 
@@ -498,7 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
         anio_publicacion < 1900 ||
         anio_publicacion > currentYear
       ) {
-        alert(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
+        Sweetalert2.fire(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
         publicationDateInput.value = "";
         return;
       }
@@ -531,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderResults(data, documentType);
     } catch (error) {
       console.error("Error al realizar la búsqueda:", error);
-      alert(
+      Sweetalert2.fire(
         "Hubo un error al realizar la búsqueda. Por favor, inténtelo de nuevo."
       );
     }

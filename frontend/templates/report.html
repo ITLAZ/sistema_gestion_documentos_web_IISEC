@@ -85,6 +85,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
     <script type="module">
+        
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
@@ -131,22 +134,22 @@
 
             // Validaciones
             if (!author && !startDate && !endDate) {
-                alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
+                Sweetalert2.fire('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
                 return;
             }
 
             if (startDate && !endDate) {
-                alert('Debe ingresar un año final si ha ingresado un año de inicio.');
+                Sweetalert2.fire('Debe ingresar un año final si ha ingresado un año de inicio.');
                 return;
             }
 
             if (!startDate && endDate) {
-                alert('Debe ingresar un año de inicio si ha ingresado un año final.');
+                Sweetalert2.fire('Debe ingresar un año de inicio si ha ingresado un año final.');
                 return;
             }
 
             if (parseInt(startDate) > parseInt(endDate)) {
-                alert('El año inicial no puede ser mayor que el año final.');
+                Sweetalert2.fire('El año inicial no puede ser mayor que el año final.');
                 return;
             }
 
@@ -516,7 +519,7 @@
                 y += imgHeight + 10;
             }
 
-            alert("Se generó exitosamente el PDF");
+            Sweetalert2.fire("Se generó exitosamente el PDF");
 
             // Descargar el PDF
             doc.save('reporte.pdf');

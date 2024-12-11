@@ -6,6 +6,7 @@ const port = 3001;
 
 // Middleware to serve static files
 app.use(express.static(path.join(__dirname)));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // Basic route to serve index.html
 app.get('/', (req, res) => {

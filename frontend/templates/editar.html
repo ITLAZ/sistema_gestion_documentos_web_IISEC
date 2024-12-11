@@ -129,6 +129,9 @@
 
 
 <script type="module">
+
+    import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
     import { loadNavbar } from '../js/services/navbar_service.js';
     import { loadDocumentData, handleDocumentUpdate } from '../js/handlers/actions_handler.js';
 
@@ -154,7 +157,7 @@
 
     function onSaveButtonClick() {
 
-        const  usuarioId = getCookieValue('id_usuario');
+        const usuarioId = getCookieValue('id_usuario');
         console.log('ID de usuario:', usuarioId);
 
         if (documentType && documentId) {
@@ -162,7 +165,7 @@
                 .catch(error => console.error('Error al actualizar el documento:', error));
 
         } else {
-            alert('No se encontraron los parámetros necesarios para la actualización.');
+            Sweetalert2.fire('No se encontraron los parámetros necesarios para la actualización.');
         }
     }
 

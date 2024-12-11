@@ -1,3 +1,6 @@
+
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 import { fetchLogs } from '../services/logs_services.js';
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -1,4 +1,6 @@
 
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 export async function getDocumentsByType(documentType, page, size, sortBy, sortOrder) {
     try {
         // Construir la URL usando el tipo de documento
@@ -19,7 +21,7 @@ export async function getDocumentsByType(documentType, page, size, sortBy, sortO
         return data;
     } catch (error) {
         console.error(`Error al obtener los documentos de tipo ${documentType}:`, error);
-        alert(`Hubo un problema al obtener los documentos de tipo ${documentType}. Por favor, intenta de nuevo más tarde.`);
+        Sweetalert2.fire(`Hubo un problema al obtener los documentos de tipo ${documentType}. Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -41,7 +43,7 @@ export async function getAllDocuments(query = '', page, size, sortBy = 'anio_pub
         return await response.json();
     } catch (error) {
         console.error('Error al obtener todos los documentos:', error);
-        alert('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -89,7 +91,7 @@ export async function deleteDocumentById(documentType, id, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error(`Error al eliminar el documento (${documentType}):`, error);
-        alert(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        Sweetalert2.fire(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -111,7 +113,7 @@ export async function updateDocumentById(documentType, id, updatedData, usuarioI
         return await response.json();
     } catch (error) {
         console.error(`Error al editar el documento (${documentType}):`, error);
-        alert(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        Sweetalert2.fire(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -207,7 +209,7 @@ export async function uploadBook(libroData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el libro:', error);
-        alert('Hubo un problema al subir el libro. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el libro. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -247,7 +249,7 @@ export async function uploadBookWithoutFile(libroData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el libro sin archivo:', error);
-        alert('Hubo un problema al subir el libro sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el libro sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -298,7 +300,7 @@ export async function uploadArt(artData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el artículo de revista:', error);
-        alert('Hubo un problema al subir el artículo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el artículo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -340,7 +342,7 @@ export async function uploadArtWithoutFile(artData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el artículo sin archivo:', error);
-        alert('Hubo un problema al subir el artículo sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el artículo sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -405,7 +407,7 @@ export async function uploadCapitulo(capituloData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el capítulo de libro:', error);
-        alert('Hubo un problema al subir el capítulo de libro. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el capítulo de libro. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -450,7 +452,7 @@ export async function uploadCapituloWithoutFile(capituloData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el capítulo de libro sin archivo:', error);
-        alert('Hubo un problema al subir el capítulo de libro sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el capítulo de libro sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -500,7 +502,7 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento de trabajo:', error);
-        alert('Hubo un problema al subir el documento de trabajo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento de trabajo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -540,7 +542,7 @@ export async function uploadDocumentoTrabajoWithoutFile(docData) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento de trabajo sin archivo:', error);
-        alert('Hubo un problema al subir el documento de trabajo sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento de trabajo sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -590,7 +592,7 @@ export async function uploadIdeaReflexion(ideaData, file) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir la idea o reflexión:', error);
-        alert('Hubo un problema al subir la idea o reflexión. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir la idea o reflexión. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -628,7 +630,7 @@ export async function uploadIdeaReflexionWithoutFile(ideaData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir la idea o reflexión sin archivo:', error);
-        alert('Hubo un problema al subir la idea o reflexión sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir la idea o reflexión sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -677,7 +679,7 @@ export async function uploadInfoIISEC(infoData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento Info IISEC:', error);
-        alert('Hubo un problema al subir el documento Info IISEC. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento Info IISEC. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -715,7 +717,7 @@ export async function uploadInfoIISECWithoutFile(infoData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento Info IISEC sin archivo:', error);
-        alert('Hubo un problema al subir el documento Info IISEC sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento Info IISEC sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -764,7 +766,7 @@ export async function uploadPolicyBrief(policyData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el Policy Brief:', error);
-        alert('Hubo un problema al subir el Policy Brief. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el Policy Brief. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -802,7 +804,7 @@ export async function uploadPolicyBriefWithoutFile(policyData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el Policy Brief sin archivo:', error);
-        alert('Hubo un problema al subir el Policy Brief sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el Policy Brief sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }

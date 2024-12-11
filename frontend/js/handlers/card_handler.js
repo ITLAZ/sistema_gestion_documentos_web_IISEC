@@ -1,3 +1,6 @@
+
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 import { handleDocumentDeletion, loadDocumentData } from './actions_handler.js'; 
 import { fetchAndRenderDocuments } from '../main.js';
 
@@ -105,7 +108,7 @@ function updateCardData(cardElement, data, documentType, isSearchResult = false)
                 break;
             default:
                 console.error('Tipo de documento desconocido:', documentType);
-                alert('El tipo de documento no está disponible.');
+                Sweetalert2.fire('El tipo de documento no está disponible.');
                 return;
         }
 
@@ -161,7 +164,7 @@ function updateCardData(cardElement, data, documentType, isSearchResult = false)
 
         default:
             console.error('Tipo de documento desconocido:', documentType);
-            alert('El tipo de documento no está disponible.');
+            Sweetalert2.fire('El tipo de documento no está disponible.');
             return; // Detener si no hay tipo
     }
 }

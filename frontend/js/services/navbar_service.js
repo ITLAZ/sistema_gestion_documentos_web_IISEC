@@ -1,4 +1,7 @@
 // services/navbar_service.js
+
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 import { logoutUser } from './logout_service.js'; // Importar la función para cerrar sesión
 import { getUserById } from './user_services.js';
 
@@ -26,7 +29,7 @@ export async function loadNavbar() {
 
             // Verificar si el usuario está activo
             if (!user.activo) {
-                alert('La cuenta no está activa. Contacte con un administrador.');
+                Sweetalert2.fire('La cuenta no está activa. Contacte con un administrador.');
                 window.location.href = '/login'; // Redirigir al login
                 return;
             }
@@ -48,7 +51,7 @@ export async function loadNavbar() {
 
         } catch (error) {
             console.error('Error al verificar el estado del usuario:', error);
-            alert('Hubo un problema al verificar tu cuenta. Intenta más tarde.');
+            Sweetalert2.fire('Hubo un problema al verificar tu cuenta. Intenta más tarde.');
             window.location.href = '/login';
         }
 

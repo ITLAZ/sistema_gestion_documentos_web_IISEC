@@ -1,3 +1,6 @@
+// Usar la versión correcta para módulos ES6
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 import { deleteDocumentById, updateDocumentById, getDocumentById } from '../services/api_service.js';
 
 function getCookieValue(name) {
@@ -26,7 +29,7 @@ export async function handleDocumentDeletion(documentType, documentId, cardEleme
                 console.log("documentos",documentType);
                 console.log("documentos",documentId);
                 await deleteDocumentById(documentType, documentId, usuarioId);
-                alert("El documento ha sido eliminado exitosamente.");
+                Sweetalert2.fire("El documento ha sido eliminado exitosamente.");
                 // Remover la tarjeta del DOM
                 console.log("llego hasta aqui");
                 cardElement.remove();
@@ -34,10 +37,10 @@ export async function handleDocumentDeletion(documentType, documentId, cardEleme
                 console.error('Error al eliminar el documento:', error);
             }
         } else {
-            alert('No se encontraron los parámetros necesarios para eliminar el documento.');
+            Sweetalert2.fire('No se encontraron los parámetros necesarios para eliminar el documento.');
         }
     } else {
-        alert('El mensaje ingresado no es correcto. Por favor, escribe exactamente: "si, deseo eliminar este archivo".');
+        Sweetalert2.fire('El mensaje ingresado no es correcto. Por favor, escribe exactamente: "si, deseo eliminar este archivo".');
     }
 }
 
@@ -236,7 +239,7 @@ export async function handleDocumentUpdate(documentType, documentId, usuarioId) 
 
     // Si hay errores, mostrar un mensaje y detener el proceso.
     if (errors.length > 0) {
-        alert(errors.join('\n'));
+        Sweetalert2.fire(errors.join('\n'));
         return;
     }
 
@@ -334,11 +337,11 @@ export async function handleDocumentUpdate(documentType, documentId, usuarioId) 
         // Enviar la solicitud de actualización solo si hay datos modificados.
         if (Object.keys(updatedData).length > 0) {
             await updateDocumentById(documentType, documentId, updatedData, usuarioId);
-            alert('Documento actualizado exitosamente.');
+            Sweetalert2.fire('Documento actualizado exitosamente.');
         } else {
-            alert('No se detectaron cambios para actualizar.');
+            Sweetalert2.fire('No se detectaron cambios para actualizar.');
         }
     } catch (error) {
-        alert('Error al actualizar el documento:', error);
+        Sweetalert2.fire('Error al actualizar el documento:', error);
     }
 }

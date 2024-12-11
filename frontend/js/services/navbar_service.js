@@ -53,21 +53,9 @@ export async function loadNavbar() {
         }
 
         // Añadir evento de logout después de cargar el menú
-        const logoutButton = document.getElementById('logout-button');
+        const logoutButton = document.querySelector('.navbar-links a[href=""]'); // Selecciona el enlace vacío
         if (logoutButton) {
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    const result = await logoutUser(idUsuario);
-                    if (result.message === 'Logout exitoso') {
-                        document.cookie = "id_usuario=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                        alert('Cierre de sesión exitoso.');
-                        window.location.href = '/login';
-                    }
-                } catch (error) {
-                    console.error('Error al intentar cerrar sesión:', error);
-                    alert('Hubo un problema al cerrar sesión. Intente de nuevo más tarde.');
-                }
-            });
+            logoutButton.addEventListener('click', logout);
         }
 
     } catch (error) {
@@ -81,4 +69,17 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
+}
+
+// Función para manejar el cierre de sesión
+function logout() {
+    // Eliminar cookies relacionadas con la sesión
+    document.cookie = "__client_uat=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    document.cookie = "__client_uat_2FGVYXKM=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    document.cookie = "__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    document.cookie = "__session_2FGVYXKM=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    document.cookie = "id_usuario=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+
+    // Redirigir al login o página principal
+    window.location.href = "/login"; // Redirigir a la página de login después de cerrar sesión
 }

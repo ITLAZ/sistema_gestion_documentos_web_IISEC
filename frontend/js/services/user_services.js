@@ -42,14 +42,15 @@ export async function createUser(userData) {
         });
 
         if (!response.ok) {
-            throw new Error(`Error al crear el usuario: ${response.status} - ${response.statusText}`);
+            const errorData = await response.json(); // Extrae el cuerpo de error
+            throw new Error(errorData.message || 'Error desconocido al crear el usuario.');
         }
 
         const data = await response.json();
         return data; // Retorna el usuario creado desde el backend
     } catch (error) {
         console.error('Error en createUser:', error);
-        throw error;
+        throw error; // Re-lanza el error para manejarlo en el frontend
     }
 }
 

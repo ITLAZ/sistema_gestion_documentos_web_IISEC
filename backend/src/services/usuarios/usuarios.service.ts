@@ -9,13 +9,32 @@ export class UsuariosService {
   constructor(@InjectModel(Usuario.name) private UsuarioModel: Model<Usuario>) {}
 
   async create(usuarioDto: Partial<Usuario>): Promise<Usuario> {
-    const nuevoUsuario = new this.UsuarioModel({
-      ...usuarioDto,
-      admin: usuarioDto.admin ?? false, // Si no se proporciona, se establece como `false`
-      activo: usuarioDto.activo ?? true, // Si no se proporciona, se establece como `true`
-    });
-    return nuevoUsuario.save();
+    try {
+      // Verificar si el usuario ya existe
+      const usuarioExistente = await this.UsuarioModel.findOne({ usuario: usuarioDto.usuario });
+      if (usuarioExistente) {
+        throw new BadRequestException(`El usuario ya existe, por favor elija otro usuario.`);
+      }
+  
+      // Crear un nuevo usuario
+      const nuevoUsuario = new this.UsuarioModel({
+        ...usuarioDto,
+        admin: usuarioDto.admin ?? false,
+        activo: usuarioDto.activo ?? true,
+      });
+      return await nuevoUsuario.save();
+    } catch (error) {
+      // Manejo explícito de errores de índices únicos (MongoDB)
+      if (error.code === 11000) {
+        throw new BadRequestException(`El usuario ya existe, por favor elija otro usuario.`);
+      }
+      // Re-lanzar otros errores para el controlador
+      throw error;
+    }
   }
+  
+  
+  
   
 
   async validatePassword(usuario: string, plainPassword: string): Promise<boolean> {

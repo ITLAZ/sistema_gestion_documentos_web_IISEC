@@ -15,37 +15,39 @@ export class UsuariosController {
     @Post('crear')
     @ApiOperation({ summary: 'Crear una cuenta de usuario' })
     @ApiBody({
-        description: 'Datos necesarios para crear un nuevo usuario',
-        schema: {
-            example: {
-                usuario: 'jdoe',
-                nombre: 'John Doe',
-                contrasenia: 'password123',
-                theme: 1,
-                admin: false,
-                activo: true
-            }
-        }
+    description: 'Datos necesarios para crear un nuevo usuario',
+    schema: {
+        example: {
+        usuario: 'jdoe',
+        nombre: 'John Doe',
+        contrasenia: 'password123',
+        theme: 1,
+        admin: false,
+        activo: true,
+        },
+    },
     })
     @ApiResponse({ status: 201, description: 'Usuario creado exitosamente', type: Usuario })
-    @ApiResponse({ status: 400, description: 'Datos faltantes o inválidos' })
+    @ApiResponse({ status: 400, description: 'Datos faltantes, duplicados o inválidos' })
     async createAccount(@Body() createUserDto: Partial<Usuario>): Promise<Usuario> {
-      // Validación básica
-      if (!createUserDto.usuario || !createUserDto.nombre || !createUserDto.contrasenia) {
-        throw new BadRequestException('Faltan datos necesarios para crear el usuario');
-      }
-
-      // Lógica de creación de usuario
-      try {
-        const nuevoUsuario = await this.usuariosService.create(createUserDto);
-        return nuevoUsuario;
-      } catch (error) {
-        throw new BadRequestException({
-          message: 'No se pudo crear la cuenta de usuario',
-          error: error.message,
-        });
-      }
+        if (!createUserDto.usuario || !createUserDto.nombre || !createUserDto.contrasenia) {
+          throw new BadRequestException('Faltan datos necesarios para crear el usuario');
+        }
+      
+        try {
+          // Intentar crear el usuario
+          return await this.usuariosService.create(createUserDto);
+        } catch (error) {
+          if (error instanceof BadRequestException) {
+            // Re-lanzar errores específicos de validación
+            throw error;
+          }
+          console.error('Error inesperado al crear el usuario:', error); // Log para depuración
+          throw new InternalServerErrorException('Error interno al crear el usuario');
+        }
     }
+
+      
 
     @Post('login')
     @ApiOperation({ summary: 'Inicio de sesión de usuario' })

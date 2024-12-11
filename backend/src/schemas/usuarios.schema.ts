@@ -10,7 +10,7 @@ export class Usuario extends Document {
     example: 'jdoe',
     description: 'Nombre único de usuario',
   })
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   usuario: string;
 
   @ApiProperty({

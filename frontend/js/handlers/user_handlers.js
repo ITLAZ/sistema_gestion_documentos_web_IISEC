@@ -136,14 +136,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 contrasenia: formData.get('contrasenia'),
                 admin: formData.get('admin') === 'on', // Convertir checkbox a booleano
             };
-
+    
             try {
                 const createdUser = await createUser(newUser);
                 alert(`Usuario ${createdUser.usuario} creado exitosamente.`);
                 closeModal();
                 renderUsers();
             } catch (error) {
-                alert('Error al crear el usuario. Por favor, intente nuevamente.');
+                // Mostrar el mensaje de error específico en la alerta
+                alert(error.message || 'Error al crear el usuario. Por favor, intente nuevamente.');
             }
         }
     });

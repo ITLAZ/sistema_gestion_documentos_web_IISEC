@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
-    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="../css/styles.css">
-    </noscript>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    
+
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>
@@ -85,8 +84,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
     <script type="module">
-        
-import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
+        import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
 
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="../css/styles.css"></noscript>
     <title>Vista Detallada</title>
+    
+
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>
@@ -16,53 +17,67 @@
             <div class="details">
                 <h2 class="info-title"><strong>Título:</strong> <span id="title">Título del Documento</span></h2>
                 <figure>
-                    <img id="cover" class="card-img-top" src="https://placehold.com/600x400" alt="Portada del Documento">
+                    <img id="cover" class="card-img-top" src="https://placehold.com/600x400"
+                        alt="Portada del Documento">
                 </figure>
                 <div class="info">
                     <!-- Campo Tipo de Documento -->
-                    <p class="info-subtitle"><strong>Tipo de Documento:</strong> <span id="type">Tipo de Documento</span></p>
+                    <p class="info-subtitle"><strong>Tipo de Documento:</strong> <span id="type">Tipo de
+                            Documento</span></p>
 
                     <!-- Campo Autor(es) -->
                     <p class="info-text"><strong>Autor(es):</strong> <span id="authors">Autor(es)</span></p>
 
                     <!-- Campo Año de Publicación -->
-                    <p class="info-text"><strong>Año de Publicación:</strong> <span id="published">Año de Publicación</span></p>
+                    <p class="info-text"><strong>Año de Publicación:</strong> <span id="published">Año de
+                            Publicación</span></p>
 
                     <!-- Campo Editorial (Para Libros, Artículos de Revistas y Capítulos de Libros) -->
-                    <p class="info-text" id="editorial" style="display: none;"><strong>Editorial:</strong> <span id="editorial-text">Editorial</span></p>
+                    <p class="info-text" id="editorial" style="display: none;"><strong>Editorial:</strong> <span
+                            id="editorial-text">Editorial</span></p>
 
                     <!-- Campo Número de Artículo (Para Artículos de Revistas) -->
-                    <p class="info-text" id="numero_articulo" style="display: none;"><strong>Número de Artículo:</strong> <span id="article-number">Número del Artículo</span></p>
+                    <p class="info-text" id="numero_articulo" style="display: none;"><strong>Número de
+                            Artículo:</strong> <span id="article-number">Número del Artículo</span></p>
 
                     <!-- Campo Nombre de la Revista (Para Artículos de Revistas) -->
-                    <p class="info-text" id="nombre_revista" style="display: none;"><strong>Nombre de la Revista:</strong> <span id="revista">Nombre de la Revista</span></p>
+                    <p class="info-text" id="nombre_revista" style="display: none;"><strong>Nombre de la
+                            Revista:</strong> <span id="revista">Nombre de la Revista</span></p>
 
                     <!-- Campo Número de Identificación (Para Capítulos de Libros y Documentos de Trabajo) -->
-                    <p class="info-text" id="numero_identificacion" style="display: none;"><strong>Número de Identificación:</strong> <span id="numero_identificacion_value">Número de Identificación</span></p>
+                    <p class="info-text" id="numero_identificacion" style="display: none;"><strong>Número de
+                            Identificación:</strong> <span id="numero_identificacion_value">Número de
+                            Identificación</span></p>
 
                     <!-- Campo Título del Capítulo (Para Capítulos de Libros) -->
-                    <p class="info-text" id="titulo_capitulo" style="display: none;"><strong>Título del Capítulo:</strong> <span id="titulo_capitulo_value">Título del Capítulo</span></p>
+                    <p class="info-text" id="titulo_capitulo" style="display: none;"><strong>Título del
+                            Capítulo:</strong> <span id="titulo_capitulo_value">Título del Capítulo</span></p>
 
                     <!-- Campo Título del Libro (Para Capítulos de Libros) -->
-                    <p class="info-text" id="titulo_libro" style="display: none;"><strong>Título del Libro:</strong> <span id="titulo_libro_value">Título del Libro</span></p>
+                    <p class="info-text" id="titulo_libro" style="display: none;"><strong>Título del Libro:</strong>
+                        <span id="titulo_libro_value">Título del Libro</span></p>
 
                     <!-- Campo Editores (Para Capítulos de Libros) -->
-                    <p class="info-text" id="editores" style="display: none;"><strong>Editores:</strong> <span id="editores_value">Editores</span></p>
+                    <p class="info-text" id="editores" style="display: none;"><strong>Editores:</strong> <span
+                            id="editores_value">Editores</span></p>
 
 
                     <!-- Campo Abstract (Para Documentos de Trabajo, Artículos de Libros y Libros) -->
                     <div class="info-desc" id="descripcion" style="display: none;">
-                        <p class="info-text"><strong>Abstract:</strong> <span id="description">Descripción del documento.</span></p>
+                        <p class="info-text"><strong>Abstract:</strong> <span id="description">Descripción del
+                                documento.</span></p>
                     </div>
 
                     <!-- Campo Observación (Para Ideas y Reflexiones y Info IISEC) -->
                     <div class="info-obs" id="observacion" style="display: none;">
-                        <p class="info-text"><strong>Observaciones:</strong> <span id="observation">Observaciones del documento.</span></p>
+                        <p class="info-text"><strong>Observaciones:</strong> <span id="observation">Observaciones del
+                                documento.</span></p>
                     </div>
 
                     <!-- Campo Mensaje Clave (Para Policy and Briefs) -->
                     <div class="info-msj" id="msj_clave" style="display: none;">
-                        <p class="info-text"><strong>Mensaje Clave:</strong> <span id="msj_claves">Mensaje Clave del documento.</span></p>
+                        <p class="info-text"><strong>Mensaje Clave:</strong> <span id="msj_claves">Mensaje Clave del
+                                documento.</span></p>
                     </div>
 
                     <!-- Campo Link PDF (Igual para todos los documentos) 
@@ -84,4 +99,5 @@
     </div>
 </body>
 <script src="../js/main.js" type="module"></script>
+
 </html>

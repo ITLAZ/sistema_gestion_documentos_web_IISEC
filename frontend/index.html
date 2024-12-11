@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -9,6 +9,17 @@
     <noscript>
         <link rel="stylesheet" href="css/styles.css">
     </noscript>
+<script>
+    (function() {
+      function getCookie(name) {
+        const cookies = document.cookie.split("; ");
+        const cookie = cookies.find(row => row.startsWith(name + "="));
+        return cookie ? cookie.split("=")[1] : null;
+      }
+      const storedTheme = getCookie("theme") || "light";
+      document.documentElement.setAttribute("data-theme", storedTheme);
+    })();
+  </script>
 </head>
 
 <body>

@@ -8,6 +8,14 @@ const port = 3001;
 app.use(express.static(path.join(__dirname)));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
+// Middleware para pasar el tema a todas las rutas
+app.use((req, res, next) => {
+    const theme = req.cookies.theme || "light";  // Recuperar tema de cookies o default a 'light'
+    res.locals.theme = theme;  // Guardar el tema en res.locals para usarlo en el HTML
+    next();
+});
+
+
 // Basic route to serve index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

@@ -80,32 +80,43 @@ export class SearchService {
       page: number,
       size: number,
       filters: {
-        anio_publicacion?: number,
-        autores?: string,
+        anio_publicacion?: number;
+        autores?: string | string[]; // Lista de autores
       },
       sortBy: string = 'anio_publicacion',
       sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const from = (page - 1) * size;
-      const filterConditions = [];
+      const filterConditions: any[] = [];
     
       // Siempre excluimos documentos eliminados
-      filterConditions.push({ term: { 'eliminado': false } });
+      filterConditions.push({ term: { eliminado: false } });
     
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
-        filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
+        filterConditions.push({ term: { anio_publicacion: filters.anio_publicacion } });
       }
     
       if (filters.autores) {
-        filterConditions.push({ match: { 'autores': filters.autores } });
+        const autoresArray = Array.isArray(filters.autores) ? filters.autores : [filters.autores];
+        // Verificar que todos los autores estén en el campo `autores`
+        autoresArray.forEach((autor) => {
+          filterConditions.push({
+            match: {
+              autores: {
+                query: autor,
+                operator: 'and', // Asegura coincidencia exacta para el autor
+              },
+            },
+          });
+        });
       }
-
-      // Si el tipo es 'articulos-revistas', ajustar el campo de ordenamiento
+    
+      // Ajustar el ordenamiento
       if (type === 'articulos-revistas') {
         sortBy = 'anio_revista';
       }
-
+    
       if (sortBy === 'titulo') {
         sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
       } else if (sortBy === 'autor') {
@@ -118,58 +129,54 @@ export class SearchService {
         size,
         query: {
           bool: {
-            must: [],
-            filter: filterConditions,
-            ...(query.trim()
-              ? {
-                  should: [
-                    {
-                      multi_match: {
-                        query,
-                        fields: [
-                          'titulo^6',
-                          'autores^4',
-                          'editores^2',
-                          'editorial^2',
-                          'abstract^1',
-                          'nombre_revista^6',
-                          'titulo_capitulo^6',
-                          'titulo_libro^6',
-                          'observaciones^1',
-                          'mensaje_clave^1',
-                        ],
-                        fuzziness: 'AUTO',
-                        prefix_length: 1,
-                        minimum_should_match: '60%',
+            must: query.trim()
+              ? [
+                  {
+                    multi_match: {
+                      query,
+                      fields: [
+                        'titulo^6',
+                        'autores^4',
+                        'editores^2',
+                        'editorial^2',
+                        'abstract^1',
+                        'nombre_revista^6',
+                        'titulo_capitulo^6',
+                        'titulo_libro^6',
+                        'observaciones^1',
+                        'mensaje_clave^1',
+                      ],
+                      fuzziness: 'AUTO',
+                      prefix_length: 1,
+                      minimum_should_match: '60%',
+                    },
+                  },
+                  {
+                    match_phrase_prefix: {
+                      titulo: {
+                        query: query.toLowerCase(),
+                        boost: 2,
                       },
                     },
-                    {
-                      match_phrase_prefix: {
-                        titulo: {
-                          query: query.toLowerCase(),
-                          boost: 2,
-                        },
-                      },
-                    },
-                  ],
-                  minimum_should_match: 1,
-                }
-              : {}),
+                  },
+                ]
+              : [], // Si no hay query, no añadimos condiciones `must`
+            filter: filterConditions, // Aplicar filtros
           },
         },
         sort: [{ [sortBy]: { order: sortOrder } }],
       };
-
-      console.log(JSON.stringify(queryBody, null, 2));   
+    
+      console.log(JSON.stringify(queryBody, null, 2));
     
       // Realizar búsqueda en Elasticsearch
       const result = await this.elasticsearchService.search({
         index: type,
-        body: queryBody
+        body: queryBody,
       });
     
       return result.hits.hits;
-    }
+    }    
     
     
     async searchAllCollections(
@@ -178,7 +185,7 @@ export class SearchService {
       size: number,
       filters: {
         anio_publicacion?: number;
-        autores?: string;
+        autores?: string | string[]; // Lista de autores
         tipo_documento?: string;
       },
       sortBy: string = 'anio_publicacion',
@@ -196,7 +203,18 @@ export class SearchService {
       }
     
       if (filters.autores) {
-        filterConditions.push({ match: { autores: filters.autores } });
+        const autoresArray = Array.isArray(filters.autores) ? filters.autores : [filters.autores];
+        // Verificar que todos los autores estén en el campo `autores`
+        autoresArray.forEach((autor) => {
+          filterConditions.push({
+            match: {
+              autores: {
+                query: autor,
+                operator: 'and', // Asegura coincidencia exacta para el autor
+              },
+            },
+          });
+        });
       }
     
       if (filters.tipo_documento) {
@@ -216,43 +234,39 @@ export class SearchService {
         size,
         query: {
           bool: {
-            must: [],
-            filter: filterConditions,
-            ...(query.trim()
-              ? {
-                  should: [
-                    {
-                      multi_match: {
-                        query,
-                        fields: [
-                          'titulo^6',
-                          'autores^4',
-                          'editores^2',
-                          'editorial^2',
-                          'abstract^1',
-                          'nombre_revista^6',
-                          'titulo_capitulo^6',
-                          'titulo_libro^6',
-                          'observaciones^1',
-                          'mensaje_clave^1',
-                        ],
-                        fuzziness: 'AUTO',
-                        prefix_length: 1,
-                        minimum_should_match: '60%',
+            must: query.trim()
+              ? [
+                  {
+                    multi_match: {
+                      query,
+                      fields: [
+                        'titulo^6',
+                        'autores^4',
+                        'editores^2',
+                        'editorial^2',
+                        'abstract^1',
+                        'nombre_revista^6',
+                        'titulo_capitulo^6',
+                        'titulo_libro^6',
+                        'observaciones^1',
+                        'mensaje_clave^1',
+                      ],
+                      fuzziness: 'AUTO',
+                      prefix_length: 1,
+                      minimum_should_match: '60%',
+                    },
+                  },
+                  {
+                    match_phrase_prefix: {
+                      titulo: {
+                        query: query.toLowerCase(),
+                        boost: 2,
                       },
                     },
-                    {
-                      match_phrase_prefix: {
-                        titulo: {
-                          query: query.toLowerCase(),
-                          boost: 2,
-                        },
-                      },
-                    },
-                  ],
-                  minimum_should_match: 1,
-                }
-              : {}),
+                  },
+                ]
+              : [], // Si no hay query, no añadimos condiciones `must`
+            filter: filterConditions, // Aplicar filtros
           },
         },
         sort: [{ [sortBy]: { order: sortOrder } }],
@@ -267,7 +281,7 @@ export class SearchService {
       });
     
       return result.hits.hits;
-    }
+    } 
     
     
     

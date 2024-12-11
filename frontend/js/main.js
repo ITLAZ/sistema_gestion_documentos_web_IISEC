@@ -622,16 +622,33 @@ if (!dateOrderButton) {
   // Función para renderizar los resultados
   function renderResults(data, documentType) {
     const cardsContainer = document.getElementById("cards-container");
+    const nextPageButton = document.getElementById("next-page");
+    const prevPageButton = document.getElementById("prev-page");
+    const pageInfo = document.getElementById("page-info");
     cardsContainer.innerHTML = ""; // Limpiar los resultados anteriores
 
     // Verificar si hay resultados
     if (Array.isArray(data) && data.length > 0) {
       console.log("Número de resultados encontrados:", data.length);
-      loadCards(data, documentType, true);
+      loadCards(data, documentType, true); // Renderiza las tarjetas
+  
+      // Mostrar botones de paginación
+      document.getElementById("pagination-controls").style.display = "block";
+  
+      // Ocultar el botón "Siguiente" si no hay más resultados
+      nextPageButton.style.display = data.length < itemsPerPage ? "none" : "inline-block";
+  
+      // Ocultar el botón "Anterior" si estamos en la primera página
+      prevPageButton.style.display = currentPage === 1 ? "none" : "inline-block";
+  
+      // Actualizar información de la página
+      pageInfo.innerText = `Página ${currentPage}`;
     } else {
       console.log("No se encontraron resultados para la búsqueda.");
-      cardsContainer.innerHTML =
-        "<p>No se encontraron resultados para la búsqueda.</p>";
+      cardsContainer.innerHTML = "<p>No se encontraron resultados para la búsqueda.</p>";
+  
+      // Ocultar controles de paginación
+      document.getElementById("pagination-controls").style.display = "none";
     }
   }
 });

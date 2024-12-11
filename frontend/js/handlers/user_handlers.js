@@ -18,17 +18,22 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('modal-overlay');
     document.body.appendChild(modalOverlay);
 
-    // Renderizar usuarios en la tabla
     async function renderUsers() {
         try {
             // Obtener usuarios desde el backend
             const users = await getAllUsers();
-
+    
+            // Obtener el ID del usuario desde las cookies
+            const currentUserId = getCookieValue('id_usuario');
+    
+            // Filtrar los usuarios para excluir al usuario actual
+            const filteredUsers = users.filter(user => user._id !== currentUserId);
+    
             // Limpiar la tabla antes de renderizar
             tbody.innerHTML = '';
-
-            // Generar filas para cada usuario
-            users.forEach((user) => {
+    
+            // Generar filas para cada usuario filtrado
+            filteredUsers.forEach((user) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${user.usuario}</td>
@@ -50,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('No se pudieron cargar los usuarios. Por favor, intente más tarde.');
         }
     }
+    
 
     // Manejar clic en botones "Activar/Desactivar" usando delegación de eventos
     tbody.addEventListener('click', async (e) => {

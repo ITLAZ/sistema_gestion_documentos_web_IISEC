@@ -155,7 +155,7 @@
             // Construir la URL según la selección en el combo box
             let url;
             if (category === "all-types") {
-                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
+                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             } else {
                 url = `http://localhost:3000/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             }
@@ -224,7 +224,7 @@
                     const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
                     const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
 
-                    summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
+                    summaryContainer.appendChild(createSummaryCard('Documento con más resultados', mostResultsDescription));
                     summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
                     summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
                 }
@@ -285,7 +285,7 @@
 
                 if (category === "all-types") {
                     // Realiza una solicitud al endpoint countByTypes para el primer gráfico
-                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}`);
+                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
                     if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
                     const countByTypesData = await countByTypesResponse.json();
                     // Gráfico de Conteo de Documentos por Categoría

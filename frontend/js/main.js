@@ -480,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Manejar el evento de clic del botón de búsqueda
   searchButton.addEventListener("click", async () => {
     const documentType = typeSelector.value;
-    const query = ""; // Palabra clave (obligatoria)
+    let query = ""; // Palabra clave (obligatoria)
     const author = authorInput.value.trim();
     const anio_publicacion = publicationDateInput.value;
 

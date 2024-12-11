@@ -67,10 +67,16 @@ export class SearchService {
       if (filters.autores) {
         filterConditions.push({ match: { 'autores': filters.autores } });
       }
-    
+
       // Si el tipo es 'articulos-revistas', ajustar el campo de ordenamiento
       if (type === 'articulos-revistas') {
         sortBy = 'anio_revista';
+      }
+
+      if (sortBy === 'titulo') {
+        sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
+      } else if (sortBy === 'autor') {
+        sortBy = 'autor.keyword';
       }
     
       // Crear consulta principal
@@ -87,16 +93,16 @@ export class SearchService {
                       multi_match: {
                         query: query,
                         fields: [
-                          'titulo^3',
-                          'autores^2',
+                          'titulo^6',
+                          'autores^4',
                           'editores^2',
-                          'editorial',
-                          'abstract',
-                          'nombre_revista^3',
-                          'titulo_capitulo^3',
-                          'titulo_libro^3',
-                          'observaciones',
-                          'mensaje_clave'
+                          'editorial^2',
+                          'abstract^1',
+                          'nombre_revista^6',
+                          'titulo_capitulo^6',
+                          'titulo_libro^6',
+                          'observaciones^1',
+                          'mensaje_clave^1'
                         ],
                         fuzziness: 'AUTO',
                         prefix_length: 1,
@@ -110,14 +116,15 @@ export class SearchService {
                           boost: 2
                         }
                       }
-                    },
+                    }
+                    /*,
                     {
                       wildcard: {
                         "abstract": {
                           value: `*${query.toLowerCase()}*`
                         }
                       }
-                    }
+                    }*/
                   ]
                 }
               : {})
@@ -168,6 +175,12 @@ export class SearchService {
       if (filters.tipo_documento) {
         filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice (tipo de documento)
       }
+
+      if (sortBy === 'titulo') {
+        sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
+      } else if (sortBy === 'autor') {
+        sortBy = 'autor.keyword';
+      }
     
       const shouldConditions = query.trim() // Verifica si query tiene contenido significativo
       ? [
@@ -175,16 +188,16 @@ export class SearchService {
             multi_match: {
               query: query,
               fields: [
-                'titulo^3',
-                'autores^2',
+                'titulo^6',
+                'autores^4',
                 'editores^2',
-                'editorial',
-                'abstract',
-                'nombre_revista^3',
-                'titulo_capitulo^3',
-                'titulo_libro^3',
-                'observaciones',
-                'mensaje_clave'
+                'editorial^2',
+                'abstract^1',
+                'nombre_revista^6',
+                'titulo_capitulo^6',
+                'titulo_libro^6',
+                'observaciones^1',
+                'mensaje_clave^1'
               ],
               fuzziness: 'AUTO',
               prefix_length: 1,
@@ -198,14 +211,15 @@ export class SearchService {
                 boost: 2
               }
             }
-          },
+          }
+          /*,
           {
             wildcard: {
               "abstract": {
                 value: `*${query.toLowerCase()}*`
               }
             }
-          }
+          }*/
         ]
       : []; // Si query está vacío, no añade condiciones `should`.
 
@@ -261,6 +275,12 @@ export class SearchService {
   
       if (filters.tipo_documento) {
         filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice (tipo de documento)
+      }
+
+      if (sortBy === 'titulo') {
+        sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
+      } else if (sortBy === 'autor') {
+        sortBy = 'autor.keyword';
       }
   
       const result = await this.elasticsearchService.search({

@@ -140,10 +140,11 @@ export async function fetchAndRenderDocuments() {
 // Función para ir a la página siguiente
 function nextPage() {
   currentPage++;
+  let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ''; // Verifica y ajusta el valor
   if (isSearchMode) {
     executeSearch(
       typeSelector.value,
-      keywordsInput.value.trim(),
+      keywords,
       publicationDateInput.value,
       authorInput.value.trim()
     );
@@ -156,10 +157,11 @@ function nextPage() {
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
+    let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ''; // Verifica y ajusta el valor
     if (isSearchMode) {
       executeSearch(
         typeSelector.value,
-        keywordsInput.value.trim(),
+        keywords, // Usa el valor procesado
         publicationDateInput.value,
         authorInput.value.trim()
       );

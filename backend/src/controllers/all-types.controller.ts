@@ -38,7 +38,7 @@ export class AllTypesController {
     @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
     @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
     async searchAll(
-      @Query('query') query: string,
+      @Query('query') query: string = '',
       @Query('page') page: string = '1',
       @Query('size') size: string = '10',
       @Query('anio_publicacion') anio_publicacion?: string,
@@ -72,7 +72,7 @@ export class AllTypesController {
     @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
     @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
     async getAll(
-      @Query('query') query: string,
+      @Query('query') query: string = '',
       @Query('page') page: string = '1',
       @Query('size') size: string = '10',
       @Query('anio_publicacion') anio_publicacion?: string,

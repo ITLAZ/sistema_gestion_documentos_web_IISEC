@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Función para obtener y renderizar documentos
 export async function fetchAndRenderDocuments() {
   try {
+    console.log(`Obteniendo documentos en orden ${sortOrder}`);
     let documentsData;
     if (selectedType === "all-types") {
       documentsData = await getAllDocuments("", currentPage, itemsPerPage);
@@ -479,18 +480,24 @@ document.addEventListener("DOMContentLoaded", () => {
   // Manejar el evento de clic del botón de búsqueda
   searchButton.addEventListener("click", async () => {
     const documentType = typeSelector.value;
-    const query = keywordsInput.value.trim(); // Palabra clave (obligatoria)
+    const query = ""; // Palabra clave (obligatoria)
     const author = authorInput.value.trim();
     const anio_publicacion = publicationDateInput.value;
+
+    console.log("valor keyword: "+keywordsInput.value);
+
+    if(keywordsInput.value != ""){
+      query = keywordsInput.value.trim(); // Palabra clave (obligatoria)
+    }
 
     isSearchMode = true; // Cambiar a modo búsqueda
     sortBy = "anio_publicacion"; // Fijar el ordenamiento por año en modo de búsqueda
 
     // Validar que se ingrese una palabra clave
-    if (!query) {
+    /*if (!query) {
       alert("Por favor, ingrese una palabra clave para realizar la búsqueda.");
       return;
-    }
+    }*/
 
     if (anio_publicacion) {
       if (
@@ -542,7 +549,7 @@ dateOrderButton.innerHTML = "Cambiar Orden"
 // Configurar evento para el botón de orden ascendente/descendente
 dateOrderButton.addEventListener("click", () => {
   // Alternar el valor de sortOrder y actualizar el texto del botón
-  sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  //sortOrder = sortOrder === "asc" ? "desc" : "asc";
   
   // Ejecutar la función correspondiente dependiendo del modo (búsqueda o visualización)
   if (isSearchMode) {

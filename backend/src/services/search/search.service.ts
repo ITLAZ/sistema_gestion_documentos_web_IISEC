@@ -56,6 +56,9 @@ export class SearchService {
       const from = (page - 1) * size;
       const filterConditions = [];
     
+      // Siempre excluimos documentos eliminados
+      filterConditions.push({ term: { 'eliminado': false } });
+    
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
         filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
@@ -65,69 +68,78 @@ export class SearchService {
         filterConditions.push({ match: { 'autores': filters.autores } });
       }
     
+      // Si el tipo es 'articulos-revistas', ajustar el campo de ordenamiento
       if (type === 'articulos-revistas') {
         sortBy = 'anio_revista';
       }
     
-      // Ajuste de consulta con fuzzy y wildcard
+      // Crear consulta principal
+      const queryBody = {
+        from: from,
+        size: size,
+        query: {
+          bool: {
+            filter: filterConditions, // Siempre se aplican los filtros
+            ...(query.trim()
+              ? {
+                  should: [ // Si el query no está vacío, aplicar búsqueda
+                    {
+                      multi_match: {
+                        query: query,
+                        fields: [
+                          'titulo^3',
+                          'autores^2',
+                          'editores^2',
+                          'editorial',
+                          'abstract',
+                          'nombre_revista^3',
+                          'titulo_capitulo^3',
+                          'titulo_libro^3',
+                          'observaciones',
+                          'mensaje_clave'
+                        ],
+                        fuzziness: 'AUTO',
+                        prefix_length: 1,
+                        minimum_should_match: '60%'
+                      }
+                    },
+                    {
+                      wildcard: {
+                        "titulo": {
+                          value: `*${query.toLowerCase()}*`,
+                          boost: 2
+                        }
+                      }
+                    },
+                    {
+                      wildcard: {
+                        "abstract": {
+                          value: `*${query.toLowerCase()}*`
+                        }
+                      }
+                    }
+                  ]
+                }
+              : {})
+          }
+        },
+        sort: [
+          { [sortBy]: { order: sortOrder as 'asc' | 'desc' } }
+        ]
+      };
+    
+      // Realizar búsqueda en Elasticsearch
       const result = await this.elasticsearchService.search({
         index: type,
-        body: {
-          from: from,
-          size: size,
-          query: {
-            bool: {
-              should: [
-                {
-                  multi_match: {
-                    query: query,
-                    fields: [
-                      'titulo^3',
-                      'autores^2',
-                      'editores^2',
-                      'editorial',
-                      'abstract',
-                      'nombre_revista^3',
-                      'titulo_capitulo^3',
-                      'titulo_libro^3',
-                      'observaciones',
-                      'mensaje_clave'
-                    ],
-                    fuzziness: 'AUTO',
-                    prefix_length: 1,
-                    minimum_should_match: '60%'
-                  }
-                },
-                {
-                  wildcard: {
-                    "titulo": {
-                      value: `*${query.toLowerCase()}*`,
-                      boost: 2
-                    }
-                  }
-                },
-                {
-                  wildcard: {
-                    "abstract": {
-                      value: `*${query.toLowerCase()}*`
-                    }
-                  }
-                }
-              ],
-              filter: filterConditions
-            }
-          },
-          sort: [
-            { [sortBy]: { order: sortOrder as 'asc' | 'desc' } }
-          ]
-        }
+        body: queryBody
       });
     
       return result.hits.hits;
     }
     
+    
     async searchAllCollections(
-      query: string,
+      query: string = '', // Valor por defecto: cadena vacía
       page: number,
       size: number,
       filters: {
@@ -135,12 +147,14 @@ export class SearchService {
         autores?: string;
         tipo_documento?: string;
       },
-      sortBy: string = 'anio_publicacion', // Campo por el que se desea ordenar, por defecto 'anio_publicacion'
+      sortBy: string = 'anio_publicacion',
       sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const from = (page - 1) * size;
     
       const filterConditions = [];
+      
+      filterConditions.push({ term: { 'eliminado': false } });
     
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
@@ -155,61 +169,67 @@ export class SearchService {
         filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice (tipo de documento)
       }
     
+      const shouldConditions = query.trim() // Verifica si query tiene contenido significativo
+      ? [
+          {
+            multi_match: {
+              query: query,
+              fields: [
+                'titulo^3',
+                'autores^2',
+                'editores^2',
+                'editorial',
+                'abstract',
+                'nombre_revista^3',
+                'titulo_capitulo^3',
+                'titulo_libro^3',
+                'observaciones',
+                'mensaje_clave'
+              ],
+              fuzziness: 'AUTO',
+              prefix_length: 1,
+              minimum_should_match: '60%'
+            }
+          },
+          {
+            wildcard: {
+              "titulo": {
+                value: `*${query.toLowerCase()}*`,
+                boost: 2
+              }
+            }
+          },
+          {
+            wildcard: {
+              "abstract": {
+                value: `*${query.toLowerCase()}*`
+              }
+            }
+          }
+        ]
+      : []; // Si query está vacío, no añade condiciones `should`.
+
+    
       const result = await this.elasticsearchService.search({
         index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec',
         body: {
-          from: from,    // Para la paginación: desde qué registro comenzar
-          size: size,    // Tamaño de página: cuántos registros devolver
+          from: from,
+          size: size,
           query: {
             bool: {
-              should: [
-                {
-                  multi_match: {
-                    query: query,
-                    fields: [
-                      'titulo^3',      
-                      'autores^2',
-                      'editores^2',
-                      'editorial',        
-                      'abstract',
-                      'nombre_revista^3',
-                      'titulo_capitulo^3',
-                      'titulo_libro^3',
-                      'observaciones',
-                      'mensaje_clave'
-                    ],
-                    fuzziness: 'AUTO',
-                    prefix_length: 1,
-                    minimum_should_match: '60%'
-                  }
-                },
-                {
-                  wildcard: {
-                    "titulo": {
-                      value: `*${query.toLowerCase()}*`,
-                      boost: 2
-                    }
-                  }
-                },
-                {
-                  wildcard: {
-                    "abstract": {
-                      value: `*${query.toLowerCase()}*`
-                    }
-                  }
-                }
-              ],
+              should: shouldConditions, // Aplica `should` solo si hay condiciones
               filter: filterConditions  // Aplica los filtros adicionales si se pasan
             }
           },
           sort: [
-            { [sortBy]: { order: sortOrder } }  // Aplicar ordenamiento según los parámetros proporcionados
+            { [sortBy]: { order: sortOrder } } // Aplicar ordenamiento según los parámetros proporcionados
           ]
         }
       });
     
       return result.hits.hits;
     }
+    
     
     
     async getAllCollections(
@@ -227,7 +247,9 @@ export class SearchService {
       const from = (page - 1) * size;
   
       const filterConditions = [];
-  
+      
+      filterConditions.push({ term: { 'eliminado': false } });
+      
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
         filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });

@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <form id="add-user-form">
                 <div class="input-group">
                     <h3>Usuario:</h3>
-                    <input type="text" name="usuario" required>
+                    <input type="text" name="usuario" required pattern=".*[a-zA-Z].*">
                 </div>
                 <div class="input-group">
                     <h3>Nombre:</h3>

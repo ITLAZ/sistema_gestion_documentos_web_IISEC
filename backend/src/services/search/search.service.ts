@@ -1,6 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 
+type ElasticsearchHit = {
+  _id: string;
+  _source: {
+    titulo: string;
+    autores: string[];
+    abstract?: string;
+    // Agrega otros campos relevantes aquí
+  };
+};
+
 @Injectable()
 export class SearchService {
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
@@ -39,6 +49,29 @@ export class SearchService {
       body: data,
     });
   }
+
+  async getAllDocuments(index: string): Promise<ElasticsearchHit[]> {
+    try {
+      const result = await this.elasticsearchService.search({
+        index,
+        body: {
+          query: {
+            match_all: {}, // Obtiene todos los documentos del índice
+          },
+        },
+        size: 10000, // Ajusta el tamaño según la cantidad de documentos en tu índice
+      });
+  
+      return result.hits.hits.map((hit: any) => ({
+        _id: hit._id,
+        _source: hit._source as ElasticsearchHit['_source'], // Casting explícito
+      }));
+    } catch (error) {
+      console.error(`Error al obtener documentos del índice ${index}:`, error);
+      throw new Error(`No se pudieron obtener documentos del índice ${index}.`);
+    }
+  }
+   
 
     // Búsqueda por tipo de documento (índice específico)
     async searchByType(
@@ -81,17 +114,18 @@ export class SearchService {
     
       // Crear consulta principal
       const queryBody = {
-        from: from,
-        size: size,
+        from,
+        size,
         query: {
           bool: {
-            filter: filterConditions, // Siempre se aplican los filtros
+            must: [],
+            filter: filterConditions,
             ...(query.trim()
               ? {
-                  should: [ // Si el query no está vacío, aplicar búsqueda
+                  should: [
                     {
                       multi_match: {
-                        query: query,
+                        query,
                         fields: [
                           'titulo^6',
                           'autores^4',
@@ -102,38 +136,31 @@ export class SearchService {
                           'titulo_capitulo^6',
                           'titulo_libro^6',
                           'observaciones^1',
-                          'mensaje_clave^1'
+                          'mensaje_clave^1',
                         ],
                         fuzziness: 'AUTO',
                         prefix_length: 1,
-                        minimum_should_match: '60%'
-                      }
+                        minimum_should_match: '60%',
+                      },
                     },
                     {
-                      wildcard: {
-                        "titulo": {
-                          value: `*${query.toLowerCase()}*`,
-                          boost: 2
-                        }
-                      }
-                    }
-                    /*,
-                    {
-                      wildcard: {
-                        "abstract": {
-                          value: `*${query.toLowerCase()}*`
-                        }
-                      }
-                    }*/
-                  ]
+                      match_phrase_prefix: {
+                        titulo: {
+                          query: query.toLowerCase(),
+                          boost: 2,
+                        },
+                      },
+                    },
+                  ],
+                  minimum_should_match: 1,
                 }
-              : {})
-          }
+              : {}),
+          },
         },
-        sort: [
-          { [sortBy]: { order: sortOrder as 'asc' | 'desc' } }
-        ]
+        sort: [{ [sortBy]: { order: sortOrder } }],
       };
+
+      console.log(JSON.stringify(queryBody, null, 2));   
     
       // Realizar búsqueda en Elasticsearch
       const result = await this.elasticsearchService.search({
@@ -158,91 +185,90 @@ export class SearchService {
       sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const from = (page - 1) * size;
+      const filterConditions: any[] = [];
     
-      const filterConditions = [];
-      
-      filterConditions.push({ term: { 'eliminado': false } });
+      // Siempre excluimos documentos eliminados
+      filterConditions.push({ term: { eliminado: false } });
     
       // Agregar filtros según los campos opcionales que se pasen
       if (filters.anio_publicacion) {
-        filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
+        filterConditions.push({ term: { anio_publicacion: filters.anio_publicacion } });
       }
     
       if (filters.autores) {
-        filterConditions.push({ match: { 'autores': filters.autores } });
+        filterConditions.push({ match: { autores: filters.autores } });
       }
     
       if (filters.tipo_documento) {
-        filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice (tipo de documento)
+        filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice
       }
-
+    
+      // Ajustar ordenamiento
       if (sortBy === 'titulo') {
         sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
       } else if (sortBy === 'autor') {
         sortBy = 'autor.keyword';
       }
     
-      const shouldConditions = query.trim() // Verifica si query tiene contenido significativo
-      ? [
-          {
-            multi_match: {
-              query: query,
-              fields: [
-                'titulo^6',
-                'autores^4',
-                'editores^2',
-                'editorial^2',
-                'abstract^1',
-                'nombre_revista^6',
-                'titulo_capitulo^6',
-                'titulo_libro^6',
-                'observaciones^1',
-                'mensaje_clave^1'
-              ],
-              fuzziness: 'AUTO',
-              prefix_length: 1,
-              minimum_should_match: '60%'
-            }
+      // Crear condiciones del query principal
+      const queryBody = {
+        from,
+        size,
+        query: {
+          bool: {
+            must: [],
+            filter: filterConditions,
+            ...(query.trim()
+              ? {
+                  should: [
+                    {
+                      multi_match: {
+                        query,
+                        fields: [
+                          'titulo^6',
+                          'autores^4',
+                          'editores^2',
+                          'editorial^2',
+                          'abstract^1',
+                          'nombre_revista^6',
+                          'titulo_capitulo^6',
+                          'titulo_libro^6',
+                          'observaciones^1',
+                          'mensaje_clave^1',
+                        ],
+                        fuzziness: 'AUTO',
+                        prefix_length: 1,
+                        minimum_should_match: '60%',
+                      },
+                    },
+                    {
+                      match_phrase_prefix: {
+                        titulo: {
+                          query: query.toLowerCase(),
+                          boost: 2,
+                        },
+                      },
+                    },
+                  ],
+                  minimum_should_match: 1,
+                }
+              : {}),
           },
-          {
-            wildcard: {
-              "titulo": {
-                value: `*${query.toLowerCase()}*`,
-                boost: 2
-              }
-            }
-          }
-          /*,
-          {
-            wildcard: {
-              "abstract": {
-                value: `*${query.toLowerCase()}*`
-              }
-            }
-          }*/
-        ]
-      : []; // Si query está vacío, no añade condiciones `should`.
-
+        },
+        sort: [{ [sortBy]: { order: sortOrder } }],
+      };
     
+      console.log(JSON.stringify(queryBody, null, 2));
+    
+      // Realizar búsqueda en Elasticsearch
       const result = await this.elasticsearchService.search({
-        index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec',
-        body: {
-          from: from,
-          size: size,
-          query: {
-            bool: {
-              should: shouldConditions, // Aplica `should` solo si hay condiciones
-              filter: filterConditions  // Aplica los filtros adicionales si se pasan
-            }
-          },
-          sort: [
-            { [sortBy]: { order: sortOrder } } // Aplicar ordenamiento según los parámetros proporcionados
-          ]
-        }
+        index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec', // Todos los índices
+        body: queryBody,
       });
     
       return result.hits.hits;
     }
+    
     
     
     

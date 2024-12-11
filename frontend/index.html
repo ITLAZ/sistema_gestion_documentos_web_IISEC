@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="es" id="html-root" data-theme="light">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio</title>
-    <link rel="preload" href="css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="css/styles.css">
-    </noscript>
-<script>
-    (function() {
-      function getCookie(name) {
-        const cookies = document.cookie.split("; ");
-        const cookie = cookies.find(row => row.startsWith(name + "="));
-        return cookie ? cookie.split("=")[1] : null;
-      }
-      const storedTheme = getCookie("theme") || "light";
-      document.documentElement.setAttribute("data-theme", storedTheme);
-    })();
-  </script>
+    <script>
+        // Leer la cookie directamente y establecer el atributo de tema al cargar la página
+        (function () {
+            function getCookieValue(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            const theme = getCookieValue('theme') || 'light'; // Default a 'light' si no hay cookie
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>

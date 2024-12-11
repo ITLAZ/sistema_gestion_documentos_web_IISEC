@@ -1,43 +1,24 @@
 <!DOCTYPE html>
-<html lang="es" id="html-root" data-theme="light">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const body = document.body;
-
-            // Aplicar el tema almacenado en localStorage
-            const storedTheme = localStorage.getItem('theme') || 'light';
-            body.setAttribute('data-theme', storedTheme);
-            console.log('Tema almacenado aplicado:', storedTheme);
-
-            // Cargar el componente de navegación
-            fetch('../components/menu_navegacion.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('menu-container').innerHTML = data;
-
-                    // Ahora que el componente está cargado, agregar el event listener
-                    const themeToggleButton = document.getElementById('theme-toggle');
-                    if (themeToggleButton) {
-                        console.log('Botón de cambio de tema encontrado');
-                        themeToggleButton.addEventListener('click', function () {
-                            const currentTheme = body.getAttribute('data-theme');
-                            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                            body.setAttribute('data-theme', newTheme);
-                            localStorage.setItem('theme', newTheme);
-                            console.log('Tema cambiado a:', newTheme);
-                        });
-                    } else {
-                        console.log('Botón de cambio de tema no encontrado');
-                    }
-                })
-                .catch(error => console.error('Error al cargar el componente de navegación:', error));
-        });
-    </script>
+        // Leer la cookie directamente y establecer el atributo de tema al cargar la página
+        (function () {
+          function getCookieValue(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+          }
+    
+          const theme = getCookieValue('theme') || 'light'; // Default a 'light' si no hay cookie
+          document.documentElement.setAttribute('data-theme', theme);
+        })();
+      </script>
     <link rel="stylesheet" href="../css/styles.css">
     
 

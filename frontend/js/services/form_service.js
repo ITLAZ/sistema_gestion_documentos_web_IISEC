@@ -273,11 +273,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir libro con archivo
                     const result = await uploadBook(libroData, file, usuarioId);
                     Sweetalert2.fire('Libro subido exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadBookWithoutFile(libroData, usuarioId);
                     Sweetalert2.fire('Libro subido exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
 
@@ -306,11 +308,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir artículo con archivo
                     const result = await uploadArt(artData, file, usuarioId);
                     Sweetalert2.fire('Artículo de revista subido exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadArtWithoutFile(artData, usuarioId);
                     Sweetalert2.fire('Artículo de revista subido exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
     
@@ -339,11 +343,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir capítulo con archivo
                     const result = await uploadCapitulo(capituloData, file, usuarioId);
                     Sweetalert2.fire('Capítulo de libro subido exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadCapituloWithoutFile(capituloData, usuarioId);
                     Sweetalert2.fire('Capítulo de libro subido exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
         
@@ -369,11 +375,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir documento con archivo
                     const result = await uploadDocumentoTrabajo(docData, file, usuarioId);
                     Sweetalert2.fire('Documento de trabajo subido exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadDocumentoTrabajoWithoutFile(docData, usuarioId);
                     Sweetalert2.fire('Documento de trabajo subido exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
         
@@ -398,11 +406,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir idea/reflexión con archivo
                     const result = await uploadIdeaReflexion(ideaData, file, usuarioId);
                     Sweetalert2.fire('Idea o reflexión subida exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadIdeaReflexionWithoutFile(ideaData, usuarioId);
                     Sweetalert2.fire('Idea o reflexión subida exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
         
@@ -427,11 +437,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir Info IISEC con archivo
                     const result = await uploadInfoIISEC(infoData, file, usuarioId);
                     Sweetalert2.fire('Documento Info IISEC subido exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadInfoIISECWithoutFile(infoData, usuarioId);
                     Sweetalert2.fire('Documento Info IISEC subido exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
         
@@ -456,11 +468,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Si hay un archivo, consumir el endpoint de subir Policy Brief con archivo
                     const result = await uploadPolicyBrief(policyData, file, usuarioId);
                     Sweetalert2.fire('Policy Brief subido exitosamente con archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 } else {
                     // Si no hay archivo, consumir otro endpoint
                     const result = await uploadPolicyBriefWithoutFile(policyData, usuarioId);
                     Sweetalert2.fire('Policy Brief subido exitosamente sin archivo!');
+                    clearFields();
                     console.log('Resultado:', result);
                 }
         

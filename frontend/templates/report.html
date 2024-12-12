@@ -164,12 +164,19 @@
 
             try {
                 const response = await fetch(url);
+                console.log("RESPONSE",response);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log("DATA",data);
+
+                if (!data || (Array.isArray(data) && data.length === 0)) {
+                    reportContainer.innerHTML = '<p>No hay resultados disponibles para los filtros seleccionados.</p>';
+                    return; // Detener el procesamiento si no hay datos
+                }
 
                 reportContainer.innerHTML = '';
 
@@ -243,7 +250,11 @@
 
                         items.forEach(item => {
                             const li = document.createElement('li');
-                            li.textContent = `${item.titulo || item.titulo_capitulo} - Publicado el ${item.anio_publicacion || item.anio_revista}`;
+                            const titulo = item.titulo || item.titulo_capitulo;
+                            const anio = item.anio_publicacion || item.anio_revista;
+                            const autores = item.autores ? `Autores: ${item.autores}` : 'Autores no disponibles';
+
+                            li.textContent = `${titulo} - Publicado el ${anio}. ${autores}`;
                             ul.appendChild(li);
                         });
 

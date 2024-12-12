@@ -263,6 +263,7 @@ export async function uploadArt(artData, file, usuarioId) {
     }
 
     // Añadir los datos del artículo al formData
+    formData.append('portada', artData.portada);
     formData.append('numero_articulo', artData.numero_articulo);
     formData.append('titulo', artData.titulo);
     formData.append('anio_revista', parseInt(artData.anio_revista, 10));
@@ -285,7 +286,6 @@ export async function uploadArt(artData, file, usuarioId) {
         const response = await fetch('http://localhost:3000/articulos-revistas/upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: formData
@@ -304,6 +304,7 @@ export async function uploadArt(artData, file, usuarioId) {
 }
 
 
+
 // SUBIDA SIN ARCHIVO DE ARTICULOS REVISTA
 export async function uploadArtWithoutFile(artData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -311,6 +312,7 @@ export async function uploadArtWithoutFile(artData, usuarioId) {
 
     // Añadir los datos del artículo
     const nuevoArticulo = {
+        portada: artData.portada,
         numero_articulo: artData.numero_articulo,
         titulo: artData.titulo,
         anio_revista: parseInt(artData.anio_revista, 10),
@@ -363,10 +365,10 @@ export async function uploadCapitulo(capituloData, file, usuarioId) {
     }
 
     // Añadir los datos del capítulo al formData
+    //formData.append('portada', capituloData.portada);
     formData.append('numero_identificacion', capituloData.numero_identificacion);
     formData.append('titulo_libro', capituloData.titulo_libro);
     formData.append('titulo_capitulo', capituloData.titulo_capitulo);
-    formData.append('anio_publicacion', parseInt(capituloData.anio_publicacion, 10));
 
     // Añadir cada autor al FormData si existe un array de autores
     if (Array.isArray(autoresArray)) {
@@ -374,6 +376,8 @@ export async function uploadCapitulo(capituloData, file, usuarioId) {
             formData.append(`autores[${index}]`, autor);
         });
     }
+
+    formData.append('anio_publicacion', parseInt(capituloData.anio_publicacion, 10));
 
     // Añadir cada editor al FormData si existe un array de editores
     if (Array.isArray(editoresArray)) {
@@ -392,7 +396,6 @@ export async function uploadCapitulo(capituloData, file, usuarioId) {
         const response = await fetch('http://localhost:3000/capitulos-libros/upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: formData
@@ -421,11 +424,12 @@ export async function uploadCapituloWithoutFile(capituloData, usuarioId) {
 
     // Añadir los datos del capítulo
     const nuevoCapitulo = {
+        portada: capituloData.portada,
         numero_identificacion: capituloData.numero_identificacion,
         titulo_libro: capituloData.titulo_libro,
         titulo_capitulo: capituloData.titulo_capitulo,
-        anio_publicacion: parseInt(capituloData.anio_publicacion, 10),
         autores: autoresArray,
+        anio_publicacion: parseInt(capituloData.anio_publicacion, 10),
         editores: editoresArray,
         editorial: capituloData.editorial,
         link_pdf: capituloData.link_pdf
@@ -466,10 +470,10 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
     }
 
     // Añadir los datos del documento al formData
+    
     formData.append('numero_identificacion', docData.numero_identificacion);
     formData.append('titulo', docData.titulo);
-    formData.append('anio_publicacion', parseInt(docData.anio_publicacion, 10));
-    
+      
     // Añadir cada autor al FormData si existe un array de autores
     if (Array.isArray(autoresArray)) {
         autoresArray.forEach((autor, index) => {
@@ -477,6 +481,7 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
         });
     }
 
+    formData.append('anio_publicacion', parseInt(docData.anio_publicacion, 10));
     formData.append('abstract', docData.abstract);
     formData.append('link_pdf', docData.link_pdf);
 
@@ -487,7 +492,6 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
         const response = await fetch('http://localhost:3000/documentos-trabajo/upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: formData
@@ -506,8 +510,7 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
 }
 
 // SUBIDA SIN ARCHIVO DE DOCUMENTOS DE TRABAJO
-//export async function uploadDocumentoTrabajoWithoutFile(docData, usuarioId) {
-export async function uploadDocumentoTrabajoWithoutFile(docData) {
+export async function uploadDocumentoTrabajoWithoutFile(docData, usuarioId) {
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
     const autoresArray = Array.isArray(docData.autores) ? docData.autores : docData.autores.split(',').map(autor => autor.trim());
 
@@ -546,8 +549,7 @@ export async function uploadDocumentoTrabajoWithoutFile(docData) {
 }
 
 // SUBIDA DE ARCHIVOS IDEAS Y REFLEXIONES
-//export async function uploadIdeaReflexion(ideaData, file, usuarioId) {
-export async function uploadIdeaReflexion(ideaData, file) {
+export async function uploadIdeaReflexion(ideaData, file, usuarioId) {
     const formData = new FormData();
 
     // Verificar si autores es una cadena, y convertirla a un array si es necesario
@@ -557,6 +559,7 @@ export async function uploadIdeaReflexion(ideaData, file) {
     }
 
     // Añadir los datos de la idea/reflexión al formData
+    formData.append('portada', ideaData.portada);
     formData.append('titulo', ideaData.titulo);
     formData.append('anio_publicacion', parseInt(ideaData.anio_publicacion, 10));
 
@@ -577,7 +580,6 @@ export async function uploadIdeaReflexion(ideaData, file) {
         const response = await fetch('http://localhost:3000/ideas-reflexiones/upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: formData
@@ -602,6 +604,7 @@ export async function uploadIdeaReflexionWithoutFile(ideaData, usuarioId) {
 
     // Añadir los datos de la idea/reflexión
     const nuevaIdeaReflexion = {
+        portada: ideaData.portada,
         titulo: ideaData.titulo,
         anio_publicacion: parseInt(ideaData.anio_publicacion, 10),
         autores: autoresArray,
@@ -644,6 +647,7 @@ export async function uploadInfoIISEC(infoData, file, usuarioId) {
     }
 
     // Añadir los datos de Info IISEC al formData
+    formData.append('portada', infoData.portada);
     formData.append('titulo', infoData.titulo);
     formData.append('anio_publicacion', parseInt(infoData.anio_publicacion, 10));
 
@@ -664,7 +668,6 @@ export async function uploadInfoIISEC(infoData, file, usuarioId) {
         const response = await fetch('http://localhost:3000/info-iisec/upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: formData
@@ -689,6 +692,7 @@ export async function uploadInfoIISECWithoutFile(infoData, usuarioId) {
 
     // Añadir los datos de Info IISEC
     const nuevoInfoIISEC = {
+        portada: infoData.portada,
         titulo: infoData.titulo,
         anio_publicacion: parseInt(infoData.anio_publicacion, 10),
         autores: autoresArray,
@@ -731,6 +735,7 @@ export async function uploadPolicyBrief(policyData, file, usuarioId) {
     }
 
     // Añadir los datos del Policy Brief al formData
+    formData.append('portada', policyData.portada);
     formData.append('titulo', policyData.titulo);
     formData.append('anio_publicacion', parseInt(policyData.anio_publicacion, 10));
 
@@ -751,7 +756,6 @@ export async function uploadPolicyBrief(policyData, file, usuarioId) {
         const response = await fetch('http://localhost:3000/policies-briefs/upload', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
             },
             body: formData
@@ -776,6 +780,7 @@ export async function uploadPolicyBriefWithoutFile(policyData, usuarioId) {
 
     // Añadir los datos del Policy Brief
     const nuevoPolicyBrief = {
+        portada: policyData.portada,
         titulo: policyData.titulo,
         anio_publicacion: parseInt(policyData.anio_publicacion, 10),
         autores: autoresArray,

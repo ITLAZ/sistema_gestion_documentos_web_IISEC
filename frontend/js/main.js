@@ -93,6 +93,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   typeSelector.addEventListener("change", async () => {
     selectedType = typeSelector.value;
     console.log("Tipo seleccionado:", selectedType);
+
+    keywordsInput.value = ""; 
+    authorInput.value = ""; 
+    publicationDateInput.value = ""; 
+
     isSearchMode = false;
     currentPage = 1; 
     await fetchAndRenderDocuments();
@@ -495,38 +500,44 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-  // Función para renderizar los resultados
-  function renderResults(data, documentType) {
-    const cardsContainer = document.getElementById("cards-container");
-    const nextPageButton = document.getElementById("next-page");
-    const prevPageButton = document.getElementById("prev-page");
-    const pageInfo = document.getElementById("page-info");
-    cardsContainer.innerHTML = ""; // Limpiar los resultados anteriores
+// Función para renderizar los resultados
+function renderResults(data, documentType) {
+  const cardsContainer = document.getElementById("cards-container");
+  const nextPageButton = document.getElementById("next-page");
+  const prevPageButton = document.getElementById("prev-page");
+  const pageInfo = document.getElementById("page-info");
 
-    // Verificar si hay resultados
-    if (Array.isArray(data) && data.length > 0) {
-      console.log("Número de resultados encontrados:", data.length);
-      loadCards(data, documentType, true); // Renderiza las tarjetas
-  
-      // Mostrar botones de paginación
-      document.getElementById("pagination-controls").style.display = "block";
-  
-      // Ocultar el botón "Siguiente" si no hay más resultados
-      nextPageButton.style.display = data.length < itemsPerPage ? "none" : "inline-block";
-  
-      // Ocultar el botón "Anterior" si estamos en la primera página
-      prevPageButton.style.display = currentPage === 1 ? "none" : "inline-block";
-  
-      // Actualizar información de la página
-      pageInfo.innerText = `Página ${currentPage}`;
-    } else {
-      console.log("No se encontraron resultados para la búsqueda.");
-      cardsContainer.innerHTML = "<p>No se encontraron resultados para la búsqueda.</p>";
-  
-      // Ocultar controles de paginación
-      document.getElementById("pagination-controls").style.display = "none";
-    }
+  cardsContainer.innerHTML = ""; // Limpiar los resultados anteriores
+
+  // Verificar si hay resultados
+  if (Array.isArray(data) && data.length > 0) {
+    console.log("Número de resultados encontrados:", data.length);
+
+    // Renderiza las tarjetas
+    loadCards(data, documentType, true);
+
+    // Mostrar los controles de paginación
+    document.getElementById("pagination-controls").style.display = "block";
+
+    // Mostrar u ocultar el botón "Siguiente"
+    nextPageButton.style.display = data.length < itemsPerPage ? "none" : "inline-block";
+
+    // Mostrar u ocultar el botón "Anterior"
+    prevPageButton.style.display = currentPage === 1 ? "none" : "inline-block";
+
+    // Actualizar la información de la página actual
+    pageInfo.innerText = `Página ${currentPage}`;
+  } else {
+    console.log("No se encontraron resultados para la búsqueda.");
+
+    // Mostrar mensaje de que no se encontraron resultados
+    cardsContainer.innerHTML = "<p>No se encontraron resultados para la búsqueda.</p>";
+
+    // Ocultar los controles de paginación
+    document.getElementById("pagination-controls").style.display = "none";
   }
+}
+
 
   
 //FUNCION DE BUSQUEDA
@@ -535,6 +546,8 @@ async function executeSearch(documentType, query, anio_publicacion, author) {
   console.log("Ejecutando búsqueda con los siguientes parámetros:", {
     documentType,
     query,
+    currentPage,
+    itemsPerPage,
     anio_publicacion,
     author,
     sortBy,
@@ -554,7 +567,7 @@ async function executeSearch(documentType, query, anio_publicacion, author) {
 
     console.log("Datos recibidos del backend:", data);
 
-    // Renderizar los resultados obtenidos
+   // Renderizar los resultados obtenidos
     renderResults(data, documentType);
   } catch (error) {
     console.error("Error al realizar la búsqueda:", error);
@@ -582,10 +595,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!dateOrderButton) {
     console.error("El botón dateOrderButton no existe en el DOM.");
   }
-
-  // Parámetros para la paginación
-  let currentPage = 1;
-  const itemsPerPage = 10;
 
   // Manejar el evento de clic del botón de búsqueda
   searchButton.addEventListener("click", async () => {
@@ -621,14 +630,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    currentPage = 1;
     await executeSearch(documentType, query, anio_publicacion, author);
   });
 
 dateOrderButton.innerHTML = "Cambiar Orden" 
 
 
-  // Al seleccionar una nueva opción en el combobox, se muestran todos los botones
-  typeSelector.addEventListener("change", () => {
+// Al seleccionar una nueva opción en el combobox, se muestran todos los botones
+typeSelector.addEventListener("change", () => {
     sortYearButton.style.display = "none"; // Mantener oculto el botón de año
     dateOrderButton.style.display = "inline-block"; // Mostrar solo el botón de orden ascendente/descendente
     isSearchMode = false;

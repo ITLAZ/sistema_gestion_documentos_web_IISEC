@@ -470,7 +470,7 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
     }
 
     // Añadir los datos del documento al formData
-    
+    formData.append('portada', docData.portada);
     formData.append('numero_identificacion', docData.numero_identificacion);
     formData.append('titulo', docData.titulo);
       
@@ -516,6 +516,7 @@ export async function uploadDocumentoTrabajoWithoutFile(docData, usuarioId) {
 
     // Añadir los datos del documento
     const nuevoDocumento = {
+        portada: docData.portada,
         numero_identificacion: docData.numero_identificacion,
         titulo: docData.titulo,
         anio_publicacion: parseInt(docData.anio_publicacion, 10),

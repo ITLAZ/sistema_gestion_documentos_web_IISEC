@@ -204,10 +204,14 @@ document.addEventListener("click", function (event) {
             tbody.innerHTML = '<tr><td colspan="4">Seleccione un tipo de archivo para cargar</td></tr>';
             return;
         }
+        
         try {
             // Obtener datos del backend
             const files = await fetchDeletedFiles(fileType);
-
+            if (files.length == 0) {
+                tbody.innerHTML = `<tr><td colspan="4">No se encuentran archivos a restaurar del tipo ${fileType}</td></tr>`;
+                return;
+            }
             // Limpiar tabla
             tbody.innerHTML = '';
 

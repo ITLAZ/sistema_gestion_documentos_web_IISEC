@@ -99,9 +99,7 @@ export async function estadoUsuario(id) {
 export async function fetchDeletedFiles(fileType) {
     try {
         // Determinar el endpoint según el tipo de archivo seleccionado
-        const endpoint = fileType
-            ? `http://localhost:3000/${fileType}/eliminados`
-            : 'http://localhost:3000/all-files/eliminados';
+        const endpoint = `http://localhost:3000/${fileType}/eliminados`;
 
         const response = await fetch(endpoint);
 

@@ -199,7 +199,11 @@ document.addEventListener("click", function (event) {
 
     // Función para renderizar los archivos en la tabla
     async function renderFiles(fileType) {
-        tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+        if (!fileType || fileType === "null") {
+            // Mostrar mensaje inicial si no hay tipo seleccionado
+            tbody.innerHTML = '<tr><td colspan="4">Seleccione un tipo de archivo para cargar</td></tr>';
+            return;
+        }
         try {
             // Obtener datos del backend
             const files = await fetchDeletedFiles(fileType);

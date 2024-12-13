@@ -30,7 +30,7 @@ export class CapitulosLibrosService {
     const order = sortOrder === 'asc' ? 1 : -1;
     
     // Construir el filtro dinámico
-    const filter: any = {};
+    const filter: any = { eliminado: false };
     if (autor) {
       filter.autores = autor;
     }

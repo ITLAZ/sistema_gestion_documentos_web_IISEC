@@ -87,7 +87,7 @@ export class LibrosService {
     const order = sortOrder === 'desc' ? -1 : 1; // Si es 'desc', ordenamos de forma descendente, si no, de forma ascendente.
     
     // Creamos el objeto de filtro dinámicamente
-    const filter: any = {};
+    const filter: any = { eliminado: false };
     if (autor) {
       filter.autores = autor; // Asumimos que el campo en la base de datos es 'autores'
     }

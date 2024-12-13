@@ -1,4 +1,4 @@
-import { fetchLogs } from '../services/logs_services.js';
+import { fetchLogs, getNameLogs } from '../services/logs_services.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.querySelector('tbody');
@@ -25,11 +25,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            logs.forEach((log) => {
+            for (const log of logs) {
                 const tr = document.createElement('tr');
+                let userName = 'Desconocido';
+                try {
+                    const user = await getNameLogs(log.id_usuario);
+                    userName = user.nombre; 
+                } catch (error) {
+                    console.error(`Error al obtener el nombre del usuario con ID ${log.id_usuario}:`, error);
+                }
 
                 const usuarioTd = document.createElement('td');
-                usuarioTd.textContent = log.id_usuario;
+                usuarioTd.textContent = userName;
 
                 const accionTd = document.createElement('td');
                 accionTd.textContent = log.accion;
@@ -43,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.appendChild(fechaTd);
 
                 tbody.appendChild(tr);
-            });
+            }
         } catch (error) {
             console.error('Error al renderizar los logs:', error);
             tbody.innerHTML = '<tr><td colspan="3">Error al cargar los logs. Intente nuevamente.</td></tr>';

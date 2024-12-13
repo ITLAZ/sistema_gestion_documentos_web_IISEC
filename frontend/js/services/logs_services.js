@@ -19,3 +19,28 @@ export async function fetchLogs(logType) {
         throw error;
     }
 } 
+
+export async function getNameLogs(usuarioId) { 
+    try {
+        const response = await fetch(`http://localhost:3000/usuarios/getById/${usuarioId}`);
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const userData = await response.json();
+
+        // Extraer solo los campos necesarios
+        const result = {
+            nombre: userData.nombre,
+            
+        };
+
+        return result;
+
+    } catch (error) {
+        console.error(`Error al obtener los datos del usuario:`, error);
+        alert(`Hubo un problema al obtener los datos del usuario. Por favor, intenta de nuevo más tarde.`);
+        throw error;
+    }
+}

@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para renderizar los logs en la tabla
     async function renderLogs(logType) {
+        if (!logType || logType === "null") {
+            // Mostrar mensaje inicial si no hay tipo seleccionado
+            tbody.innerHTML = '<tr><td colspan="3">Seleccione un tipo de log para cargar</td></tr>';
+            return;
+        }
         tbody.innerHTML = '<tr><td colspan="3">Cargando logs...</td></tr>';
         try {
             // Obtener los logs desde el backend
@@ -41,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch (error) {
             console.error('Error al renderizar los logs:', error);
+            tbody.innerHTML = '<tr><td colspan="3">Error al cargar los logs. Intente nuevamente.</td></tr>';
         }
     }
 
@@ -57,5 +63,5 @@ document.addEventListener('DOMContentLoaded', () => {
         // Renderizar los logs según el tipo seleccionado
         renderLogs(selectedType);
     });
-    
+    renderLogs('');
 });

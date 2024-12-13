@@ -19,8 +19,7 @@ export async function getDocumentsByType(documentType, page, size, sortBy, sortO
         return data;
     } catch (error) {
         console.error(`Error al obtener los documentos de tipo ${documentType}:`, error);
-        alert(`Hubo un problema al obtener los documentos de tipo ${documentType}. Por favor, intenta de nuevo más tarde.`);
-        throw error;
+        throw error; // Propaga el error sin mostrar un alert
     }
 }
 

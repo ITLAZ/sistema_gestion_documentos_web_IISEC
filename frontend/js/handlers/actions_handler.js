@@ -69,6 +69,7 @@ export async function loadDocumentData(documentType, documentId) {
 
         // Rellenar solo si el documento es un "artículo de revista"
         if (documentType === 'articulos-revistas') {
+            document.getElementById('numero_identificacion').value = data.numero_identificacion || '';
             document.getElementById('article-number').value = data.numero_articulo || '';
             document.getElementById('revista').value = data.nombre_revista || '';
             document.getElementById('editorial').value = data.editorial || '';

@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
 
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el libro:', error);
             }
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Recoger los datos del formulario para artículos de revista
             const artData = {
                 portada: document.getElementById('cover').value,
-                //numero_identificacion: document.getElementById('numero_identificacion').value,
+                numero_identificacion: document.getElementById('numero_identificacion').value,
                 numero_articulo: document.getElementById('article-number').value,
                 titulo: document.getElementById('title').value,
                 autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
     
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el artículo de revista:', error);
             }
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
         
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el capítulo de libro:', error);
             }
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
         
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el documento de trabajo:', error);
             }
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
         
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir la idea o reflexión:', error);
             }
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
         
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el documento Info IISEC:', error);
             }
@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Resultado:', result);
                 }
         
-                //clearFields();
+                clearFields();
             } catch (error) {
                 console.error('Error al subir el Policy Brief:', error);
             }

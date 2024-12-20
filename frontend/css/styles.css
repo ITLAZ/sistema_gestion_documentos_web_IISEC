@@ -450,6 +450,7 @@ aside .advanced-search{
   flex-direction: column;
   gap: 20px;
   width: 100%;
+
 }
 
 .chart-selection, .compare-selection {
@@ -475,6 +476,10 @@ aside .advanced-search{
   background-color: var(--background-color);
   border-radius: 8px;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+
+  /* Ajustes adicionales */
+  position: relative; 
+  overflow: auto
 }
 
 
@@ -487,7 +492,7 @@ aside .advanced-search{
   gap: 8px; /* Espacio reducido */
   list-style: none;
   padding: 10px; /* Padding reducido */
-  background-color: var(--text-color);
+  background-color: var(--background-color);
   border-radius: 8px;
 }
 
@@ -767,4 +772,41 @@ aside .advanced-search{
 .modal .input-check input{
   width: 20px;
   height: 20px; 
+}
+
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.year-section {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--background-color); /* Fondo para cada año */
+  width: 100%;
+}
+
+.year-section h4 {
+  color: var(--card-bg-color);
+}
+
+.data-card {
+  border: 1px solid var(--border-color);/* Borde negro */
+  border-radius: 8px;
+  padding: 1rem;
+  flex: 1 1 calc(33.333% - 1rem);
+  text-align: center;
+  background-color: var(--card-bg-color); /* Fondo oscuro */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.data-card h4,
+.data-card p {
+  color: var(--card-text-color);
+  font-size: 13px; /* Texto blanco */
 }

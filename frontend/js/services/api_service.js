@@ -263,6 +263,7 @@ export async function uploadArt(artData, file, usuarioId) {
 
     // Añadir los datos del artículo al formData
     formData.append('portada', artData.portada);
+    formData.append('numero_identificacion', artData.numero_identificacion);
     formData.append('numero_articulo', artData.numero_articulo);
     formData.append('titulo', artData.titulo);
     formData.append('anio_revista', parseInt(artData.anio_revista, 10));

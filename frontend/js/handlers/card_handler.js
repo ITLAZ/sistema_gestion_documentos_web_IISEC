@@ -37,7 +37,7 @@ export function loadCards(dataArray, selectedType, isSearchResult = false) {
 
 
 function updateCardData(cardElement, data, documentType, isSearchResult = false) {
-    console.log('Datos recibidos para la tarjeta:', data); // Para verificar los datos recibidos
+    //console.log('Datos recibidos para la tarjeta:', data); // Para verificar los datos recibidos
 
     // Ocultar todos los campos opcionales al inicio
     ['#editorial', '#numero_articulo', '#nombre_revista', '#editores', '#descripcion', '#observacion', '#msj_clave'].forEach(selector => {

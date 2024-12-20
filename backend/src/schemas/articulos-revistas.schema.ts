@@ -26,7 +26,7 @@ export class ArticuloRevista extends Document {
   nombre_revista: string;
 
   @ApiProperty({ example: 2022, description: 'Año de publicación de la revista', required: true })
-  @Prop({ required: true, min: 1900, max: new Date().getFullYear() })
+  @Prop({ required: true, min: 0, max: new Date().getFullYear() })
   anio_revista: number;
 
   @ApiProperty({ example: 'Editorial ABC', description: 'Editorial del artículo', required: false })

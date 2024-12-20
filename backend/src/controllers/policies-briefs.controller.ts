@@ -78,7 +78,7 @@ export class PoliciesBriefsController {
   @ApiResponse({ status: 400, description: 'Parámetros de búsqueda inválidos' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async searchBooks(
-    @Query('query') query: string,
+    @Query('query') query: string = '',
     @Query('page') page: string = '1',
     @Query('size') size: string = '10',
     @Query('sortBy') sortBy: string,

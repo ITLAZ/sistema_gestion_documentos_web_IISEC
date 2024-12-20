@@ -59,13 +59,13 @@ export async function loadDocumentData(documentType, documentId) {
         displayFieldsByType(documentType);
 
         // Rellenar los campos del formulario según el tipo de documento.
+        document.getElementById('cover').value = data.portada || '';
         document.getElementById('title').value = data.titulo || '';
         document.getElementById('authors').value = data.autores ? data.autores.join(', ') : '';
         document.getElementById('published').value = data.anio_publicacion || data.anio_revista || '';
 
         // Rellenar solo si el documento es un "libro"
         if (documentType === 'libros') {
-            document.getElementById('cover').value = data.portada || '';
             document.getElementById('editorial').value = data.editorial || '';
             document.getElementById('abstract').value = data.abstract || '';
         }
@@ -142,27 +142,27 @@ function displayFieldsByType(type) {
             'published-group', 'abstract-group', 'linkpdf-group'
         ],
         'articulos-revistas': [
-            'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
+            'cover-group','numero_articulo-group','numero_identificacion-group', 'title-group', 'authors-group', 'nombre_revista-group', 
             'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group'
         ],
         'capitulos-libros': [
-            'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
+            'cover-group','numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
             'editores-group', 'editorial-group', 'published-group', 'linkpdf-group'
         ],
         'documentos-trabajo': [
-            'numero_identificacion-group', 'title-group', 'authors-group', 
+            'cover-group','numero_identificacion-group', 'title-group', 'authors-group', 
             'published-group', 'abstract-group', 'linkpdf-group'
         ],
         'ideas-reflexiones': [
-            'title-group', 'authors-group', 'published-group', 'observacion-group', 
+            'cover-group','title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group'
         ],
         'info-iisec': [
-            'title-group', 'authors-group', 'published-group', 'observacion-group', 
+            'cover-group','title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group'
         ],
         'policies-briefs': [
-            'title-group', 'authors-group', 'published-group', 'msj_clave-group', 
+            'cover-group','title-group', 'authors-group', 'published-group', 'msj_clave-group', 
             'linkpdf-group'
         ]
     };
@@ -247,6 +247,10 @@ export async function handleDocumentUpdate(documentType, documentId, usuarioId) 
         const updatedData = {};
 
         // Comparar y almacenar solo los datos que han cambiado.
+        if (cover && cover !== originalData.portada) {
+            updatedData.portada = cover;
+        }
+
         if (title && title !== originalData.titulo) {
             updatedData.titulo = title;
         }
@@ -265,9 +269,6 @@ export async function handleDocumentUpdate(documentType, documentId, usuarioId) 
 
         // Comparar y almacenar datos específicos para cada tipo de documento.
         if (documentType === 'libros') {
-            if (cover && cover !== originalData.portada) {
-                updatedData.portada = cover;
-            }
             if (editorial && editorial !== originalData.editorial) {
                 updatedData.editorial = editorial;
             }
@@ -277,6 +278,9 @@ export async function handleDocumentUpdate(documentType, documentId, usuarioId) 
         }
 
         if (documentType === 'articulos-revistas') {
+            if (numeroIdentificacion && numeroIdentificacion !== originalData.numero_identificacion) {
+                updatedData.numero_identificacion = numeroIdentificacion;
+            }
             if (articleNumber && articleNumber !== originalData.numero_articulo) {
                 updatedData.numero_articulo = articleNumber;
             }

@@ -34,7 +34,7 @@
                 <div class="input-group">
                     <label for="category">Tipo de Documento:</label>
                     <select id="category" name="category" required>
-                        <option value="">Seleccione una categoría</option>
+                        <option value="null" disabled selected>Seleccione una categoría</option>
                         <option value="all-types">Todos los documentos</option>
                         <option value="libros">Libros</option>
                         <option value="articulosRevistas">Artículos de Revista</option>
@@ -169,7 +169,7 @@
             // Construir la URL según la selección en el combo box
             let url;
             if (category === "all-types") {
-                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}`;
+                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             } else {
                 url = `http://localhost:3000/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             }
@@ -178,12 +178,19 @@
 
             try {
                 const response = await fetch(url);
+                console.log("RESPONSE",response);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log("DATA",data);
+
+                if (!data || (Array.isArray(data) && data.length === 0)) {
+                    reportContainer.innerHTML = '<p>No hay resultados disponibles para los filtros seleccionados.</p>';
+                    return; // Detener el procesamiento si no hay datos
+                }
 
                 reportContainer.innerHTML = '';
 
@@ -238,7 +245,7 @@
                     const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
                     const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
 
-                    summaryContainer.appendChild(createSummaryCard('Documento(s) con más resultados', mostResultsDescription));
+                    summaryContainer.appendChild(createSummaryCard('Documento con más resultados', mostResultsDescription));
                     summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
                     summaryContainer.appendChild(createSummaryCard('Documento(s) con menos resultados', leastResultsDescription));
                 }
@@ -257,7 +264,11 @@
 
                         items.forEach(item => {
                             const li = document.createElement('li');
-                            li.textContent = `${item.titulo || item.titulo_capitulo} - Publicado el ${item.anio_publicacion || item.anio_revista}`;
+                            const titulo = item.titulo || item.titulo_capitulo;
+                            const anio = item.anio_publicacion || item.anio_revista;
+                            const autores = item.autores ? `Autores: ${item.autores}` : 'Autores no disponibles';
+
+                            li.textContent = `${titulo} - Publicado el ${anio}. ${autores}`;
                             ul.appendChild(li);
                         });
 
@@ -299,7 +310,7 @@
 
                 if (category === "all-types") {
                     // Realiza una solicitud al endpoint countByTypes para el primer gráfico
-                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}`);
+                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
                     if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
                     const countByTypesData = await countByTypesResponse.json();
                     // Gráfico de Conteo de Documentos por Categoría

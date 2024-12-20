@@ -24,16 +24,28 @@
 
 <body>
     <div id="menu-container"></div>
-    <div class="container">
-        <div class="users-table">
-            <div class="input-group">
-                <h3>Filtrado de Logs:</h3>
-                <select name="document-type" id="type-selector">
-                    <option value="">Escoge una opción</option>
-                    <option value="all-logs">Obtener todos</option>
-                    <option value="login">Login y Logout</option>
-                    <option value="documento">Documentos</option>
-                </select>
+        <div class="container">  
+            <div class="users-table">
+                <div class="input-group">
+                    <h3>Filtrado de Logs:</h3>
+                    <select name="document-type" id="type-selector">
+                        <option value="null" disabled selected>Escoge una opción</option>
+                        <option value="all-logs">Obtener todos</option>
+                        <option value="login">Login y Logout</option>
+                        <option value="documento">Documentos</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Accion</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
             <table>
                 <thead>

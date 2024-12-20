@@ -20,17 +20,22 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('modal-overlay');
     document.body.appendChild(modalOverlay);
 
-    // Renderizar usuarios en la tabla
     async function renderUsers() {
         try {
             // Obtener usuarios desde el backend
             const users = await getAllUsers();
-
+    
+            // Obtener el ID del usuario desde las cookies
+            const currentUserId = getCookieValue('id_usuario');
+    
+            // Filtrar los usuarios para excluir al usuario actual
+            const filteredUsers = users.filter(user => user._id !== currentUserId);
+    
             // Limpiar la tabla antes de renderizar
             tbody.innerHTML = '';
-
-            // Generar filas para cada usuario
-            users.forEach((user) => {
+    
+            // Generar filas para cada usuario filtrado
+            filteredUsers.forEach((user) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${user.usuario}</td>
@@ -52,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Sweetalert2.fire('No se pudieron cargar los usuarios. Por favor, intente más tarde.');
         }
     }
+    
 
     // Manejar clic en botones "Activar/Desactivar" usando delegación de eventos
     tbody.addEventListener('click', async (e) => {
@@ -82,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <form id="add-user-form">
                 <div class="input-group">
                     <h3>Usuario:</h3>
-                    <input type="text" name="usuario" required>
+                    <input type="text" name="usuario" required pattern=".*[a-zA-Z].*">
                 </div>
                 <div class="input-group">
                     <h3>Nombre:</h3>
@@ -132,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 contrasenia: formData.get('contrasenia'),
                 admin: formData.get('admin') === 'on', // Convertir checkbox a booleano
             };
-
+    
             try {
                 const createdUser = await createUser(newUser);
                 Sweetalert2.fire(`Usuario ${createdUser.usuario} creado exitosamente.`);
@@ -194,11 +200,19 @@ document.addEventListener("click", function (event) {
 
     // Función para renderizar los archivos en la tabla
     async function renderFiles(fileType) {
-        tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+        if (!fileType || fileType === "null") {
+            // Mostrar mensaje inicial si no hay tipo seleccionado
+            tbody.innerHTML = '<tr><td colspan="4">Seleccione un tipo de archivo para cargar</td></tr>';
+            return;
+        }
+        
         try {
             // Obtener datos del backend
             const files = await fetchDeletedFiles(fileType);
-
+            if (files.length == 0) {
+                tbody.innerHTML = `<tr><td colspan="4">No se encuentran archivos a restaurar del tipo ${fileType}</td></tr>`;
+                return;
+            }
             // Limpiar tabla
             tbody.innerHTML = '';
 

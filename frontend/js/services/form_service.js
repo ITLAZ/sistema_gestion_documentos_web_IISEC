@@ -45,16 +45,16 @@ let  usuarioId = getCookieValue('id_usuario');
 console.log('ID de usuario:', usuarioId);
 
 document.addEventListener('DOMContentLoaded', () => {
-    const typeSelector = document.getElementById('type');
+    const typeSelector = document.getElementById('type-add');
     const form = document.getElementById('document-form');
     const submitButton = form.querySelector('button[type="submit"]');
 
 
     // Definir los campos obligatorios por tipo de documento
     const requiredFieldsByType = {
-        'libros': ['title','authors','cover','published'],
+        'libros': ['title','authors','published'],
         'articulos-revistas': ['title','authors','revista', 'published'],
-        'capitulos-libros': ['title','authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
+        'capitulos-libros': ['authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
         'documentos-trabajo': ['title', 'authors', 'published'],
         'ideas-reflexiones': ['title', 'authors', 'published'],
         'info-iisec': ['title', 'authors', 'published'],
@@ -89,27 +89,27 @@ document.addEventListener('DOMContentLoaded', () => {
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
         'articulos-revistas': [
-            'numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
+            'cover-group','numero_identificacion-group','numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
             'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
         'capitulos-libros': [
-            'numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
+            'cover-group','numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
             'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
         'documentos-trabajo': [
-            'numero_identificacion-group', 'title-group', 'authors-group', 
+            'cover-group','numero_identificacion-group', 'title-group', 'authors-group', 
             'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
         ],
         'ideas-reflexiones': [
-            'title-group', 'authors-group', 'published-group', 'observacion-group', 
+            'cover-group','title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group', 'pdf-upload-group'
         ],
         'info-iisec': [
-            'title-group', 'authors-group', 'published-group', 'observacion-group', 
+            'cover-group','title-group', 'authors-group', 'published-group', 'observacion-group', 
             'linkpdf-group', 'pdf-upload-group'
         ],
         'policies-briefs': [
-            'title-group', 'authors-group', 'published-group', 'msj_clave-group', 
+            'cover-group','title-group', 'authors-group', 'published-group', 'msj_clave-group', 
             'linkpdf-group', 'pdf-upload-group'
         ]
     };
@@ -291,10 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'articulos-revistas') {
             // Recoger los datos del formulario para artículos de revista
             const artData = {
+                portada: document.getElementById('cover').value,
+                //numero_identificacion: document.getElementById('numero_identificacion').value,
                 numero_articulo: document.getElementById('article-number').value,
                 titulo: document.getElementById('title').value,
-                anio_revista: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
                 autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                anio_revista: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
                 nombre_revista: document.getElementById('revista').value,
                 editorial: document.getElementById('editorial').value,
                 abstract: document.getElementById('abstract').value,
@@ -326,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'capitulos-libros') {
             // Recoger los datos del formulario para capítulos de libros
             const capituloData = {
+                portada: document.getElementById('cover').value,
                 numero_identificacion: document.getElementById('numero_identificacion').value,
                 titulo_libro: document.getElementById('titulo_libro').value,
                 titulo_capitulo: document.getElementById('titulo_capitulo').value,
@@ -360,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'documentos-trabajo') {
             // Recoger los datos del formulario para documentos de trabajo
             const docData = {
+                portada: document.getElementById('cover').value,
                 numero_identificacion: document.getElementById('numero_identificacion').value,
                 titulo: document.getElementById('title').value,
                 anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
@@ -392,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'ideas-reflexiones') {
             // Recoger los datos del formulario para ideas y reflexiones
             const ideaData = {
+                portada: document.getElementById('cover').value,
                 titulo: document.getElementById('title').value,
                 anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
                 autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
@@ -423,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'info-iisec') {
             // Recoger los datos del formulario para Info IISEC
             const infoData = {
+                portada: document.getElementById('cover').value,
                 titulo: document.getElementById('title').value,
                 anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
                 autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
@@ -454,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'policies-briefs') {
             // Recoger los datos del formulario para Policy Briefs
             const policyData = {
+                portada: document.getElementById('cover').value,
                 titulo: document.getElementById('title').value,
                 anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
                 autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios

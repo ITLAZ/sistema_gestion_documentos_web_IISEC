@@ -29,7 +29,7 @@ export class ArticulosRevistasService {
     const order = sortOrder === 'asc' ? 1 : -1;
     
     // Creamos el objeto de filtro dinámicamente
-    const filter: any = {};
+    const filter: any = { eliminado: false };
     if (autor) {
       filter.autores = autor;
     }

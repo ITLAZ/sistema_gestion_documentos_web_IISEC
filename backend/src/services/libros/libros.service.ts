@@ -37,19 +37,33 @@ export class LibrosService {
   
   async updateAllLibros(): Promise<void> {
     try {
+      // Obtener todos los libros desde MongoDB
       const libros = await this.libroModel.find().exec();
+      const mongoIds = libros.map(libro => libro._id.toString()); // IDs actuales en MongoDB
   
-      // Crear un array de promesas para indexar los libros
-      const indexPromises = libros.map(libro => 
+      // Obtener todos los documentos de Elasticsearch
+      const esResult = await this.searchService.getAllDocuments('libros');
+      const esIds = esResult.map(doc => doc._id); // IDs actuales en Elasticsearch
+  
+      // Identificar los documentos que están en Elasticsearch pero no en MongoDB
+      const idsToDelete = esIds.filter(id => !mongoIds.includes(id));
+  
+      // Eliminar los documentos huérfanos en Elasticsearch
+      const deletePromises = idsToDelete.map(id => this.searchService.deleteDocument('libros', id));
+      await Promise.all(deletePromises);
+  
+      console.log(`${idsToDelete.length} documentos huérfanos eliminados de Elasticsearch.`);
+  
+      // Reindexar los documentos actuales
+      const indexPromises = libros.map(libro =>
         this.searchService.indexData('libros', {
           id: libro._id,
           titulo: libro.titulo,
           autores: libro.autores,
           abstract: libro.abstract,
+          eliminado: libro.eliminado, 
         })
       );
-  
-      // Esperar a que todas las indexaciones se completen
       await Promise.all(indexPromises);
   
       console.log(`${libros.length} libros han sido actualizados e indexados en Elasticsearch.`);
@@ -58,6 +72,7 @@ export class LibrosService {
       throw new Error('No se pudieron actualizar los libros en Elasticsearch.');
     }
   }
+  
 
   // Obtener todos los libros
   async findAll(
@@ -72,7 +87,7 @@ export class LibrosService {
     const order = sortOrder === 'desc' ? -1 : 1; // Si es 'desc', ordenamos de forma descendente, si no, de forma ascendente.
     
     // Creamos el objeto de filtro dinámicamente
-    const filter: any = {};
+    const filter: any = { eliminado: false };
     if (autor) {
       filter.autores = autor; // Asumimos que el campo en la base de datos es 'autores'
     }

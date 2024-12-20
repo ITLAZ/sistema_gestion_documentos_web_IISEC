@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para renderizar los logs en la tabla
     async function renderLogs(logType) {
+        if (!logType || logType === "null") {
+            // Mostrar mensaje inicial si no hay tipo seleccionado
+            tbody.innerHTML = '<tr><td colspan="3">Seleccione un tipo de log para cargar</td></tr>';
+            return;
+        }
         tbody.innerHTML = '<tr><td colspan="3">Cargando logs...</td></tr>';
         try {
             // Obtener los logs desde el backend
@@ -23,11 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            logs.forEach((log) => {
+            for (const log of logs) {
                 const tr = document.createElement('tr');
+                let userName = 'Desconocido';
+                try {
+                    const user = await getNameLogs(log.id_usuario);
+                    userName = user.nombre; 
+                } catch (error) {
+                    console.error(`Error al obtener el nombre del usuario con ID ${log.id_usuario}:`, error);
+                }
 
                 const usuarioTd = document.createElement('td');
-                usuarioTd.textContent = log.id_usuario;
+                usuarioTd.textContent = userName;
 
                 const accionTd = document.createElement('td');
                 accionTd.textContent = log.accion;
@@ -41,9 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.appendChild(fechaTd);
 
                 tbody.appendChild(tr);
-            });
+            }
         } catch (error) {
             console.error('Error al renderizar los logs:', error);
+            tbody.innerHTML = '<tr><td colspan="3">Error al cargar los logs. Intente nuevamente.</td></tr>';
         }
     }
 
@@ -60,5 +73,5 @@ document.addEventListener('DOMContentLoaded', () => {
         // Renderizar los logs según el tipo seleccionado
         renderLogs(selectedType);
     });
-    
+    renderLogs('');
 });

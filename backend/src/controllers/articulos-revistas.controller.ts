@@ -290,6 +290,7 @@ export class ArticulosRevistasController {
     schema: {
       type: 'object',
       properties: {
+        numero_identificacion: { type: 'string', example: 'CH-320', description: 'Número de identificación del capítulo' },
         numero_articulo: { type: 'string', example: 'ART-4195', description: 'Número del artículo' },
         titulo: { type: 'string', example: 'Machine Learning Básico', description: 'Título del artículo' },
         anio_revista: { type: 'number', example: 2023, description: 'Año de la revista' },
@@ -340,6 +341,7 @@ export class ArticulosRevistasController {
       );
 
       const nuevoArticulo: Partial<ArticuloRevista> = {
+        numero_identificacion: articuloData.numero_identificacion,
         numero_articulo: articuloData.numero_articulo,
         titulo: articuloData.titulo,
         anio_revista: parseInt(articuloData.anio_revista, 10),
@@ -388,6 +390,7 @@ export class ArticulosRevistasController {
       : articuloData.autores;
 
       const nuevoArticulo: Partial<ArticuloRevista> = {
+        numero_identificacion: articuloData.numero_identificacion,
         numero_articulo: articuloData.numero_articulo,
         titulo: articuloData.titulo,
         anio_revista: parseInt(articuloData.anio_revista, 10),

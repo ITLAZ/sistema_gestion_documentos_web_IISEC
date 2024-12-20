@@ -9,6 +9,10 @@ export class ArticuloRevista extends Document {
   @Prop({ trim: true })
   portada: string;
 
+  @ApiProperty({ example: '01/5', description: 'Número de identificación del artículo', required: false })
+  @Prop({ trim: true })
+  numero_identificacion: string;
+
   @ApiProperty({ example: '08/4', description: 'Número del artículo', required: false })
   @Prop()
   numero_articulo: string;

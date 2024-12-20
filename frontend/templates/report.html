@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
-    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="../css/styles.css">
-    </noscript>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script>
+        // Leer la cookie directamente y establecer el atributo de tema al cargar la página
+        (function () {
+          function getCookieValue(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+          }
+    
+          const theme = getCookieValue('theme') || 'light'; // Default a 'light' si no hay cookie
+          document.documentElement.setAttribute('data-theme', theme);
+        })();
+      </script>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>
@@ -83,13 +94,50 @@
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
 
     <script type="module">
+
+        import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
         const categorySelect = document.getElementById('category');
         const compareSelection = document.getElementById('compare-selection');
+
+
+        // Función para crear una tarjeta
+        const createDataCard = (title, content) => {
+            const card = document.createElement('div');
+            card.classList.add('data-card'); // Clase CSS para estilos
+            card.innerHTML = `
+                <h4>${title}</h4>
+                <p>${content}</p>
+            `;
+            return card;
+        };
+
+        // Función para generar tarjetas de datos asociadas a cada gráfico
+        const renderDataCards = (data, container, title) => {
+            container.innerHTML = ''; // Limpia las tarjetas previas
+
+            // Generar tarjetas con datos
+            if (Array.isArray(data)) {
+                // Si los datos son una lista (como documentos por categoría o años)
+                data.forEach((item) => {
+                    const { label, value } = item;
+                    container.appendChild(createDataCard(`${title} - ${label}`, `${value}`));
+                });
+            } else {
+                // Si los datos son un objeto (como tipos por año)
+                Object.keys(data).forEach((key) => {
+                    const value = data[key];
+                    container.appendChild(createDataCard(`${title} - ${key}`, `${value}`));
+                });
+            }
+        };
 
         // Seleccionar automáticamente el checkbox basado en la categoría seleccionada en el combo box
         categorySelect.addEventListener('change', function () {
@@ -131,22 +179,22 @@
 
             // Validaciones
             if (!author && !startDate && !endDate) {
-                alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
+                Sweetalert2.fire('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
                 return;
             }
 
             if (startDate && !endDate) {
-                alert('Debe ingresar un año final si ha ingresado un año de inicio.');
+                Sweetalert2.fire('Debe ingresar un año final si ha ingresado un año de inicio.');
                 return;
             }
 
             if (!startDate && endDate) {
-                alert('Debe ingresar un año de inicio si ha ingresado un año final.');
+                Sweetalert2.fire('Debe ingresar un año de inicio si ha ingresado un año final.');
                 return;
             }
 
             if (parseInt(startDate) > parseInt(endDate)) {
-                alert('El año inicial no puede ser mayor que el año final.');
+                Sweetalert2.fire('El año inicial no puede ser mayor que el año final.');
                 return;
             }
 
@@ -254,7 +302,7 @@
                             const anio = item.anio_publicacion || item.anio_revista;
                             const autores = item.autores ? `Autores: ${item.autores}` : 'Autores no disponibles';
 
-                            li.textContent = `${titulo} - Publicado el ${anio}. ${autores}`;
+                            li.textContent = `${titulo} - Publicado el ${anio} - ${autores}`;
                             ul.appendChild(li);
                         });
 
@@ -294,12 +342,21 @@
 
                 chartContainer.innerHTML = '';
 
+
                 if (category === "all-types") {
                     // Realiza una solicitud al endpoint countByTypes para el primer gráfico
                     const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
                     if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
                     const countByTypesData = await countByTypesResponse.json();
+                    
+                    
                     // Gráfico de Conteo de Documentos por Categoría
+
+                    // Generar tarjetas
+                    const cardContainer1 = document.createElement('div');
+                    cardContainer1.classList.add('card-container');
+                    chartContainer.appendChild(cardContainer1);
+
                     const ctx1 = document.createElement('canvas');
                     chartContainer.appendChild(ctx1);
                     new Chart(ctx1, {
@@ -316,6 +373,13 @@
                         }
                     });
 
+                    renderDataCards(
+                        countByTypesData.map(item => ({ label: item.tipo, value: `${item.cantidad} documentos` })),
+                        cardContainer1,
+                        'Documentos por Categoría'
+                    );
+
+
                     // Gráficos adicionales solo si se especifica un rango de años
                     if (startDate || endDate) {
                         // Gráfico 1: Cantidad total de documentos por año
@@ -328,6 +392,11 @@
                                 }
                             });
                         });
+
+                        // Generar tarjetas
+                        const cardContainer2 = document.createElement('div');
+                        cardContainer2.classList.add('card-container');
+                        chartContainer.appendChild(cardContainer2);
 
                         const ctx2 = document.createElement('canvas');
                         chartContainer.appendChild(ctx2);
@@ -345,6 +414,12 @@
                             }
                         });
 
+                        renderDataCards(
+                            Object.entries(documentsByYear).map(([year, count]) => ({ label: year, value: `${count} documentos` })),
+                            cardContainer2,
+                            'Documentos por Año'
+                        );
+
                         // Gráfico 2: Tipo de documentos por año
                         const typesByYear = {};
                         Object.keys(filteredData).forEach(type => {
@@ -352,7 +427,15 @@
                                 const year = item.anio_publicacion || item.anio_revista;
                                 if (year) {
                                     if (!typesByYear[year]) {
-                                        typesByYear[year] = { libros: 0, articulosRevistas: 0, capitulosLibros: 0, documentosTrabajo: 0, ideasReflexiones: 0, infoIIsec: 0, policiesBriefs: 0 };
+                                        typesByYear[year] = { 
+                                            libros: 0, 
+                                            articulosRevistas: 0, 
+                                            capitulosLibros: 0, 
+                                            documentosTrabajo: 0, 
+                                            ideasReflexiones: 0, 
+                                            infoIIsec: 0, 
+                                            policiesBriefs: 0 
+                                        };
                                     }
                                     typesByYear[year][type] += 1;
                                 }
@@ -360,8 +443,44 @@
                         });
 
                         const years = Object.keys(typesByYear);
+
+                        // Crear contenedor de tarjetas antes del gráfico
+                        const cardContainer3 = document.createElement('div');
+                        cardContainer3.classList.add('card-container');
+                        chartContainer.appendChild(cardContainer3);
+
+                        // Generar tarjetas por año
+                        years.forEach(year => {
+                            const yearData = typesByYear[year];
+
+                            // Filtrar solo los tipos que tienen datos (no cero)
+                            const validTypes = Object.entries(yearData).filter(([type, count]) => count > 0);
+
+                            // Si no hay datos válidos, no generar una tarjeta para este año
+                            if (validTypes.length === 0) return;
+
+                            // Crear tarjeta única para este año
+                            const card = document.createElement('div');
+                            card.classList.add('data-card');
+
+                            // Título del año
+                            const title = document.createElement('h4');
+                            title.textContent = `Año ${year}`;
+                            card.appendChild(title);
+
+                            // Lista de tipos y cantidades
+                            const content = document.createElement('p');
+                            content.textContent = validTypes.map(([type, count]) => `[${type}: ${count}]`).join(' ');
+                            card.appendChild(content);
+
+                            // Agregar la tarjeta al contenedor
+                            cardContainer3.appendChild(card);
+                        });
+
+                        // Crear el gráfico después de las tarjetas
                         const ctx3 = document.createElement('canvas');
                         chartContainer.appendChild(ctx3);
+
                         new Chart(ctx3, {
                             type: chartType,
                             data: {
@@ -375,6 +494,7 @@
                                 }))
                             }
                         });
+
                     }
                 }
                 else {
@@ -385,6 +505,12 @@
                             yearCounts[year] = (yearCounts[year] || 0) + 1;
                         }
                     });
+
+                    // Generar tarjetas con los datos de yearCounts
+                    const cardContainer = document.createElement('div');
+                    cardContainer.classList.add('card-container');
+                    chartContainer.appendChild(cardContainer);
+
 
                     // Crear gráfico principal para la categoría específica
                     const ctx = document.createElement('canvas');
@@ -402,6 +528,12 @@
                             }]
                         }
                     });
+
+                    renderDataCards(
+                        Object.entries(yearCounts).map(([year, count]) => ({ label: `Año ${year}`, value: `${count} documentos` })),
+                        cardContainer,
+                        `Datos`
+                    );
 
                     // Obtener las categorías seleccionadas en los checkboxes
                     const selectedCheckboxes = Array.from(compareSelection.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
@@ -441,6 +573,11 @@
 
                 const additionalData = await response.json();
 
+                // Generar tarjetas con los datos de additionalData
+                const additionalCardContainer = document.createElement('div');
+                additionalCardContainer.classList.add('card-container');
+                chartContainer.appendChild(additionalCardContainer);
+
                 // Crear un nuevo gráfico en el contenedor
                 const additionalCtx = document.createElement('canvas');
                 chartContainer.appendChild(additionalCtx);
@@ -460,78 +597,104 @@
                         }]
                     }
                 });
+
+                renderDataCards(
+                    additionalData.map(item => ({ label: item.tipo, value: `${item.cantidad} documentos` })),
+                    additionalCardContainer,
+                    'Datos por Categoría Seleccionada'
+                );
             } catch (error) {
                 console.error('Error al generar el gráfico adicional:', error);
             }
         }
 
 
-
-
-
-
-
         // Lógica para descargar el reporte como PDF
-        downloadButton.addEventListener('click', () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+        downloadButton.addEventListener('click', async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-            doc.text("Reporte de Documentos", 10, 10);
-            let y = 20;
+    const reportContainer = document.getElementById('report-container');
+    const chartContainer = document.getElementById('chart-container');
 
-            // Incluir la información de las tarjetas de resumen en el PDF
-            const summaryCards = document.querySelectorAll('.summary-card');
-            summaryCards.forEach(card => {
-                const title = card.querySelector('h3').textContent;
-                const value = card.querySelector('p').textContent;
+    try {
+        // 1. Capturar el contenido del report-container sin el chart-container
+        chartContainer.style.display = 'none'; // Ocultar temporalmente el chart-container
 
-                doc.text(`${title}: ${value}`, 10, y);
-                y += 10;
+        const containerHeight = reportContainer.scrollHeight;
 
-                if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
-                    doc.addPage();
-                    y = 10;
-                }
-            });
+        // Ajustar temporalmente el estilo del report-container
+        const originalReportStyle = reportContainer.style.cssText;
+        reportContainer.style.height = `${containerHeight}px`;
+        reportContainer.style.overflow = 'visible';
 
-            // Incluir los detalles de los documentos de cada sección
-            const sections = reportContainer.querySelectorAll('.report-section');
-            sections.forEach(section => {
-                const header = section.querySelector('h2').textContent;
-                doc.text(header, 10, y);
-                y += 10;
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-                const items = section.querySelectorAll('li');
-                items.forEach(item => {
-                    if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
-                        doc.addPage();
-                        y = 10;
-                    }
-                    doc.text(item.textContent, 10, y);
-                    y += 10;
-                });
-            });
-            // Incluir gráficos en el PDF si existen
-            const chartCanvases = document.querySelectorAll('.graph-container canvas');
-            for (const canvas of chartCanvases) {
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 180;  // Ajuste de ancho en el PDF
-                const imgHeight = (canvas.height / canvas.width) * imgWidth;
-
-                if (y + imgHeight > 280) {  // Crear una nueva página si es necesario
-                    doc.addPage();
-                    y = 10;
-                }
-
-                doc.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
-                y += imgHeight + 10;
-            }
-
-            alert("Se generó exitosamente el PDF");
-
-            // Descargar el PDF
-            doc.save('reporte.pdf');
+        const reportCanvas = await html2canvas(reportContainer, {
+            scale: 2,
+            useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: reportContainer.scrollWidth,
+            windowHeight: containerHeight,
         });
+
+        // Restaurar el estilo original del report-container
+        reportContainer.style.cssText = originalReportStyle;
+        chartContainer.style.display = ''; // Mostrar nuevamente el chart-container
+
+        // 2. Capturar el contenido del chart-container
+        const chartCanvas = await html2canvas(chartContainer, {
+            scale: 2,
+            useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: chartContainer.scrollWidth,
+            windowHeight: chartContainer.scrollHeight,
+        });
+
+        // 3. Combinar las capturas en un solo PDF
+
+        // Añadir contenido del report-container al PDF
+        const reportImgData = reportCanvas.toDataURL('image/png');
+        const imgWidth = 210; // A4 width in mm
+        const reportImgHeight = (reportCanvas.height * imgWidth) / reportCanvas.width;
+        const pageHeight = 297; // A4 height in mm
+
+        let y = 0;
+        while (y < reportImgHeight) {
+            doc.addImage(reportImgData, 'PNG', 0, -y, imgWidth, reportImgHeight);
+            y += pageHeight;
+
+            if (y < reportImgHeight) {
+                doc.addPage();
+            }
+        }
+
+        // Añadir contenido del chart-container al PDF
+        doc.addPage();
+        const chartImgData = chartCanvas.toDataURL('image/png');
+        const chartImgHeight = (chartCanvas.height * imgWidth) / chartCanvas.width;
+
+        y = 0; // Reiniciar el cursor para la nueva página
+        while (y < chartImgHeight) {
+            doc.addImage(chartImgData, 'PNG', 0, -y, imgWidth, chartImgHeight);
+            y += pageHeight;
+
+            if (y < chartImgHeight) {
+                doc.addPage();
+            }
+        }
+
+        Sweetalert2.fire("Se generó exitosamente el PDF");
+
+        // Descargar el PDF
+        doc.save('reporte.pdf');
+    } catch (error) {
+        console.error('Error al generar el PDF:', error);
+        alert('Error al generar el PDF. Inténtalo de nuevo.');
+    }
+});
 
 
 

@@ -1,3 +1,6 @@
+
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 export async function fetchLogs(logType) {
     try {
         // Determinar el endpoint según el tipo de log seleccionado
@@ -15,7 +18,7 @@ export async function fetchLogs(logType) {
         return await response.json();
     } catch (error) {
         console.error('Error al obtener los logs:', error);
-        alert('Hubo un error al cargar los logs. Intente nuevamente.');
+        Sweetalert2.fire('Hubo un error al cargar los logs. Intente nuevamente.');
         throw error;
     }
 } 

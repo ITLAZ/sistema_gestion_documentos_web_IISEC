@@ -244,6 +244,7 @@ export class PoliciesBriefsController {
     schema: {
       type: 'object',
       properties: {
+        portada: { type: 'string', example: 'portada.jpg', description: 'URL de la portada del documento Policy Brief' },
         titulo: { type: 'string', example: 'Redes y Comunicaciones', description: 'Título del documento' },
         anio_publicacion: { type: 'string', example: '2023', description: 'Año de publicación' },
         autores: {
@@ -293,6 +294,7 @@ export class PoliciesBriefsController {
       );
 
       const nuevoPolicyBrief: Partial<PolicyBrief> = {
+        portada: policyBriefData.portada,
         titulo: policyBriefData.titulo,
         anio_publicacion: parseInt(policyBriefData.anio_publicacion, 10),
         autores: autoresArray,
@@ -339,6 +341,7 @@ export class PoliciesBriefsController {
         : policyBriefData.autores;
 
       const nuevoPolicyBrief: Partial<PolicyBrief> = {
+          portada: policyBriefData.portada,
           titulo: policyBriefData.titulo,
           anio_publicacion: parseInt(policyBriefData.anio_publicacion, 10),
           autores: autoresArray,

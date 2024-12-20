@@ -5,15 +5,7 @@ import * as fs from 'fs';
 
 @Injectable()
 export class FileUploadService {
-  // Función para eliminar caracteres especiales y tildes
-  private normalizarTexto(texto: string): string {
-    return texto
-      .normalize('NFD') // Descompone las letras con tildes
-      .replace(/[\u0300-\u036f]/g, '') // Elimina los acentos
-      .replace(/[^a-zA-Z0-9]/g, ''); // Elimina caracteres especiales y espacios
-  }
-
-  // Función genérica para procesar y estandarizar archivos
+  // Función genérica para procesar archivos sin modificar su nombre
   procesarArchivo(
     file: Express.Multer.File,
     titulo: string,
@@ -26,28 +18,14 @@ export class FileUploadService {
       throw new BadRequestException('El archivo debe ser un PDF');
     }
 
-    // Abreviar los campos y normalizar
-    const abreviaturaTitulo = this.normalizarTexto(titulo).substring(0, 5);
-    const abreviaturaAutor = this.normalizarTexto(autores.split(' ')[0]).substring(0, 4);
+    // Mantener el nombre original del archivo
+    const nuevoPath = path.join(destinationPath, file.originalname);
 
-    // Formatear la fecha actual (YYYYMMDD)
-    const fechaActual = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-
-    // Construir el nombre del archivo estandarizado
-    const nombreEstandarizado = `${tipo}$-${anio}${abreviaturaTitulo}${abreviaturaAutor}-${fechaActual}`;
-
-    // Asegurarse de que el nombre tiene un máximo de 30 caracteres
-    const nombreFinal = nombreEstandarizado.substring(0, 30);
-
-    // Ruta final del archivo
-    const nuevoNombreArchivo = `${nombreFinal}${path.extname(file.originalname)}`;
-    const nuevoPath = path.join(destinationPath, nuevoNombreArchivo);
-
-    // Renombrar el archivo
+    // Renombrar el archivo al destino final
     fs.renameSync(path.join(file.destination, file.filename), nuevoPath);
 
     return {
-      message: 'Archivo cargado y estandarizado con éxito',
+      message: 'Archivo cargado con éxito',
       path: nuevoPath,
       metadata: {
         titulo,
@@ -77,4 +55,33 @@ export class FileUploadService {
       },
     };
   }
+
+  // Comentado: Función para eliminar caracteres especiales y tildes
+  /*
+  private normalizarTexto(texto: string): string {
+    return texto
+      .normalize('NFD') // Descompone las letras con tildes
+      .replace(/[\u0300-\u036f]/g, '') // Elimina los acentos
+      .replace(/[^a-zA-Z0-9]/g, ''); // Elimina caracteres especiales y espacios
+  }
+  */
+
+  // Comentado: Lógica de nombres estandarizados
+  /*
+  // Abreviar los campos y normalizar
+  const abreviaturaTitulo = this.normalizarTexto(titulo).substring(0, 5);
+  const abreviaturaAutor = this.normalizarTexto(autores.split(' ')[0]).substring(0, 4);
+
+  // Formatear la fecha actual (YYYYMMDD)
+  const fechaActual = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+
+  // Construir el nombre del archivo estandarizado
+  const nombreEstandarizado = `${tipo}$-${anio}${abreviaturaTitulo}${abreviaturaAutor}-${fechaActual}`;
+
+  // Asegurarse de que el nombre tiene un máximo de 30 caracteres
+  const nombreFinal = nombreEstandarizado.substring(0, 30);
+
+  // Ruta final del archivo
+  const nuevoNombreArchivo = `${nombreFinal}${path.extname(file.originalname)}`;
+  */
 }

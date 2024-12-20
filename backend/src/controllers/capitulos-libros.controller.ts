@@ -8,6 +8,7 @@ import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, Ap
 import { SearchService } from 'src/services/search/search.service';
 import { CapituloLibroResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -281,7 +282,7 @@ export class CapitulosLibrosController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear un capítulo de libro con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/CAPÍTULOS')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -341,7 +342,7 @@ export class CapitulosLibrosController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         capituloData.anio_publicacion?.toString() ?? '0000',
         'CL',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/CAPÍTULOS')
       );
 
       const nuevoCapitulo: Partial<CapituloLibro> = {

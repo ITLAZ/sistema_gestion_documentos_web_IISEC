@@ -8,6 +8,7 @@ import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiCon
 import { SearchService } from 'src/services/search/search.service';
 import { IdeaReflexionResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -281,7 +282,7 @@ export class IdeasReflexionesController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear una idea o reflexión con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/IDEAS_Y_REFLEXIONES')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -334,7 +335,7 @@ export class IdeasReflexionesController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         ideaReflexionData.anio_publicacion?.toString() ?? '0000',
         'IR',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/IDEAS_Y_REFLEXIONES')
       );
 
       const nuevoIdeaReflexion: Partial<IdeaReflexion> = {

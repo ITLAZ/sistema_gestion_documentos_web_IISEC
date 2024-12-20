@@ -8,6 +8,7 @@ import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiCon
 import { SearchService } from 'src/services/search/search.service';
 import { PolicyBriefResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -235,7 +236,7 @@ export class PoliciesBriefsController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear un documento Policy Brief con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/POLICY_BRIEF')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -288,7 +289,7 @@ export class PoliciesBriefsController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         policyBriefData.anio_publicacion?.toString() ?? '0000',
         'PB',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/POLICY_BRIEF')
       );
 
       const nuevoPolicyBrief: Partial<PolicyBrief> = {

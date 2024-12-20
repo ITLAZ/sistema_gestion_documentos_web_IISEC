@@ -8,6 +8,7 @@ import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiConsumes, Ap
 import { SearchService } from 'src/services/search/search.service';
 import { ArticuloRevistaResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -281,7 +282,7 @@ export class ArticulosRevistasController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear un artículo con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/ARTÍCULOS_ACADÉMICOS')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -335,7 +336,7 @@ export class ArticulosRevistasController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         articuloData.anio_revista?.toString() ?? '0000',
         'AR',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/ARTÍCULOS_ACADÉMICOS')
       );
 
       const nuevoArticulo: Partial<ArticuloRevista> = {

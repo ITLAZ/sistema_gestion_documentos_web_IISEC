@@ -8,6 +8,7 @@ import { SearchService } from 'src/services/search/search.service';
 import { ApiBody, ApiConsumes, ApiParam, ApiQuery, ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { LibrosResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -296,7 +297,7 @@ export class LibrosController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear un libro con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/LIBROS')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -352,7 +353,7 @@ export class LibrosController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         libroData.anio_publicacion?.toString() ?? '0000',
         'Lib',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/LIBROS')
       );
 
       // Crear un nuevo objeto de libro con los datos procesados

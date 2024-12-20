@@ -8,6 +8,7 @@ import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiCon
 import { SearchService } from 'src/services/search/search.service';
 import { DocumentoTrabajoResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -280,7 +281,7 @@ export class DocumentosTrabajoController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear un documento de trabajo con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/DOCUMENTOS_DE_TRABAJO')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -333,7 +334,7 @@ export class DocumentosTrabajoController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         documentoData.anio_publicacion?.toString() ?? '0000',
         'DT',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/DOCUMENTOS_DE_TRABAJO')
       );
 
       const nuevoDocumento: Partial<DocumentoTrabajo> = {

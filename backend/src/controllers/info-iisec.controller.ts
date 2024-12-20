@@ -8,6 +8,7 @@ import { ApiQuery, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiBody, ApiCon
 import { SearchService } from 'src/services/search/search.service';
 import { InfoIISECResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
+import * as path from 'path';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -279,7 +280,7 @@ export class InfoIisecController {
   @Post('upload')
   @ApiOperation({ summary: 'Crear un documento Info IISEC con archivo de PDF' })
   @UseInterceptors(
-    FileInterceptor('file', getMulterOptions(new FileUploadService(), 'C:/tmp'))
+    FileInterceptor('file', getMulterOptions(new FileUploadService(), path.join(__dirname, '../../../temp/INFO_IISEC')))
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -332,7 +333,7 @@ export class InfoIisecController {
         autoresArray.join(' ') ?? 'Autor desconocido',
         infoIISECData.anio_publicacion?.toString() ?? '0000',
         'II',
-        'C:/tmp'
+        path.join(__dirname, '../../../temp/INFO_IISEC')
       );
 
       const nuevoInfoIISEC: Partial<InfoIISEC> = {

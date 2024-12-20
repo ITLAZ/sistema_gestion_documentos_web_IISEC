@@ -7,6 +7,9 @@ import {
 } from "./services/api_service.js";
 import { loadNavbar } from "./services/navbar_service.js";
 
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
+
 
 // Verificar si el usuario está autenticado
 (function verificarAutenticacion() {
@@ -398,7 +401,7 @@ function displayDocumentDetails(data, documentType) {
 
     default:
       console.error("Tipo de documento desconocido:", documentType);
-      alert("El tipo de documento no está disponible.");
+      Sweetalert2.fire("El tipo de documento no está disponible.");
       return; // Detener si no hay tipo
   }
 
@@ -468,10 +471,34 @@ document.addEventListener("click", function (event) {
 document.addEventListener("DOMContentLoaded", function () {
   const body = document.body;
 
-  // Aplicar el tema almacenado en localStorage
-  const storedTheme = localStorage.getItem("theme") || "light";
-  body.setAttribute("data-theme", storedTheme);
-  console.log("Tema almacenado aplicado:", storedTheme);
+  // Función para obtener el valor de una cookie
+  function getCookie(name) {
+    const cookies = document.cookie.split("; ");
+    const cookie = cookies.find((row) => row.startsWith(`${name}=`));
+    return cookie ? cookie.split("=")[1] : null;
+  }
+
+  // Función para actualizar el tema en el servidor
+  async function updateThemeOnServer(idUsuario, theme) {
+    try {
+      const response = await fetch("http://localhost:3000/usuarios/update-theme", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_usuario: idUsuario, theme }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al actualizar el tema: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(data.message); // Confirmación del servidor
+    } catch (error) {
+      console.error("Error al sincronizar el tema con el servidor:", error);
+    }
+  }
 
   // Cargar el componente de navegación
   fetch("../components/menu_navegacion.html")
@@ -479,7 +506,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((data) => {
       document.getElementById("menu-container").innerHTML = data;
 
-      // Ahora que el componente está cargado, agregar el event listener
+      // Agregar el event listener para el botón de cambio de tema
       const themeToggleButton = document.getElementById("theme-toggle");
       if (themeToggleButton) {
         console.log("Botón de cambio de tema encontrado");
@@ -487,7 +514,17 @@ document.addEventListener("DOMContentLoaded", function () {
           const currentTheme = body.getAttribute("data-theme");
           const newTheme = currentTheme === "light" ? "dark" : "light";
           body.setAttribute("data-theme", newTheme);
-          localStorage.setItem("theme", newTheme);
+
+          // Actualizar la cookie del tema
+          document.cookie = `theme=${newTheme}; path=/; max-age=86400`;
+
+          // Sincronizar el tema con el servidor
+          const userId = getCookie("id_usuario");
+          if (userId) {
+            const themeValue = newTheme === "light" ? 1 : 0;
+            updateThemeOnServer(userId, themeValue);
+          }
+
           console.log("Tema cambiado a:", newTheme);
         });
       } else {
@@ -613,10 +650,10 @@ document.addEventListener("DOMContentLoaded", () => {
     sortBy = "anio_publicacion"; 
 
     // Validar que se ingrese una palabra clave
-    /*if (!query) {
-      alert("Por favor, ingrese una palabra clave para realizar la búsqueda.");
+    if (!query) {
+      Sweetalert2.fire("Por favor, ingrese una palabra clave para realizar la búsqueda.");
       return;
-    }*/
+    }
 
     if (anio_publicacion) {
       if (
@@ -624,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
         anio_publicacion < 1900 ||
         anio_publicacion > currentYear
       ) {
-        alert(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
+        Sweetalert2.fire(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
         publicationDateInput.value = "";
         return;
       }
@@ -633,6 +670,33 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = 1;
     await executeSearch(documentType, query, anio_publicacion, author);
   });
+
+  // Función para ejecutar la búsqueda
+  async function executeSearch(documentType, query, anio_publicacion, author) {
+    try {
+      const data = await searchDocuments(
+        documentType,
+        query,
+        currentPage,
+        itemsPerPage,
+        anio_publicacion,
+        author,
+        sortBy,
+        sortOrder
+      );
+
+      console.log("Datos recibidos del backend:", data);
+
+      // Renderizar los resultados obtenidos
+      renderResults(data, documentType);
+    } catch (error) {
+      console.error("Error al realizar la búsqueda:", error);
+      Sweetalert2.fire(
+        "Hubo un error al realizar la búsqueda. Por favor, inténtelo de nuevo."
+      );
+    }
+  }
+
 
 dateOrderButton.innerHTML = "Cambiar Orden" 
 
@@ -672,8 +736,6 @@ document.addEventListener("DOMContentLoaded", () => {
   typeSelector.addEventListener("change", showAllSortButtons);
 });
 
-
-
 //Función para Obtener id_usuario de la Cookie
 export async function getCookieValue(name) {
   const cookieString = document.cookie
@@ -682,5 +744,4 @@ export async function getCookieValue(name) {
   
   return cookieString ? cookieString.split('=')[1] : null;
 }
-
 

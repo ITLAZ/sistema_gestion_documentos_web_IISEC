@@ -1,47 +1,36 @@
 :root {
   transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out,
     border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+}
 
-  /* Tema claro */
-  [data-theme="light"] {
-    --background-color: #fff;
-    --text-color: #333;
-    --navbar-bg-color: #f4f4f4;
-    --navbar-border-color: #ddd;
-    --card-bg-color: #232954;
-    --card-text-color: #fff;
-    --border-color: #ddd;
-    --button-bg-color: #ddd;
-    --button-text-color: #232954;
-    --button-hover-bg-color: #0056b3;
-    --button-hover-text-color: #f4f4f4;
-  }
+/* Tema claro */
+[data-theme="light"] {
+  --background-color: #fff;
+  --text-color: #333;
+  --navbar-bg-color: #f4f4f4;
+  --navbar-border-color: #ddd;
+  --card-bg-color: #232954;
+  --card-text-color: #fff;
+  --border-color: #ddd;
+  --button-bg-color: #ddd;
+  --button-text-color: #232954;
+  --button-hover-bg-color: #0056b3;
+  --button-hover-text-color: #f4f4f4;
+}
 
-  /* Tema Oscuro */
-  [data-theme="dark"] {
-    --background-color: #1e1e1e;
-    /* Un gris más oscuro para el fondo */
-    --text-color: #e0e0e0;
-    /* Texto más claro para mejor visibilidad */
-    --navbar-bg-color: #262626;
-    /* Mantenido para el fondo de la barra de navegación */
-    --navbar-border-color: #444;
-    /* Color de borde más tenue */
-    --card-bg-color: #2c2c2c;
-    /* Fondo de tarjeta más oscuro */
-    --card-text-color: #f4f4f4;
-    /* Texto de tarjeta claro */
-    --border-color: #444;
-    /* Color de borde oscuro */
-    --button-bg-color: #444;
-    /* Fondo de botón oscuro */
-    --button-text-color: #fff;
-    /* Texto blanco en botones */
-    --button-hover-bg-color: #007bff;
-    /* Azul más brillante para el hover */
-    --button-hover-text-color: #fff;
-    /* Texto blanco en hover */
-  }
+/* Tema oscuro */
+[data-theme="dark"] {
+  --background-color: #1e1e1e;
+  --text-color: #e0e0e0;
+  --navbar-bg-color: #262626;
+  --navbar-border-color: #444;
+  --card-bg-color: #2c2c2c;
+  --card-text-color: #f4f4f4;
+  --border-color: #444;
+  --button-bg-color: #444;
+  --button-text-color: #fff;
+  --button-hover-bg-color: #007bff;
+  --button-hover-text-color: #fff;
 }
 
 /* General transition for the body and other elements */
@@ -809,4 +798,39 @@ aside .advanced-search{
 .data-card p {
   color: var(--card-text-color);
   font-size: 13px; /* Texto blanco */
+}
+.swal2-popup {
+  border: var(--border-color) 2px solid;
+  border-radius: 20px;
+  padding: 10px;
+  background-color: var(--card-bg-color);
+  color: var(--card-text-color);
+  align-content: center;
+  justify-content: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.swal2-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.swal2-confirm {
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-weight: bold;
+}
+
+.swal2-confirm:hover {
+  background-color: var(--button-hover-bg-color);
+  color: var(--button-hover-text-color);
 }

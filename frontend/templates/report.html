@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
-    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="../css/styles.css">
-    </noscript>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script>
+        // Leer la cookie directamente y establecer el atributo de tema al cargar la página
+        (function () {
+          function getCookieValue(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+          }
+    
+          const theme = getCookieValue('theme') || 'light'; // Default a 'light' si no hay cookie
+          document.documentElement.setAttribute('data-theme', theme);
+        })();
+      </script>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>
@@ -87,6 +98,9 @@
     
 
     <script type="module">
+
+        import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
@@ -165,22 +179,22 @@
 
             // Validaciones
             if (!author && !startDate && !endDate) {
-                alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
+                Sweetalert2.fire('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
                 return;
             }
 
             if (startDate && !endDate) {
-                alert('Debe ingresar un año final si ha ingresado un año de inicio.');
+                Sweetalert2.fire('Debe ingresar un año final si ha ingresado un año de inicio.');
                 return;
             }
 
             if (!startDate && endDate) {
-                alert('Debe ingresar un año de inicio si ha ingresado un año final.');
+                Sweetalert2.fire('Debe ingresar un año de inicio si ha ingresado un año final.');
                 return;
             }
 
             if (parseInt(startDate) > parseInt(endDate)) {
-                alert('El año inicial no puede ser mayor que el año final.');
+                Sweetalert2.fire('El año inicial no puede ser mayor que el año final.');
                 return;
             }
 
@@ -672,7 +686,7 @@
             }
         }
 
-        alert("Se generó exitosamente el PDF");
+        Sweetalert2.fire("Se generó exitosamente el PDF");
 
         // Descargar el PDF
         doc.save('reporte.pdf');

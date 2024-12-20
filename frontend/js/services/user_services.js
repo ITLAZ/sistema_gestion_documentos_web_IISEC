@@ -1,3 +1,6 @@
+
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 export async function getUserById(usuarioId) { 
     try {
         const response = await fetch(`http://localhost:3000/usuarios/getById/${usuarioId}`);
@@ -18,7 +21,7 @@ export async function getUserById(usuarioId) {
 
     } catch (error) {
         console.error(`Error al obtener los datos del usuario:`, error);
-        alert(`Hubo un problema al obtener los datos del usuario. Por favor, intenta de nuevo más tarde.`);
+        Sweetalert2.fire(`Hubo un problema al obtener los datos del usuario. Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -111,7 +114,7 @@ export async function fetchDeletedFiles(fileType) {
         return files;
     } catch (error) {
         console.error('Error al obtener los archivos eliminados:', error);
-        alert('Hubo un error al cargar los archivos. Intente nuevamente.');
+        Sweetalert2.fire('Hubo un error al cargar los archivos. Intente nuevamente.');
         throw error;
     }
 }
@@ -136,7 +139,7 @@ export async function restoreFile(fileType, fileId, userId) {
         return await response.json(); // Suponiendo que el backend devuelve algún mensaje o el archivo restaurado
     } catch (error) {
         console.error('Error en restoreFile:', error);
-        alert('No se pudo restaurar el archivo. Intente nuevamente.');
+        Sweetalert2.fire('No se pudo restaurar el archivo. Intente nuevamente.');
         throw error;
     }
 }

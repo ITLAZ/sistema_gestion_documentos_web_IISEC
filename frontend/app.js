@@ -1,11 +1,23 @@
 const express = require('express');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const port = 3001;
 
-// Middleware to serve static files
+// Middleware para manejar cookies
+app.use(cookieParser());
+
+// Middleware para archivos estáticos
 app.use(express.static(path.join(__dirname)));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
+
+// Middleware para pasar el tema a todas las rutas
+app.use((req, res, next) => {
+    const theme = req.cookies.theme || 'light'; // Default a 'light' si no hay cookie
+    res.locals.theme = theme;
+    next();
+});
 
 // Basic route to serve index.html
 app.get('/', (req, res) => {

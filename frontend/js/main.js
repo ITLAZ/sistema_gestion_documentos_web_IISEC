@@ -418,7 +418,7 @@ function displayDocumentDetails(data, documentType) {
     pdfIframe.style.display = "block";
   } else if (documentData.direccion_archivo) {
     const nombreArchivo = documentData.direccion_archivo.split("\\").pop();
-    const archivoUrl = `http://localhost:3000/file-handler/file/${nombreArchivo}`;
+    const archivoUrl = `${API_URL}/file-handler/file/${nombreArchivo}`;
     pdfIframe.src = archivoUrl;
     pdfDownloadLink.href = archivoUrl;
     pdfIframe.style.display = "block";
@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Función para actualizar el tema en el servidor
   async function updateThemeOnServer(idUsuario, theme) {
     try {
-      const response = await fetch("http://localhost:3000/usuarios/update-theme", {
+      const response = await fetch(`${API_URL}/usuarios/update-theme`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

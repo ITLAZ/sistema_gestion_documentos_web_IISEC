@@ -203,9 +203,9 @@
             // Construir la URL según la selección en el combo box
             let url;
             if (category === "all-types") {
-                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
+                url = `${API_URL}/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             } else {
-                url = `http://localhost:3000/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
+                url = `${API_URL}/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             }
 
             console.log(`URL del endpoint ${category === "all-types" ? 'general' : 'filtrado por categoría'}:`, url);
@@ -345,7 +345,7 @@
 
                 if (category === "all-types") {
                     // Realiza una solicitud al endpoint countByTypes para el primer gráfico
-                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
+                    const countByTypesResponse = await fetch(`${API_URL}/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
                     if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
                     const countByTypesData = await countByTypesResponse.json();
                     
@@ -563,7 +563,7 @@
                 params.append('anioInicio', startDate);
                 params.append('anioFin', endDate);
 
-                const additionalChartUrl = `http://localhost:3000/reports/countByTypes?${params.toString()}`;
+                const additionalChartUrl = `${API_URL}/reports/countByTypes?${params.toString()}`;
                 console.log(`URL para el gráfico adicional: ${additionalChartUrl}`);
 
                 const response = await fetch(additionalChartUrl);

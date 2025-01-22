@@ -5,8 +5,8 @@ export async function fetchLogs(logType) {
     try {
         // Determinar el endpoint según el tipo de log seleccionado
         const endpoint = logType
-            ? `http://localhost:3000/logs/getAll?tipo=${logType}`
-            : 'http://localhost:3000/logs/getAll';
+            ? `${API_URL}/logs/getAll?tipo=${logType}`
+            : `${API_URL}/logs/getAll`;
 
         const response = await fetch(endpoint);
 
@@ -25,7 +25,7 @@ export async function fetchLogs(logType) {
 
 export async function getNameLogs(usuarioId) { 
     try {
-        const response = await fetch(`http://localhost:3000/usuarios/getById/${usuarioId}`);
+        const response = await fetch(`${API_URL}/usuarios/getById/${usuarioId}`);
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);

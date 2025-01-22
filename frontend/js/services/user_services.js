@@ -3,7 +3,7 @@ import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
 
 export async function getUserById(usuarioId) { 
     try {
-        const response = await fetch(`http://localhost:3000/usuarios/getById/${usuarioId}`);
+        const response = await fetch(`${API_URL}/usuarios/getById/${usuarioId}`);
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -36,7 +36,7 @@ export async function createUser(userData) {
             activo: userData.activo ?? true, // Si no se envía, será true
         };
 
-        const response = await fetch('http://localhost:3000/usuarios/crear', {
+        const response = await fetch(`${API_URL}/usuarios/crear`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export async function createUser(userData) {
 
 export async function getAllUsers() {
     try {
-        const response = await fetch('http://localhost:3000/usuarios/getAll');
+        const response = await fetch(`${API_URL}/usuarios/getAll`);
 
         if (!response.ok) {
             throw new Error(`Error al obtener los usuarios: ${response.status} - ${response.statusText}`);
@@ -79,7 +79,7 @@ export async function getAllUsers() {
 
 export async function estadoUsuario(id) {
     try {
-        const response = await fetch(`http://localhost:3000/usuarios/activar/${id}`, {
+        const response = await fetch(`${API_URL}/usuarios/activar/${id}`, {
             method: 'PATCH', // PATCH porque se está modificando parcialmente un recurso
             headers: {
                 'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export async function estadoUsuario(id) {
 export async function fetchDeletedFiles(fileType) {
     try {
         // Determinar el endpoint según el tipo de archivo seleccionado
-        const endpoint = `http://localhost:3000/${fileType}/eliminados`;
+        const endpoint = `${API_URL}/${fileType}/eliminados`;
 
         const response = await fetch(endpoint);
 
@@ -122,7 +122,7 @@ export async function fetchDeletedFiles(fileType) {
 
 export async function restoreFile(fileType, fileId, userId) {
     try {
-        const endpoint = `http://localhost:3000/${fileType}/${fileId}/recuperar-eliminado`;
+        const endpoint = `${API_URL}/${fileType}/${fileId}/recuperar-eliminado`;
 
         const response = await fetch(endpoint, {
             method: 'PUT',

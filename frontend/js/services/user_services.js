@@ -1,5 +1,6 @@
 
 import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+import { API_URL } from '../../config.js';
 
 export async function getUserById(usuarioId) { 
     try {

@@ -6,6 +6,8 @@ import {
   searchDocuments,
 } from "./services/api_service.js";
 import { loadNavbar } from "./services/navbar_service.js";
+import { API_URL } from '../../config.js';
+
 
 import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
 

@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const app = express();
 const port = 3001;
@@ -64,5 +65,5 @@ app.get('/mostlogs', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server is running on at ${frontendBaseUrl}`);
+    console.log(`Server is running on at ${FRONTEND_URL}`);
 });

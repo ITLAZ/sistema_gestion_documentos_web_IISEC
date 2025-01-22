@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ArticulosRevistasModule } from './modules/articulos-revistas/articulos-revistas.module'; // Importa el módulo
@@ -41,9 +42,21 @@ import { LogsModuleModule } from './modules/logs-module/logs-module.module';
 
 @Module({
   imports: [
+    // Configuracion variables de entorno
+    ConfigModule.forRoot({
+      envFilePath: '.env', // Cambia esto si el archivo tiene otro nombre, como 'backend.env'
+      isGlobal: true,
+    }),
+
     // ** Modulos de Mongoose
     // Conexión a la base de datos MongoDB
-    MongooseModule.forRoot('mongodb://localhost:27017/BibliotecaIISEC'), 
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
+    }),
     // Definicion de colecciones
     MongooseModule.forFeature([
       { name: ArticuloRevista.name, schema: ArticuloRevistaSchema },
@@ -58,8 +71,12 @@ import { LogsModuleModule } from './modules/logs-module/logs-module.module';
     ]),
 
     //Modulo ElasticSearch
-    ElasticsearchModule.register({
-      node: 'http://localhost:9200', // Asegúrate de que esta sea la URL correcta de tu instancia de Elasticsearch.
+    ElasticsearchModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        node: configService.get<string>('ELASTICSEARCH_HOST'),
+      }),
+      inject: [ConfigService],
     }),
 
     // Modulos de funcionalidades

@@ -68,7 +68,8 @@ export class PoliciesBriefsController {
   @ApiQuery({ name: 'size', required: false, description: 'Cantidad de resultados por página', example: '10' })
   @ApiQuery({ name: 'sortBy', required: false, description: 'Campo por el cual ordenar', example: 'anio_publicacion' })
   @ApiQuery({ name: 'sortOrder', required: false, description: 'Orden ascendente o descendente', example: 'asc' })
-  @ApiQuery({ name: 'anio_publicacion', required: false, description: 'Año de publicación para filtrar', example: '2023' })
+  @ApiQuery({ name: 'anio_inicio', required: false, description: 'Año inicial del rango de publicación', example: '2000' })
+  @ApiQuery({ name: 'anio_fin', required: false, description: 'Año final del rango de publicación', example: '2023' })
   @ApiQuery({ name: 'autores', required: false, description: 'Filtrar por autor', example: 'Juan Pérez' })
   @ApiResponse({
     status: 200,
@@ -78,13 +79,14 @@ export class PoliciesBriefsController {
   })
   @ApiResponse({ status: 400, description: 'Parámetros de búsqueda inválidos' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async searchBooks(
+  async searchPolicyBriefs(
     @Query('query') query: string = '',
     @Query('page') page: string = '1',
     @Query('size') size: string = '10',
     @Query('sortBy') sortBy: string,
     @Query('sortOrder') sortOrder: string,
-    @Query('anio_publicacion') anio_publicacion?: string,
+    @Query('anio_inicio') anio_inicio?: string,
+    @Query('anio_fin') anio_fin?: string,
     @Query('autores') autores?: string,
   ): Promise<any[]> {
     try {
@@ -92,14 +94,21 @@ export class PoliciesBriefsController {
       const pageSize = parseInt(size, 10);
       const sortField = sortBy || 'anio_publicacion';
       const sortDirection: 'asc' | 'desc' = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';
-
+  
+      // Parsear años de inicio y fin si están definidos
+      const yearStart = anio_inicio ? parseInt(anio_inicio, 10) : undefined;
+      const yearEnd = anio_fin ? parseInt(anio_fin, 10) : undefined;
+  
       const results = await this.searchService.searchByType(
         'policies-briefs',
         query,
         pageNumber,
         pageSize,
         {
-          anio_publicacion: anio_publicacion ? parseInt(anio_publicacion, 10) : undefined,
+          anio_publicacion: {
+            start: yearStart,
+            end: yearEnd,
+          },
           autores
         },
         sortField,
@@ -107,11 +116,11 @@ export class PoliciesBriefsController {
       );
       return results;
     } catch (error) {
-      console.error(error.message);
+      console.error('Error al realizar la búsqueda de documentos Policy Briefs:', error.message);
       throw new InternalServerErrorException('Error al realizar la búsqueda de documentos Policy Briefs.');
     }
   }
-
+  
   @Get('titulo/:titulo')
   @ApiOperation({ summary: 'Buscar documentos Policy Briefs por título' })
   @ApiParam({ name: 'titulo', description: 'Título del documento a buscar', example: 'Redes y Comunicaciones' })

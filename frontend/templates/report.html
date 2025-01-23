@@ -109,6 +109,17 @@
         import { API_URL } from '../../config.js';
 
 
+        const labelMapping = {
+            libros: 'Libros',
+            articulosRevistas: 'Artículos en Revista',
+            capitulosLibros: 'Capítulos de Libros',
+            documentosTrabajo: 'Documentos de Trabajo',
+            ideasReflexiones: 'Ideas y Reflexiones',
+            policiesBriefs: 'Policy Brief',
+            infoIIsec: 'Info IISEC',
+            "all-types": "Todos los documentos"
+        };
+
         // Función para crear una tarjeta
         const createDataCard = (title, content) => {
             const card = document.createElement('div');
@@ -277,8 +288,13 @@
                         return card;
                     };
 
-                    const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
-                    const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
+                    const mostResultsDescription = documentsWithMostResults
+                        .map((item) => `${labelMapping[item.type] || item.type} (${item.count})`)
+                        .join(', ');
+
+                    const leastResultsDescription = documentsWithLeastResults
+                        .map((item) => `${labelMapping[item.type] || item.type} (${item.count})`)
+                        .join(', ');
 
                     summaryContainer.appendChild(createSummaryCard('Documento con más resultados', mostResultsDescription));
                     summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
@@ -315,12 +331,12 @@
 
                 if (category === "all-types") {
                     renderSection('Libros', filteredData.libros);
-                    renderSection('Artículos de Revista', filteredData.articulosRevistas);
+                    renderSection('Artículos en Revista', filteredData.articulosRevistas);
                     renderSection('Capítulos de Libros', filteredData.capitulosLibros);
                     renderSection('Documentos de Trabajo', filteredData.documentosTrabajo);
                     renderSection('Ideas y Reflexiones', filteredData.ideasReflexiones);
                     renderSection('Info IISEC', filteredData.infoIIsec);
-                    renderSection('Policies Briefs', filteredData.policiesBriefs);
+                    renderSection('Policy Brief', filteredData.policiesBriefs);
                 } else {
                     renderSection(category.charAt(0).toUpperCase() + category.slice(1), filteredData);
                 }
@@ -356,14 +372,20 @@
                     // Generar tarjetas
                     const cardContainer1 = document.createElement('div');
                     cardContainer1.classList.add('card-container');
+
+                    // Asignar la categoría al contenedor
+                    cardContainer1.setAttribute('data-category', 'Documentos por Categoría');
                     chartContainer.appendChild(cardContainer1);
 
                     const ctx1 = document.createElement('canvas');
                     chartContainer.appendChild(ctx1);
+
+                    ctx1.setAttribute('data-category', "Documentos por Categoría"); 
+
                     new Chart(ctx1, {
                         type: chartType,
                         data: {
-                            labels: countByTypesData.map(item => item.tipo),
+                            labels: countByTypesData.map(item => labelMapping[item.tipo] || item.tipo),
                             datasets: [{
                                 label: 'Conteo de Documentos por Categoría',
                                 data: countByTypesData.map(item => item.cantidad),
@@ -375,7 +397,8 @@
                     });
 
                     renderDataCards(
-                        countByTypesData.map(item => ({ label: item.tipo, value: `${item.cantidad} documentos` })),
+                        
+                        countByTypesData.map(item => ({ label: labelMapping[item.tipo] || item.tipo, value: `${item.cantidad} documentos` })),
                         cardContainer1,
                         'Documentos por Categoría'
                     );
@@ -397,10 +420,15 @@
                         // Generar tarjetas
                         const cardContainer2 = document.createElement('div');
                         cardContainer2.classList.add('card-container');
+                        // Asignar la categoría al contenedor
+                        cardContainer2.setAttribute('data-category', 'Documentos por Año');
                         chartContainer.appendChild(cardContainer2);
 
                         const ctx2 = document.createElement('canvas');
                         chartContainer.appendChild(ctx2);
+
+                        ctx2.setAttribute('data-category', "Documentos por Año"); 
+
                         new Chart(ctx2, {
                             type: chartType,
                             data: {
@@ -448,6 +476,8 @@
                         // Crear contenedor de tarjetas antes del gráfico
                         const cardContainer3 = document.createElement('div');
                         cardContainer3.classList.add('card-container');
+                        // Asignar la categoría al contenedor
+                        cardContainer3.setAttribute('data-category', 'Tipo de Documentos por Año');
                         chartContainer.appendChild(cardContainer3);
 
                         // Generar tarjetas por año
@@ -455,7 +485,9 @@
                             const yearData = typesByYear[year];
 
                             // Filtrar solo los tipos que tienen datos (no cero)
-                            const validTypes = Object.entries(yearData).filter(([type, count]) => count > 0);
+                            const validTypes = Object.entries(yearData)
+                                .filter(([type, count]) => count > 0)
+                                .map(([type, count]) => [labelMapping[type] || type, count]);
 
                             // Si no hay datos válidos, no generar una tarjeta para este año
                             if (validTypes.length === 0) return;
@@ -470,7 +502,7 @@
                             card.appendChild(title);
 
                             // Lista de tipos y cantidades
-                            const content = document.createElement('p');
+                            const content = document.createElement('p'); 
                             content.textContent = validTypes.map(([type, count]) => `[${type}: ${count}]`).join(' ');
                             card.appendChild(content);
 
@@ -482,12 +514,14 @@
                         const ctx3 = document.createElement('canvas');
                         chartContainer.appendChild(ctx3);
 
+                        ctx3.setAttribute('data-category', 'Tipo de Documentos por Año'); // Asignamos el atributo 'data-category' al canvas
+
                         new Chart(ctx3, {
                             type: chartType,
                             data: {
                                 labels: years,
                                 datasets: Object.keys(filteredData).map(type => ({
-                                    label: `Cantidad de ${type} por Año`,
+                                    label: `Cantidad de ${labelMapping[type] || type} por Año`,
                                     data: years.map(year => typesByYear[year][type] || 0),
                                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -510,18 +544,21 @@
                     // Generar tarjetas con los datos de yearCounts
                     const cardContainer = document.createElement('div');
                     cardContainer.classList.add('card-container');
+                    cardContainer.setAttribute('data-category', `Documentos de ${labelMapping[category] || category}`);
                     chartContainer.appendChild(cardContainer);
 
 
                     // Crear gráfico principal para la categoría específica
                     const ctx = document.createElement('canvas');
                     chartContainer.appendChild(ctx);
+
+                    ctx.setAttribute('data-category', `Documentos de ${labelMapping[category] || category}`);
                     new Chart(ctx, {
                         type: chartType,
                         data: {
                             labels: Object.keys(yearCounts),
                             datasets: [{
-                                label: `Documentos en ${category} por Año`,
+                                label: `Documentos en ${labelMapping[category] || category} por Año`,
                                 data: Object.values(yearCounts),
                                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
@@ -531,7 +568,7 @@
                     });
 
                     renderDataCards(
-                        Object.entries(yearCounts).map(([year, count]) => ({ label: `Año ${year}`, value: `${count} documentos` })),
+                        Object.entries(yearCounts).map(([year, count]) => ({ label: `Año ${year}`, value: `${count} documentos publicados en ${labelMapping[category] || category}` })),
                         cardContainer,
                         `Datos`
                     );
@@ -577,11 +614,15 @@
                 // Generar tarjetas con los datos de additionalData
                 const additionalCardContainer = document.createElement('div');
                 additionalCardContainer.classList.add('card-container');
+                // Asignar la categoría al contenedor
+                additionalCardContainer.setAttribute('data-category', 'Datos por Categoría Seleccionada');
                 chartContainer.appendChild(additionalCardContainer);
 
                 // Crear un nuevo gráfico en el contenedor
                 const additionalCtx = document.createElement('canvas');
                 chartContainer.appendChild(additionalCtx);
+
+                additionalCtx.setAttribute('data-category', 'Datos por Categoría Seleccionada');
 
                 const chartType = document.querySelector('input[name="chartType"]:checked').value;
 
@@ -609,96 +650,227 @@
             }
         }
 
-
-        // Lógica para descargar el reporte como PDF
-        downloadButton.addEventListener('click', async () => {
+    //LOGICA PARA DESCARGAR
+    downloadButton.addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const doc = new jsPDF('p', 'mm', 'a4'); // Formato A4, orientación vertical
+    const margin = 10; // Márgenes en mm
+    const pageWidth = doc.internal.pageSize.width - 2 * margin;
+    const pageHeight = doc.internal.pageSize.height - 2 * margin;
 
     const reportContainer = document.getElementById('report-container');
     const chartContainer = document.getElementById('chart-container');
+    const summaryContainer = document.querySelector('.summary-container');
+
+    // Obtener parámetros de búsqueda
+    const categoryValue = document.getElementById('category').value || "all-types";
+    const tipoDocumento = labelMapping[categoryValue] || "Sin especificar";
+    const nombreAutor = document.getElementById('author').value || "Todos los Autores";
+    const anioInicio = document.getElementById('startDate').value || "Sin especificar";
+    const anioFin = document.getElementById('endDate').value || "Sin especificar";
 
     try {
-        // 1. Capturar el contenido del report-container sin el chart-container
-        chartContainer.style.display = 'none'; // Ocultar temporalmente el chart-container
+        let y = margin;
 
-        const containerHeight = reportContainer.scrollHeight;
+        // ** Encabezado del PDF **
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("REPORTE GENERADO", pageWidth / 2 + margin, y, { align: "center" });
+        y += 20;
 
-        // Ajustar temporalmente el estilo del report-container
-        const originalReportStyle = reportContainer.style.cssText;
-        reportContainer.style.height = `${containerHeight}px`;
-        reportContainer.style.overflow = 'visible';
+        // ** Añadir parámetros de búsqueda **
+        doc.setFontSize(12);
+        doc.setFont("Helvetica", "bold");
+        doc.text(`Tipo de Documento:`, margin, y);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`${tipoDocumento}`, margin + 50, y);
+        y += 10;
 
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        doc.setFont("Helvetica", "bold");
+        doc.text(`Nombre del Autor:`, margin, y);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`${nombreAutor}`, margin + 50, y);
+        y += 10;
 
-        const reportCanvas = await html2canvas(reportContainer, {
-            scale: 2,
-            useCORS: true,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: reportContainer.scrollWidth,
-            windowHeight: containerHeight,
-        });
+        doc.setFont("Helvetica", "bold");
+        doc.text(`Rango de Años:`, margin, y);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`${anioInicio} - ${anioFin}`, margin + 50, y);
+        y += 20;
 
-        // Restaurar el estilo original del report-container
-        reportContainer.style.cssText = originalReportStyle;
-        chartContainer.style.display = ''; // Mostrar nuevamente el chart-container
+        // ** Incluir contenido del summary-container (si existe) **
+        if (summaryContainer) {
+            const summaryData = Array.from(summaryContainer.querySelectorAll('.summary-card')).map((card) => {
+                const title = card.querySelector('h3')?.innerText || "Sin título";
+                const value = card.querySelector('p')?.innerText || "Sin datos";
+                return { title, value };
+            });
 
-        // 2. Capturar el contenido del chart-container
-        const chartCanvas = await html2canvas(chartContainer, {
-            scale: 2,
-            useCORS: true,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: chartContainer.scrollWidth,
-            windowHeight: chartContainer.scrollHeight,
-        });
+            summaryData.forEach(({ title, value }) => {
+                doc.setFont("Helvetica", "bold");
+                doc.text(title, margin, y);
+                y += 10;
 
-        // 3. Combinar las capturas en un solo PDF
+                doc.setFont("Helvetica", "normal");
+                const textLines = doc.splitTextToSize(value, pageWidth);
+                textLines.forEach((line) => {
+                    if (y + 10 > pageHeight) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                    doc.text(line, margin, y);
+                    y += 4;
+                });
 
-        // Añadir contenido del report-container al PDF
-        const reportImgData = reportCanvas.toDataURL('image/png');
-        const imgWidth = 210; // A4 width in mm
-        const reportImgHeight = (reportCanvas.height * imgWidth) / reportCanvas.width;
-        const pageHeight = 297; // A4 height in mm
-
-        let y = 0;
-        while (y < reportImgHeight) {
-            doc.addImage(reportImgData, 'PNG', 0, -y, imgWidth, reportImgHeight);
-            y += pageHeight;
-
-            if (y < reportImgHeight) {
-                doc.addPage();
-            }
+                y += 10;
+            });
         }
 
-        // Añadir contenido del chart-container al PDF
+        // ** Título del listado de documentos **
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("LISTADO DE DOCUMENTOS", pageWidth / 2 + margin, y, { align: "center" });
+        y += 15;
+
+        // ** Listado del report-container **
+        const sections = reportContainer.querySelectorAll("section");
+        sections.forEach((section) => {
+            const title = section.querySelector("h2, h3")?.innerText || "Sin título";
+            const items = Array.from(section.querySelectorAll("li"));
+
+            doc.setFontSize(14);
+            doc.setFont("Helvetica", "bold");
+            if (y + 10 > pageHeight) {
+                doc.addPage();
+                y = margin;
+            }
+            doc.text(title, margin, y);
+            y += 10;
+
+            doc.setFontSize(11);
+            doc.setFont("Helvetica", "normal");
+            items.forEach((item, index) => {
+                const number = `${index + 1}.`;
+                const text = item.innerText || item.textContent || "";
+
+                if (y + 10 > pageHeight) {
+                    doc.addPage();
+                    y = margin;
+                }
+
+                doc.setFont("Helvetica", "bold");
+                doc.text(number, margin, y);
+                doc.setFont("Helvetica", "normal");
+                doc.text(text, margin + 10, y);
+                y += 10;
+            });
+
+            y += 10;
+        });
+
+        // ** Crear una nueva página para los gráficos y las imágenes de las tarjetas **
         doc.addPage();
-        const chartImgData = chartCanvas.toDataURL('image/png');
-        const chartImgHeight = (chartCanvas.height * imgWidth) / chartCanvas.width;
+        y = margin;
 
-        y = 0; // Reiniciar el cursor para la nueva página
-        while (y < chartImgHeight) {
-            doc.addImage(chartImgData, 'PNG', 0, -y, imgWidth, chartImgHeight);
-            y += pageHeight;
+        // ** Título para las tarjetas y gráficos **
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("GRÁFICOS Y TARJETAS", pageWidth / 2 + margin, y, { align: "center" });
+        y += 15;
 
-            if (y < chartImgHeight) {
-                doc.addPage();
+        // ** Añadir imágenes de las tarjetas y gráficos (de la primera función) **
+        const cardContainers = document.querySelectorAll('.card-container');
+        const categories = {};
+
+        // Agrupar card-containers por categoría
+        cardContainers.forEach(card => {
+            const category = card.getAttribute('data-category') || "Sin categoría";
+            if (!categories[category]) {
+                categories[category] = { cards: [], canvases: [] };
             }
+            categories[category].cards.push(card);
+        });
+
+        // Agrupar canvases por categoría
+        const canvases = chartContainer.querySelectorAll('canvas');
+        canvases.forEach(canvas => {
+            const category = canvas.getAttribute('data-category') || "Sin categoría";
+            if (!categories[category]) {
+                categories[category] = { cards: [], canvases: [] };
+            }
+            categories[category].canvases.push(canvas);
+        });
+
+        for (const category in categories) {
+            // ** Título de la categoría **
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(12);
+            if (y + 10 > pageHeight) {
+                doc.addPage();
+                y = margin;
+            }
+            doc.text(`Categoría: ${category}`, margin, y);
+            y += 5; // Reducido espacio entre el título de la categoría y las tarjetas/gráficos
+
+            // ** Imprimir las card-containers (tarjetas) de esta categoría **
+            const { cards, canvases } = categories[category];
+
+            // Procesar las tarjetas
+            for (let i = 0; i < cards.length; i++) {
+                const card = cards[i];
+                const cardImage = await html2canvas(card, {
+                    scale: 2, // Mejor calidad
+                    useCORS: true, // Permitir recursos externos
+                });
+
+                const imgData = cardImage.toDataURL("image/png");
+                const imgWidth = pageWidth - 2 * margin; // Ancho ajustado al ancho de la página
+                const imgHeight = (cardImage.height / cardImage.width) * imgWidth; // Mantener proporción
+
+                if (y + imgHeight > pageHeight) {
+                    doc.addPage();
+                    y = margin;
+                }
+
+                doc.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
+                y += imgHeight; // Ajustar la posición sin espacio extra
+            }
+
+            // ** Imprimir los canvases (gráficos) de esta categoría **
+            for (let i = 0; i < canvases.length; i++) {
+                const canvas = canvases[i];
+                if (canvas.getAttribute('data-category') === category) {
+                    const canvasImage = await html2canvas(canvas, {
+                        scale: 2, // Mejor calidad
+                        useCORS: true, // Permitir recursos externos
+                    });
+
+                    const imgData = canvasImage.toDataURL("image/png");
+                    const imgWidth = 180; // Ancho ajustado
+                    const imgHeight = (canvasImage.height / canvasImage.width) * imgWidth; // Mantener proporción
+
+                    if (y + imgHeight > pageHeight) {
+                        doc.addPage();
+                        y = margin;
+                    }
+
+                    doc.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
+                    y += imgHeight; // Ajustar la posición sin espacio extra
+                }
+            }
+
+            // Añadir un pequeño espacio después de cada categoría para separar el contenido
+            y += 10;
         }
 
-        Sweetalert2.fire("Se generó exitosamente el PDF");
-
-        // Descargar el PDF
-        doc.save('reporte.pdf');
-    } catch (error) {
-        console.error('Error al generar el PDF:', error);
-        alert('Error al generar el PDF. Inténtalo de nuevo.');
-    }
-});
-
-
-
+            // Descargar el PDF
+            doc.save('reporte_completo.pdf');
+            Sweetalert2.fire("El PDF se generó exitosamente.");
+        } catch (error) {
+            console.error("Error al generar el PDF:", error);
+            Sweetalert2.fire("Hubo un error al generar el PDF.");
+        }
+    });
 
     </script>
 </body>

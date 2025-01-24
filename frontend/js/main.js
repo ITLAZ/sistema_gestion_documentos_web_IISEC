@@ -60,10 +60,11 @@ function toggleSortOrder() {
 
   if (isSearchMode) {
     executeSearch(
-      typeSelector.value,
       keywordsInput.value.trim(),
-      publicationDateInput.value,
-      authorInput.value.trim()
+      startYearInput.value,
+      endYearInput.value,
+      authorInput.value.trim(),
+      typeSelector.value,
     );
   } else {
     fetchAndRenderDocuments();
@@ -75,10 +76,11 @@ function handleSortButtonClick(field) {
   sortBy = field;
   if (isSearchMode) {
     executeSearch(
-      typeSelector.value,
       keywordsInput.value.trim(),
-      publicationDateInput.value,
-      authorInput.value.trim()
+      startYearInput.value,
+      endYearInput.value,
+      authorInput.value.trim(),
+      typeSelector.value,
     );
   } else {
     fetchAndRenderDocuments();
@@ -200,10 +202,11 @@ function nextPage() {
   let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ""; // Verifica y ajusta el valor
   if (isSearchMode) {
     executeSearch(
+      keywordsInput.value.trim(),
+      startYearInput.value,
+      endYearInput.value,
+      authorInput.value.trim(),
       typeSelector.value,
-      keywords,
-      publicationDateInput.value,
-      authorInput.value.trim()
     );
   } else {
     fetchAndRenderDocuments();
@@ -217,10 +220,11 @@ function prevPage() {
     let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ""; // Verifica y ajusta el valor
     if (isSearchMode) {
       executeSearch(
+        keywordsInput.value.trim(),
+        startYearInput.value,
+        endYearInput.value,
+        authorInput.value.trim(),
         typeSelector.value,
-        keywords, // Usa el valor procesado
-        publicationDateInput.value,
-        authorInput.value.trim()
       );
     } else {
       fetchAndRenderDocuments();

@@ -76,10 +76,10 @@ def upload_to_mongo():
                 if collection_name == "Libros":
                     document = {
                         "portada": clean_value(row.get("Portada", None), str, ""),
-                        "anio_publicacion": clean_value(row.get("Año de publicación", None), int, 0),
+                        "anio_publicacion": clean_value(row.get("Año de publicación ", None), int, 0),
                         "titulo": clean_value(row.get("Título del libro", None)),
                         "autores": [autor.strip() for autor in clean_value(row.get("Editores/compiladores/autor", ""), str).split(",")],
-                        "editorial": clean_value(row.get("Editorial", None)),
+                        "editorial": clean_value(row.get("Editorial", None), str, ""),
                         "abstract": clean_value(row.get("Abstract", None), str, ""),
                         "link_pdf": clean_value(row.get("Link PDF", None), str, ""),
                         "direccion_archivo": clean_value(row.get("PATH", None), str, ""),
@@ -124,7 +124,7 @@ def upload_to_mongo():
                     }
                 elif collection_name == "IdeasReflexiones":
                     document = {
-                        "titulo": clean_value(row.get("Título")),
+                        "titulo": clean_value(row.get("Título ")),
                         "autores": [autor.strip() for autor in clean_value(row.get("Autor/es", "")).split(",")],
                         "anio_publicacion": clean_value(row.get("Año"), int, 0),
                         "observaciones": clean_value(row.get("Observaciones")),
@@ -134,7 +134,7 @@ def upload_to_mongo():
                     }
                 elif collection_name == "InfoIISEC":
                     document = {
-                        "titulo": clean_value(row.get("Título")),
+                        "titulo": clean_value(row.get("Título ")),
                         "autores": [autor.strip() for autor in clean_value(row.get("Autor/es", "")).split(",")],
                         "anio_publicacion": clean_value(row.get("Año"), int, 0),
                         "observaciones": clean_value(row.get("Observaciones")),
@@ -144,7 +144,7 @@ def upload_to_mongo():
                     }
                 elif collection_name == "PoliciesBriefs":
                     document = {
-                        "titulo": clean_value(row.get("Título")),
+                        "titulo": clean_value(row.get("Título ")),
                         "autores": [autor.strip() for autor in clean_value(row.get("Autor/es", "")).split(",")],
                         "anio_publicacion": clean_value(row.get("Año"), int, 0),
                         "mensaje_clave": clean_value(row.get("Mensaje clave")),

@@ -9,6 +9,7 @@ import { ApiBody, ApiConsumes, ApiParam, ApiQuery, ApiResponse, ApiTags, ApiOper
 import { LibrosResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import * as path from 'path';
+import { MyElasticsearchService } from 'src/services/my-elasticsearch/my-elasticsearch.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -21,7 +22,8 @@ export class LibrosController {
     private readonly librosService: LibrosService,
     private readonly logsService: LogsService,
     private readonly searchService: SearchService,
-    private readonly fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
+    private readonly elasticsearchService: MyElasticsearchService
   ) {}
 
   @Get('update-libros')
@@ -247,6 +249,11 @@ export class LibrosController {
         id_documento: id,
         accion: 'Eliminación lógica de documento',
         fecha: fecha,
+      });
+
+      // Actualizar el estado en Elasticsearch
+      await this.elasticsearchService.update('libros', id, {
+        doc: { eliminado: true, eliminadoPor: usuarioId, fechaEliminacion: fecha },
       });
 
       return libroEliminado;

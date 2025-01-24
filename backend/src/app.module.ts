@@ -39,6 +39,7 @@ import { FileHandlerController } from './controllers/file-handler.controller';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReportsService } from './services/reports/reports.service';
 import { LogsModuleModule } from './modules/logs-module/logs-module.module';
+import { MyElasticsearchModule } from './modules/my-elasticsearch/my-elasticsearch.module';
 
 @Module({
   imports: [
@@ -78,6 +79,9 @@ import { LogsModuleModule } from './modules/logs-module/logs-module.module';
       }),
       inject: [ConfigService],
     }),
+
+    //Modulo elasticsearch
+    MyElasticsearchModule,
 
     // Modulos de funcionalidades
     UsuariosModule,

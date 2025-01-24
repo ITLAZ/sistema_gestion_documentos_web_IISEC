@@ -41,7 +41,7 @@ function getCookieValue(name) {
     return cookieString ? cookieString.split('=')[1] : null;
 }
 
-let  usuarioId = getCookieValue('id_usuario');
+let  usuarioId = getCookieValue('usuario');
 console.log('ID de usuario:', usuarioId);
 
 document.addEventListener('DOMContentLoaded', () => {

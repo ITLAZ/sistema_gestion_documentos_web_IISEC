@@ -14,7 +14,7 @@ function getCookieValue(name) {
 
 export async function handleDocumentDeletion(documentType, documentId, cardElement) {
 
-    let  usuarioId = getCookieValue('id_usuario');
+    let  usuarioId = getCookieValue('usuario');
     console.log('ID de usuario:', usuarioId);
 
     // Mostrar ventana emergente de confirmación

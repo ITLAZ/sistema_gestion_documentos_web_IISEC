@@ -28,18 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            for (const log of logs) {
+            logs.forEach((log) => {
                 const tr = document.createElement('tr');
-                let userName = 'Desconocido';
-                try {
-                    const user = await getNameLogs(log.id_usuario);
-                    userName = user.nombre; 
-                } catch (error) {
-                    console.error(`Error al obtener el nombre del usuario con ID ${log.id_usuario}:`, error);
-                }
 
                 const usuarioTd = document.createElement('td');
-                usuarioTd.textContent = userName;
+                usuarioTd.textContent = log.id_usuario;
 
                 const accionTd = document.createElement('td');
                 accionTd.textContent = log.accion;
@@ -53,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.appendChild(fechaTd);
 
                 tbody.appendChild(tr);
-            }
+            });
         } catch (error) {
             console.error('Error al renderizar los logs:', error);
             tbody.innerHTML = '<tr><td colspan="3">Error al cargar los logs. Intente nuevamente.</td></tr>';

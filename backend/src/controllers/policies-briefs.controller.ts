@@ -9,6 +9,7 @@ import { SearchService } from 'src/services/search/search.service';
 import { PolicyBriefResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import * as path from 'path';
+import { MyElasticsearchService } from 'src/services/my-elasticsearch/my-elasticsearch.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -21,7 +22,8 @@ export class PoliciesBriefsController {
     private readonly policiesBriefsService: PoliciesBriefsService,
     private readonly searchService: SearchService,
     private readonly logsService: LogsService,
-    private readonly fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
+    private readonly elasticsearchService: MyElasticsearchService
   ) {}
 
   @Get()
@@ -196,6 +198,10 @@ export class PoliciesBriefsController {
         id_documento: id,
         accion: 'Eliminación lógica de documento',
         fecha: fecha,
+      });
+
+      await this.elasticsearchService.update('policies-briefs', id, {
+        doc: { eliminado: true, eliminadoPor: usuarioId, fechaEliminacion: fecha },
       });
 
       return documentoEliminado;

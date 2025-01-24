@@ -9,6 +9,7 @@ import { SearchService } from 'src/services/search/search.service';
 import { ArticuloRevistaResponseDto } from 'src/dto/elasticsearch-by-collection-dto';
 import { LogsService } from 'src/services/logs_service/logs.service';
 import * as path from 'path';
+import { MyElasticsearchService } from 'src/services/my-elasticsearch/my-elasticsearch.service';
 
 const getMulterOptions = (fileUploadService: FileUploadService, destination: string) => {
   return fileUploadService.getMulterOptions(destination);
@@ -21,7 +22,8 @@ export class ArticulosRevistasController {
     private readonly articulosRevistasService: ArticulosRevistasService,
     private readonly searchService: SearchService,
     private readonly logsService: LogsService,
-    private readonly fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
+    private readonly elasticsearchService: MyElasticsearchService
   ) {}
 
   @Get()
@@ -230,6 +232,10 @@ export class ArticulosRevistasController {
         id_documento: id,
         accion: 'Eliminación lógica de documento',
         fecha: fecha,
+      });
+
+      await this.elasticsearchService.update('articulos-revistas', id, {
+        doc: { eliminado: true, eliminadoPor: usuarioId, fechaEliminacion: fecha },
       });
 
       return articuloEliminado;

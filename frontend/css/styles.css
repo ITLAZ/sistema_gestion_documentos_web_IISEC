@@ -834,3 +834,12 @@ aside .advanced-search{
   background-color: var(--button-hover-bg-color);
   color: var(--button-hover-text-color);
 }
+
+.date-range{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.date-range h3{
+  grid-column: 1 / 3;
+}

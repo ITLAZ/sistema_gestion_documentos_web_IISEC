@@ -120,15 +120,17 @@ export async function updateDocumentById(documentType, id, updatedData, usuarioI
 }
 
 
-export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '', sortBy = 'anio_publicacion', sortOrder) {
+export async function searchDocuments(query, page = 1, size = 10, anio_inicio = '', anio_fin = '' , autores = '', tipo_documento = '', sortBy = 'anio_publicacion', sortOrder) {
     try {
-        const url = new URL(`${API_URL}/${documentType}/search`);
+        const url = new URL(`${API_URL}/${tipo_documento}/search`);
         const params = {
             query,
             page,
             size,
-            anio_publicacion,
+            anio_inicio,
+            anio_fin,
             autores,
+            tipo_documento,
             sortBy,
             sortOrder
         };

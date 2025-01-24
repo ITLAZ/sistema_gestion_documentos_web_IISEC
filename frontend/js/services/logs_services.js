@@ -1,9 +1,13 @@
+
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+import { API_URL } from '../../config.js';
+
 export async function fetchLogs(logType) {
     try {
         // Determinar el endpoint según el tipo de log seleccionado
         const endpoint = logType
-            ? `http://localhost:3000/logs/getAll?tipo=${logType}`
-            : 'http://localhost:3000/logs/getAll';
+            ? `${API_URL}/logs/getAll?tipo=${logType}`
+            : `${API_URL}/logs/getAll`;
 
         const response = await fetch(endpoint);
 
@@ -15,14 +19,14 @@ export async function fetchLogs(logType) {
         return await response.json();
     } catch (error) {
         console.error('Error al obtener los logs:', error);
-        alert('Hubo un error al cargar los logs. Intente nuevamente.');
+        Sweetalert2.fire('Hubo un error al cargar los logs. Intente nuevamente.');
         throw error;
     }
 } 
 
 export async function getNameLogs(usuarioId) { 
     try {
-        const response = await fetch(`http://localhost:3000/usuarios/getById/${usuarioId}`);
+        const response = await fetch(`${API_URL}/usuarios/getById/${usuarioId}`);
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);

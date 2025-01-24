@@ -5,6 +5,11 @@ import { ApiProperty } from '@nestjs/swagger';
 @Schema({ collection: 'PoliciesBriefs' })
 export class PolicyBrief extends Document {
 
+
+  @ApiProperty({ example: 'http://example.com/portada.jpg', description: 'URL de la portada de policies briefs', required: true })
+  @Prop({ trim: true })
+  portada: string;
+
   @ApiProperty({ example: 'Título del Policy Brief', description: 'Título del documento', required: true })
   @Prop({ required: true, trim: true })
   titulo: string;

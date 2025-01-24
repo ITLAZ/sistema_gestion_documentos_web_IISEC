@@ -80,7 +80,7 @@ export class SearchService {
       page: number,
       size: number,
       filters: {
-        anio_publicacion?: number;
+        anio_publicacion?: { start?: number; end?: number }; // Rango de años
         autores?: string | string[]; // Lista de autores
       },
       sortBy: string = 'anio_publicacion',
@@ -92,14 +92,21 @@ export class SearchService {
       // Siempre excluimos documentos eliminados
       filterConditions.push({ term: { eliminado: false } });
     
-      // Agregar filtros según los campos opcionales que se pasen
+      // Filtrar por rango de años (anio_publicacion)
       if (filters.anio_publicacion) {
-        filterConditions.push({ term: { anio_publicacion: filters.anio_publicacion } });
+        const rangeFilter: any = {};
+        if (filters.anio_publicacion.start !== undefined) {
+          rangeFilter.gte = filters.anio_publicacion.start; // Mayor o igual que el año inicial
+        }
+        if (filters.anio_publicacion.end !== undefined) {
+          rangeFilter.lte = filters.anio_publicacion.end; // Menor o igual que el año final
+        }
+        filterConditions.push({ range: { anio_publicacion: rangeFilter } });
       }
     
+      // Filtrar por autores
       if (filters.autores) {
         const autoresArray = Array.isArray(filters.autores) ? filters.autores : [filters.autores];
-        // Verificar que todos los autores estén en el campo `autores`
         autoresArray.forEach((autor) => {
           filterConditions.push({
             match: {
@@ -175,16 +182,16 @@ export class SearchService {
         body: queryBody,
       });
     
-      return result.hits.hits;
+      return result.hits.hits.map((hit: any) => hit._source);
     }    
-    
+
     
     async searchAllCollections(
       query: string = '', // Valor por defecto: cadena vacía
       page: number,
       size: number,
       filters: {
-        anio_publicacion?: number;
+        anio_publicacion?: { start?: number; end?: number }; // Rango de años
         autores?: string | string[]; // Lista de autores
         tipo_documento?: string;
       },
@@ -193,18 +200,25 @@ export class SearchService {
     ) {
       const from = (page - 1) * size;
       const filterConditions: any[] = [];
-    
+
       // Siempre excluimos documentos eliminados
       filterConditions.push({ term: { eliminado: false } });
-    
-      // Agregar filtros según los campos opcionales que se pasen
-      if (filters.anio_publicacion) {
-        filterConditions.push({ term: { anio_publicacion: filters.anio_publicacion } });
+
+      // Agregar filtro por rango de años si se proporcionan los parámetros anio_inicio y anio_fin
+      if (filters.anio_publicacion?.start || filters.anio_publicacion?.end) {
+        filterConditions.push({
+          range: {
+            anio_publicacion: {
+              gte: filters.anio_publicacion?.start || undefined, // A partir del año de inicio
+              lte: filters.anio_publicacion?.end || undefined,   // Hasta el año de fin
+            },
+          },
+        });
       }
-    
+
+      // Agregar filtro por autores
       if (filters.autores) {
         const autoresArray = Array.isArray(filters.autores) ? filters.autores : [filters.autores];
-        // Verificar que todos los autores estén en el campo `autores`
         autoresArray.forEach((autor) => {
           filterConditions.push({
             match: {
@@ -216,18 +230,19 @@ export class SearchService {
           });
         });
       }
-    
+
+      // Agregar filtro por tipo de documento
       if (filters.tipo_documento) {
         filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice
       }
-    
+
       // Ajustar ordenamiento
       if (sortBy === 'titulo') {
         sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
       } else if (sortBy === 'autor') {
         sortBy = 'autor.keyword';
       }
-    
+
       // Crear condiciones del query principal
       const queryBody = {
         from,
@@ -271,60 +286,72 @@ export class SearchService {
         },
         sort: [{ [sortBy]: { order: sortOrder } }],
       };
-    
+
       console.log(JSON.stringify(queryBody, null, 2));
-    
+
       // Realizar búsqueda en Elasticsearch
       const result = await this.elasticsearchService.search({
         index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec', // Todos los índices
         body: queryBody,
       });
-    
+
       return result.hits.hits;
-    } 
-    
-    
-    
+    }
     
     async getAllCollections(
       query: string,
       page: number,
       size: number,
       filters: {
-        anio_publicacion?: number;
-        autores?: string;
-        tipo_documento?: string;
+        anio_inicio?: number;  // Año de inicio
+        anio_fin?: number;     // Año de fin
+        autores?: string;      // Filtro por autor
+        tipo_documento?: string;  // Filtro por tipo de documento
       },
       sortBy: string = 'anio_publicacion', // Campo por el que se desea ordenar, por defecto 'anio_publicacion'
       sortOrder: 'asc' | 'desc' = 'asc'
     ) {
       const from = (page - 1) * size;
-  
+    
       const filterConditions = [];
-      
+    
+      // Siempre excluimos documentos eliminados
       filterConditions.push({ term: { 'eliminado': false } });
-      
-      // Agregar filtros según los campos opcionales que se pasen
-      if (filters.anio_publicacion) {
-        filterConditions.push({ term: { 'anio_publicacion': filters.anio_publicacion } });
+    
+      // Agregar filtro por rango de años si se proporcionan los parámetros anio_inicio y anio_fin
+      if (filters.anio_inicio || filters.anio_fin) {
+        filterConditions.push({
+          range: {
+            anio_publicacion: {
+              gte: filters.anio_inicio || undefined, // A partir del año de inicio
+              lte: filters.anio_fin || undefined,     // Hasta el año de fin
+            },
+          },
+        });
       }
-  
+    
+      // Agregar filtro por autores
       if (filters.autores) {
-        filterConditions.push({ match: { 'autores': filters.autores } });
+        filterConditions.push({
+          match: { 'autores': filters.autores }
+        });
       }
-  
+    
+      // Agregar filtro por tipo de documento
       if (filters.tipo_documento) {
         filterConditions.push({ term: { '_index': filters.tipo_documento } }); // Filtro por índice (tipo de documento)
       }
-
+    
+      // Ajustar ordenamiento por los campos especificados
       if (sortBy === 'titulo') {
         sortBy = 'titulo.keyword'; // Usa el subcampo keyword para evitar errores
       } else if (sortBy === 'autor') {
         sortBy = 'autor.keyword';
       }
-  
+    
+      // Realizar la búsqueda en Elasticsearch
       const result = await this.elasticsearchService.search({
-        index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec',
+        index: 'libros,articulos-revistas,capitulos-libros,documentos-trabajo,ideas-reflexiones,policies-briefs,info-iisec', // Todos los índices
         body: {
           from: from,
           size: size,
@@ -336,24 +363,25 @@ export class SearchService {
                       multi_match: {
                         query: query,
                         fields: ['titulo', 'autores', 'abstract'],  // Ajusta los campos según tus necesidades
-                        fuzziness: 'AUTO'
-                      }
-                    }
+                        fuzziness: 'AUTO',
+                      },
+                    },
                   ]
                 : [
-                    { match_all: {} }
+                    { match_all: {} }, // Si no hay término de búsqueda, traer todos
                   ],
-              filter: filterConditions
-            }
+              filter: filterConditions, // Aplicar todos los filtros
+            },
           },
           sort: [
-            { [sortBy]: { order: sortOrder } }
-          ]
-        }
-      });      
+            { [sortBy]: { order: sortOrder } },
+          ],
+        },
+      });
+    
       return result.hits.hits;
     }
-
+    
     // Búsqueda en un índice único con campo `tipo_documento`
     async searchByDocumentType(type: string, query: string) {
       const result = await this.elasticsearchService.search({

@@ -1,14 +1,25 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio</title>
-    <link rel="preload" href="css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="css/styles.css">
-    </noscript>
+    <script>
+        // Leer la cookie directamente y establecer el atributo de tema al cargar la página
+        (function () {
+            function getCookieValue(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            const theme = getCookieValue('theme') || 'light'; // Default a 'light' si no hay cookie
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -40,9 +51,14 @@
                     <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..."
                         pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
                 </div>
-                <div class="input-group order">
+                <div class="input-group">
                     <h3>Año de Publicación:</h3>
                     <input type="number" step="1" name="publication-date" id="publication-date">
+                </div>
+                <div class="input-group date-range">
+                    <h3>Rango de Años de Publicación:</h3>
+                    <input type="number" step="1" name="date-start" id="date-start" placeholder="Año Inicial">
+                    <input type="number" step="1" name="date-end" id="date-end" placeholder="Año Final">
                 </div>
                 <!-- Botón de búsqueda -->
                 <div class="input-group">

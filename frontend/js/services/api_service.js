@@ -1,8 +1,11 @@
 
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+import { API_URL } from '../../config.js';
+
 export async function getDocumentsByType(documentType, page, size, sortBy, sortOrder) {
     try {
         // Construir la URL usando el tipo de documento
-        const url = `http://localhost:3000/${documentType}?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        const url = `${API_URL}/${documentType}?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -19,14 +22,15 @@ export async function getDocumentsByType(documentType, page, size, sortBy, sortO
         return data;
     } catch (error) {
         console.error(`Error al obtener los documentos de tipo ${documentType}:`, error);
-        throw error; // Propaga el error sin mostrar un alert
+        Sweetalert2.fire(`Hubo un problema al obtener los documentos de tipo ${documentType}. Por favor, intenta de nuevo más tarde.`);
+        throw error;
     }
 }
 
 export async function getAllDocuments(query = '', page, size, sortBy = 'anio_publicacion', sortOrder= 'asc') {
     try {
         // Construir la URL con los parámetros de consulta
-        const url = new URL('http://localhost:3000/all-types/all');
+        const url = new URL(`${API_URL}/all-types/all`);
         url.searchParams.append('query', query);
         url.searchParams.append('page', page);
         url.searchParams.append('size', size);
@@ -40,7 +44,7 @@ export async function getAllDocuments(query = '', page, size, sortBy = 'anio_pub
         return await response.json();
     } catch (error) {
         console.error('Error al obtener todos los documentos:', error);
-        alert('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al obtener todos los documentos. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -49,7 +53,7 @@ export async function getAllDocuments(query = '', page, size, sortBy = 'anio_pub
 
 export async function getDocumentById(documentType, id) {    
     try {        
-        const url = `http://localhost:3000/${documentType}/id/${id}`;
+        const url = `${API_URL}/${documentType}/id/${id}`;
         const response = await fetch(url);
         
         // Verifica si la respuesta es válida antes de intentar analizar el JSON
@@ -76,7 +80,7 @@ export async function getDocumentById(documentType, id) {
 
 export async function deleteDocumentById(documentType, id, usuarioId) {
     try {
-        const response = await fetch(`http://localhost:3000/${documentType}/eliminar-logico/${id}`, {
+        const response = await fetch(`${API_URL}/${documentType}/eliminar-logico/${id}`, {
             method: 'PUT',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -88,7 +92,7 @@ export async function deleteDocumentById(documentType, id, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error(`Error al eliminar el documento (${documentType}):`, error);
-        alert(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        Sweetalert2.fire(`Hubo un problema al eliminar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -96,7 +100,7 @@ export async function deleteDocumentById(documentType, id, usuarioId) {
 
 export async function updateDocumentById(documentType, id, updatedData, usuarioId) {
     try {
-        const response = await fetch(`http://localhost:3000/${documentType}/${id}`, {
+        const response = await fetch(`${API_URL}/${documentType}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -110,7 +114,7 @@ export async function updateDocumentById(documentType, id, updatedData, usuarioI
         return await response.json();
     } catch (error) {
         console.error(`Error al editar el documento (${documentType}):`, error);
-        alert(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
+        Sweetalert2.fire(`Hubo un problema al editar el documento (${documentType}). Por favor, intenta de nuevo más tarde.`);
         throw error;
     }
 }
@@ -118,7 +122,7 @@ export async function updateDocumentById(documentType, id, updatedData, usuarioI
 
 export async function searchDocuments(documentType, query, page = 1, size = 10, anio_publicacion = '', autores = '', sortBy = 'anio_publicacion', sortOrder) {
     try {
-        const url = new URL(`http://localhost:3000/${documentType}/search`);
+        const url = new URL(`${API_URL}/${documentType}/search`);
         const params = {
             query,
             page,
@@ -191,7 +195,7 @@ export async function uploadBook(libroData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/libros/upload', {
+        const response = await fetch(`${API_URL}/libros/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -206,7 +210,7 @@ export async function uploadBook(libroData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el libro:', error);
-        alert('Hubo un problema al subir el libro. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el libro. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -230,7 +234,7 @@ export async function uploadBookWithoutFile(libroData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoLibro)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/libros/no-upload', {
+        const response = await fetch(`${API_URL}/libros/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -246,7 +250,7 @@ export async function uploadBookWithoutFile(libroData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el libro sin archivo:', error);
-        alert('Hubo un problema al subir el libro sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el libro sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -263,6 +267,7 @@ export async function uploadArt(artData, file, usuarioId) {
 
     // Añadir los datos del artículo al formData
     formData.append('portada', artData.portada);
+    formData.append('numero_identificacion', artData.numero_identificacion);
     formData.append('numero_articulo', artData.numero_articulo);
     formData.append('titulo', artData.titulo);
     formData.append('anio_revista', parseInt(artData.anio_revista, 10));
@@ -282,7 +287,7 @@ export async function uploadArt(artData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/articulos-revistas/upload', {
+        const response = await fetch(`${API_URL}/articulos-revistas/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -297,7 +302,7 @@ export async function uploadArt(artData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el artículo de revista:', error);
-        alert('Hubo un problema al subir el artículo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el artículo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -325,7 +330,7 @@ export async function uploadArtWithoutFile(artData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoArticulo)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/articulos-revistas/no-upload', {
+        const response = await fetch(`${API_URL}/articulos-revistas/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -341,7 +346,7 @@ export async function uploadArtWithoutFile(artData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el artículo sin archivo:', error);
-        alert('Hubo un problema al subir el artículo sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el artículo sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -392,7 +397,7 @@ export async function uploadCapitulo(capituloData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/capitulos-libros/upload', {
+        const response = await fetch(`${API_URL}/capitulos-libros/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -407,7 +412,7 @@ export async function uploadCapitulo(capituloData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el capítulo de libro:', error);
-        alert('Hubo un problema al subir el capítulo de libro. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el capítulo de libro. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -437,7 +442,7 @@ export async function uploadCapituloWithoutFile(capituloData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoCapitulo)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/capitulos-libros/no-upload', {
+        const response = await fetch(`${API_URL}/capitulos-libros/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -453,7 +458,7 @@ export async function uploadCapituloWithoutFile(capituloData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el capítulo de libro sin archivo:', error);
-        alert('Hubo un problema al subir el capítulo de libro sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el capítulo de libro sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -488,7 +493,7 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/documentos-trabajo/upload', {
+        const response = await fetch(`${API_URL}/documentos-trabajo/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -503,7 +508,7 @@ export async function uploadDocumentoTrabajo(docData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento de trabajo:', error);
-        alert('Hubo un problema al subir el documento de trabajo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento de trabajo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -527,7 +532,7 @@ export async function uploadDocumentoTrabajoWithoutFile(docData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoDocumento)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/documentos-trabajo/no-upload', {
+        const response = await fetch(`${API_URL}/documentos-trabajo/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -543,7 +548,7 @@ export async function uploadDocumentoTrabajoWithoutFile(docData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento de trabajo sin archivo:', error);
-        alert('Hubo un problema al subir el documento de trabajo sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento de trabajo sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -577,7 +582,7 @@ export async function uploadIdeaReflexion(ideaData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/ideas-reflexiones/upload', {
+        const response = await fetch(`${API_URL}/ideas-reflexiones/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -592,7 +597,7 @@ export async function uploadIdeaReflexion(ideaData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir la idea o reflexión:', error);
-        alert('Hubo un problema al subir la idea o reflexión. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir la idea o reflexión. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -615,7 +620,7 @@ export async function uploadIdeaReflexionWithoutFile(ideaData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevaIdeaReflexion)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/ideas-reflexiones/no-upload', {
+        const response = await fetch(`${API_URL}/ideas-reflexiones/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -631,7 +636,7 @@ export async function uploadIdeaReflexionWithoutFile(ideaData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir la idea o reflexión sin archivo:', error);
-        alert('Hubo un problema al subir la idea o reflexión sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir la idea o reflexión sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -665,7 +670,7 @@ export async function uploadInfoIISEC(infoData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/info-iisec/upload', {
+        const response = await fetch(`${API_URL}/info-iisec/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -680,7 +685,7 @@ export async function uploadInfoIISEC(infoData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento Info IISEC:', error);
-        alert('Hubo un problema al subir el documento Info IISEC. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento Info IISEC. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -703,7 +708,7 @@ export async function uploadInfoIISECWithoutFile(infoData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoInfoIISEC)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/info-iisec/no-upload', {
+        const response = await fetch(`${API_URL}/info-iisec/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -719,7 +724,7 @@ export async function uploadInfoIISECWithoutFile(infoData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el documento Info IISEC sin archivo:', error);
-        alert('Hubo un problema al subir el documento Info IISEC sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el documento Info IISEC sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -753,7 +758,7 @@ export async function uploadPolicyBrief(policyData, file, usuarioId) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:3000/policies-briefs/upload', {
+        const response = await fetch(`${API_URL}/policies-briefs/upload`, {
             method: 'POST',
             headers: {
                 'x-usuario-id': usuarioId,  // Agregar el ID de usuario en el header
@@ -768,7 +773,7 @@ export async function uploadPolicyBrief(policyData, file, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el Policy Brief:', error);
-        alert('Hubo un problema al subir el Policy Brief. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el Policy Brief. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -791,7 +796,7 @@ export async function uploadPolicyBriefWithoutFile(policyData, usuarioId) {
     console.log('Datos en JSON que se enviarán:', JSON.stringify(nuevoPolicyBrief)); // Log para ver los datos que se enviarán en formato JSON
 
     try {
-        const response = await fetch('http://localhost:3000/policies-briefs/no-upload', {
+        const response = await fetch(`${API_URL}/policies-briefs/no-upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -807,7 +812,7 @@ export async function uploadPolicyBriefWithoutFile(policyData, usuarioId) {
         return await response.json();
     } catch (error) {
         console.error('Error al subir el Policy Brief sin archivo:', error);
-        alert('Hubo un problema al subir el Policy Brief sin archivo. Por favor, intenta de nuevo más tarde.');
+        Sweetalert2.fire('Hubo un problema al subir el Policy Brief sin archivo. Por favor, intenta de nuevo más tarde.');
         throw error;
     }
 }
@@ -815,7 +820,7 @@ export async function uploadPolicyBriefWithoutFile(policyData, usuarioId) {
 
 export async function loginUser(usuario, contrasenia) {
     try {
-        const response = await fetch('http://localhost:3000/usuarios/login', {
+        const response = await fetch(`${API_URL}/usuarios/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -837,7 +842,7 @@ export async function loginUser(usuario, contrasenia) {
 
 export async function logoutUserApi(idUsuario) {
     try {
-        const response = await fetch('http://localhost:3000/usuarios/logout', {
+        const response = await fetch(`${API_URL}/usuarios/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

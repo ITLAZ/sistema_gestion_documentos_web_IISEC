@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes y Estadísticas</title>
-    <link rel="preload" href="../css/styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="../css/styles.css">
-    </noscript>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script>
+        // Leer la cookie directamente y establecer el atributo de tema al cargar la página
+        (function () {
+          function getCookieValue(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+          }
+    
+          const theme = getCookieValue('theme') || 'light'; // Default a 'light' si no hay cookie
+          document.documentElement.setAttribute('data-theme', theme);
+        })();
+      </script>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>
@@ -83,13 +94,62 @@
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
 
     <script type="module">
+
+        import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
         const form = document.getElementById('report-form');
         const reportContainer = document.getElementById('report-container');
         const downloadButton = document.getElementById('download-report');
         const categorySelect = document.getElementById('category');
         const compareSelection = document.getElementById('compare-selection');
+        import { API_URL } from '../../config.js';
+
+
+        const labelMapping = {
+            libros: 'Libros',
+            articulosRevistas: 'Artículos en Revista',
+            capitulosLibros: 'Capítulos de Libros',
+            documentosTrabajo: 'Documentos de Trabajo',
+            ideasReflexiones: 'Ideas y Reflexiones',
+            policiesBriefs: 'Policy Brief',
+            infoIIsec: 'Info IISEC',
+            "all-types": "Todos los documentos"
+        };
+
+        // Función para crear una tarjeta
+        const createDataCard = (title, content) => {
+            const card = document.createElement('div');
+            card.classList.add('data-card'); // Clase CSS para estilos
+            card.innerHTML = `
+                <h4>${title}</h4>
+                <p>${content}</p>
+            `;
+            return card;
+        };
+
+        // Función para generar tarjetas de datos asociadas a cada gráfico
+        const renderDataCards = (data, container, title) => {
+            container.innerHTML = ''; // Limpia las tarjetas previas
+
+            // Generar tarjetas con datos
+            if (Array.isArray(data)) {
+                // Si los datos son una lista (como documentos por categoría o años)
+                data.forEach((item) => {
+                    const { label, value } = item;
+                    container.appendChild(createDataCard(`${title} - ${label}`, `${value}`));
+                });
+            } else {
+                // Si los datos son un objeto (como tipos por año)
+                Object.keys(data).forEach((key) => {
+                    const value = data[key];
+                    container.appendChild(createDataCard(`${title} - ${key}`, `${value}`));
+                });
+            }
+        };
 
         // Seleccionar automáticamente el checkbox basado en la categoría seleccionada en el combo box
         categorySelect.addEventListener('change', function () {
@@ -131,22 +191,22 @@
 
             // Validaciones
             if (!author && !startDate && !endDate) {
-                alert('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
+                Sweetalert2.fire('Debe ingresar al menos uno de los parámetros: autor, año de inicio o año final.');
                 return;
             }
 
             if (startDate && !endDate) {
-                alert('Debe ingresar un año final si ha ingresado un año de inicio.');
+                Sweetalert2.fire('Debe ingresar un año final si ha ingresado un año de inicio.');
                 return;
             }
 
             if (!startDate && endDate) {
-                alert('Debe ingresar un año de inicio si ha ingresado un año final.');
+                Sweetalert2.fire('Debe ingresar un año de inicio si ha ingresado un año final.');
                 return;
             }
 
             if (parseInt(startDate) > parseInt(endDate)) {
-                alert('El año inicial no puede ser mayor que el año final.');
+                Sweetalert2.fire('El año inicial no puede ser mayor que el año final.');
                 return;
             }
 
@@ -155,9 +215,9 @@
             // Construir la URL según la selección en el combo box
             let url;
             if (category === "all-types") {
-                url = `http://localhost:3000/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
+                url = `${API_URL}/reports/getAll?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             } else {
-                url = `http://localhost:3000/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
+                url = `${API_URL}/reports/getByType?categoria=${category}&anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`;
             }
 
             console.log(`URL del endpoint ${category === "all-types" ? 'general' : 'filtrado por categoría'}:`, url);
@@ -228,8 +288,13 @@
                         return card;
                     };
 
-                    const mostResultsDescription = documentsWithMostResults.map(item => `${item.type} (${item.count})`).join(', ');
-                    const leastResultsDescription = documentsWithLeastResults.map(item => `${item.type} (${item.count})`).join(', ');
+                    const mostResultsDescription = documentsWithMostResults
+                        .map((item) => `${labelMapping[item.type] || item.type} (${item.count})`)
+                        .join(', ');
+
+                    const leastResultsDescription = documentsWithLeastResults
+                        .map((item) => `${labelMapping[item.type] || item.type} (${item.count})`)
+                        .join(', ');
 
                     summaryContainer.appendChild(createSummaryCard('Documento con más resultados', mostResultsDescription));
                     summaryContainer.appendChild(createSummaryCard('Total de documentos', `${totalDocuments} documentos`));
@@ -254,7 +319,7 @@
                             const anio = item.anio_publicacion || item.anio_revista;
                             const autores = item.autores ? `Autores: ${item.autores}` : 'Autores no disponibles';
 
-                            li.textContent = `${titulo} - Publicado el ${anio}. ${autores}`;
+                            li.textContent = `${titulo} - Publicado el ${anio} - ${autores}`;
                             ul.appendChild(li);
                         });
 
@@ -266,12 +331,12 @@
 
                 if (category === "all-types") {
                     renderSection('Libros', filteredData.libros);
-                    renderSection('Artículos de Revista', filteredData.articulosRevistas);
+                    renderSection('Artículos en Revista', filteredData.articulosRevistas);
                     renderSection('Capítulos de Libros', filteredData.capitulosLibros);
                     renderSection('Documentos de Trabajo', filteredData.documentosTrabajo);
                     renderSection('Ideas y Reflexiones', filteredData.ideasReflexiones);
                     renderSection('Info IISEC', filteredData.infoIIsec);
-                    renderSection('Policies Briefs', filteredData.policiesBriefs);
+                    renderSection('Policy Brief', filteredData.policiesBriefs);
                 } else {
                     renderSection(category.charAt(0).toUpperCase() + category.slice(1), filteredData);
                 }
@@ -294,18 +359,33 @@
 
                 chartContainer.innerHTML = '';
 
+
                 if (category === "all-types") {
                     // Realiza una solicitud al endpoint countByTypes para el primer gráfico
-                    const countByTypesResponse = await fetch(`http://localhost:3000/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
+                    const countByTypesResponse = await fetch(`${API_URL}/reports/countByTypes?anioInicio=${startDate}&anioFin=${endDate}&autores=${author}`);
                     if (!countByTypesResponse.ok) throw new Error('Error al obtener el conteo por tipos');
                     const countByTypesData = await countByTypesResponse.json();
+                    
+                    
                     // Gráfico de Conteo de Documentos por Categoría
+
+                    // Generar tarjetas
+                    const cardContainer1 = document.createElement('div');
+                    cardContainer1.classList.add('card-container');
+
+                    // Asignar la categoría al contenedor
+                    cardContainer1.setAttribute('data-category', 'Documentos por Categoría');
+                    chartContainer.appendChild(cardContainer1);
+
                     const ctx1 = document.createElement('canvas');
                     chartContainer.appendChild(ctx1);
+
+                    ctx1.setAttribute('data-category', "Documentos por Categoría"); 
+
                     new Chart(ctx1, {
                         type: chartType,
                         data: {
-                            labels: countByTypesData.map(item => item.tipo),
+                            labels: countByTypesData.map(item => labelMapping[item.tipo] || item.tipo),
                             datasets: [{
                                 label: 'Conteo de Documentos por Categoría',
                                 data: countByTypesData.map(item => item.cantidad),
@@ -315,6 +395,14 @@
                             }]
                         }
                     });
+
+                    renderDataCards(
+                        
+                        countByTypesData.map(item => ({ label: labelMapping[item.tipo] || item.tipo, value: `${item.cantidad} documentos` })),
+                        cardContainer1,
+                        'Documentos por Categoría'
+                    );
+
 
                     // Gráficos adicionales solo si se especifica un rango de años
                     if (startDate || endDate) {
@@ -329,8 +417,18 @@
                             });
                         });
 
+                        // Generar tarjetas
+                        const cardContainer2 = document.createElement('div');
+                        cardContainer2.classList.add('card-container');
+                        // Asignar la categoría al contenedor
+                        cardContainer2.setAttribute('data-category', 'Documentos por Año');
+                        chartContainer.appendChild(cardContainer2);
+
                         const ctx2 = document.createElement('canvas');
                         chartContainer.appendChild(ctx2);
+
+                        ctx2.setAttribute('data-category', "Documentos por Año"); 
+
                         new Chart(ctx2, {
                             type: chartType,
                             data: {
@@ -345,6 +443,12 @@
                             }
                         });
 
+                        renderDataCards(
+                            Object.entries(documentsByYear).map(([year, count]) => ({ label: year, value: `${count} documentos` })),
+                            cardContainer2,
+                            'Documentos por Año'
+                        );
+
                         // Gráfico 2: Tipo de documentos por año
                         const typesByYear = {};
                         Object.keys(filteredData).forEach(type => {
@@ -352,7 +456,15 @@
                                 const year = item.anio_publicacion || item.anio_revista;
                                 if (year) {
                                     if (!typesByYear[year]) {
-                                        typesByYear[year] = { libros: 0, articulosRevistas: 0, capitulosLibros: 0, documentosTrabajo: 0, ideasReflexiones: 0, infoIIsec: 0, policiesBriefs: 0 };
+                                        typesByYear[year] = { 
+                                            libros: 0, 
+                                            articulosRevistas: 0, 
+                                            capitulosLibros: 0, 
+                                            documentosTrabajo: 0, 
+                                            ideasReflexiones: 0, 
+                                            infoIIsec: 0, 
+                                            policiesBriefs: 0 
+                                        };
                                     }
                                     typesByYear[year][type] += 1;
                                 }
@@ -360,14 +472,56 @@
                         });
 
                         const years = Object.keys(typesByYear);
+
+                        // Crear contenedor de tarjetas antes del gráfico
+                        const cardContainer3 = document.createElement('div');
+                        cardContainer3.classList.add('card-container');
+                        // Asignar la categoría al contenedor
+                        cardContainer3.setAttribute('data-category', 'Tipo de Documentos por Año');
+                        chartContainer.appendChild(cardContainer3);
+
+                        // Generar tarjetas por año
+                        years.forEach(year => {
+                            const yearData = typesByYear[year];
+
+                            // Filtrar solo los tipos que tienen datos (no cero)
+                            const validTypes = Object.entries(yearData)
+                                .filter(([type, count]) => count > 0)
+                                .map(([type, count]) => [labelMapping[type] || type, count]);
+
+                            // Si no hay datos válidos, no generar una tarjeta para este año
+                            if (validTypes.length === 0) return;
+
+                            // Crear tarjeta única para este año
+                            const card = document.createElement('div');
+                            card.classList.add('data-card');
+
+                            // Título del año
+                            const title = document.createElement('h4');
+                            title.textContent = `Año ${year}`;
+                            card.appendChild(title);
+
+                            // Lista de tipos y cantidades
+                            const content = document.createElement('p'); 
+                            content.textContent = validTypes.map(([type, count]) => `[${type}: ${count}]`).join(' ');
+                            card.appendChild(content);
+
+                            // Agregar la tarjeta al contenedor
+                            cardContainer3.appendChild(card);
+                        });
+
+                        // Crear el gráfico después de las tarjetas
                         const ctx3 = document.createElement('canvas');
                         chartContainer.appendChild(ctx3);
+
+                        ctx3.setAttribute('data-category', 'Tipo de Documentos por Año'); // Asignamos el atributo 'data-category' al canvas
+
                         new Chart(ctx3, {
                             type: chartType,
                             data: {
                                 labels: years,
                                 datasets: Object.keys(filteredData).map(type => ({
-                                    label: `Cantidad de ${type} por Año`,
+                                    label: `Cantidad de ${labelMapping[type] || type} por Año`,
                                     data: years.map(year => typesByYear[year][type] || 0),
                                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -375,6 +529,7 @@
                                 }))
                             }
                         });
+
                     }
                 }
                 else {
@@ -386,15 +541,24 @@
                         }
                     });
 
+                    // Generar tarjetas con los datos de yearCounts
+                    const cardContainer = document.createElement('div');
+                    cardContainer.classList.add('card-container');
+                    cardContainer.setAttribute('data-category', `Documentos de ${labelMapping[category] || category}`);
+                    chartContainer.appendChild(cardContainer);
+
+
                     // Crear gráfico principal para la categoría específica
                     const ctx = document.createElement('canvas');
                     chartContainer.appendChild(ctx);
+
+                    ctx.setAttribute('data-category', `Documentos de ${labelMapping[category] || category}`);
                     new Chart(ctx, {
                         type: chartType,
                         data: {
                             labels: Object.keys(yearCounts),
                             datasets: [{
-                                label: `Documentos en ${category} por Año`,
+                                label: `Documentos en ${labelMapping[category] || category} por Año`,
                                 data: Object.values(yearCounts),
                                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
@@ -402,6 +566,12 @@
                             }]
                         }
                     });
+
+                    renderDataCards(
+                        Object.entries(yearCounts).map(([year, count]) => ({ label: `Año ${year}`, value: `${count} documentos publicados en ${labelMapping[category] || category}` })),
+                        cardContainer,
+                        `Datos`
+                    );
 
                     // Obtener las categorías seleccionadas en los checkboxes
                     const selectedCheckboxes = Array.from(compareSelection.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
@@ -431,7 +601,7 @@
                 params.append('anioInicio', startDate);
                 params.append('anioFin', endDate);
 
-                const additionalChartUrl = `http://localhost:3000/reports/countByTypes?${params.toString()}`;
+                const additionalChartUrl = `${API_URL}/reports/countByTypes?${params.toString()}`;
                 console.log(`URL para el gráfico adicional: ${additionalChartUrl}`);
 
                 const response = await fetch(additionalChartUrl);
@@ -441,9 +611,18 @@
 
                 const additionalData = await response.json();
 
+                // Generar tarjetas con los datos de additionalData
+                const additionalCardContainer = document.createElement('div');
+                additionalCardContainer.classList.add('card-container');
+                // Asignar la categoría al contenedor
+                additionalCardContainer.setAttribute('data-category', 'Datos por Categoría Seleccionada');
+                chartContainer.appendChild(additionalCardContainer);
+
                 // Crear un nuevo gráfico en el contenedor
                 const additionalCtx = document.createElement('canvas');
                 chartContainer.appendChild(additionalCtx);
+
+                additionalCtx.setAttribute('data-category', 'Datos por Categoría Seleccionada');
 
                 const chartType = document.querySelector('input[name="chartType"]:checked').value;
 
@@ -460,81 +639,238 @@
                         }]
                     }
                 });
+
+                renderDataCards(
+                    additionalData.map(item => ({ label: item.tipo, value: `${item.cantidad} documentos` })),
+                    additionalCardContainer,
+                    'Datos por Categoría Seleccionada'
+                );
             } catch (error) {
                 console.error('Error al generar el gráfico adicional:', error);
             }
         }
 
+    //LOGICA PARA DESCARGAR
+    downloadButton.addEventListener('click', async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4'); // Formato A4, orientación vertical
+    const margin = 10; // Márgenes en mm
+    const pageWidth = doc.internal.pageSize.width - 2 * margin;
+    const pageHeight = doc.internal.pageSize.height - 2 * margin;
 
+    const reportContainer = document.getElementById('report-container');
+    const chartContainer = document.getElementById('chart-container');
+    const summaryContainer = document.querySelector('.summary-container');
 
+    // Obtener parámetros de búsqueda
+    const categoryValue = document.getElementById('category').value || "all-types";
+    const tipoDocumento = labelMapping[categoryValue] || "Sin especificar";
+    const nombreAutor = document.getElementById('author').value || "Todos los Autores";
+    const anioInicio = document.getElementById('startDate').value || "Sin especificar";
+    const anioFin = document.getElementById('endDate').value || "Sin especificar";
 
+    try {
+        let y = margin;
 
+        // ** Encabezado del PDF **
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("REPORTE GENERADO", pageWidth / 2 + margin, y, { align: "center" });
+        y += 20;
 
+        // ** Añadir parámetros de búsqueda **
+        doc.setFontSize(12);
+        doc.setFont("Helvetica", "bold");
+        doc.text(`Tipo de Documento:`, margin, y);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`${tipoDocumento}`, margin + 50, y);
+        y += 10;
 
-        // Lógica para descargar el reporte como PDF
-        downloadButton.addEventListener('click', () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+        doc.setFont("Helvetica", "bold");
+        doc.text(`Nombre del Autor:`, margin, y);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`${nombreAutor}`, margin + 50, y);
+        y += 10;
 
-            doc.text("Reporte de Documentos", 10, 10);
-            let y = 20;
+        doc.setFont("Helvetica", "bold");
+        doc.text(`Rango de Años:`, margin, y);
+        doc.setFont("Helvetica", "normal");
+        doc.text(`${anioInicio} - ${anioFin}`, margin + 50, y);
+        y += 20;
 
-            // Incluir la información de las tarjetas de resumen en el PDF
-            const summaryCards = document.querySelectorAll('.summary-card');
-            summaryCards.forEach(card => {
-                const title = card.querySelector('h3').textContent;
-                const value = card.querySelector('p').textContent;
-
-                doc.text(`${title}: ${value}`, 10, y);
-                y += 10;
-
-                if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
-                    doc.addPage();
-                    y = 10;
-                }
+        // ** Incluir contenido del summary-container (si existe) **
+        if (summaryContainer) {
+            const summaryData = Array.from(summaryContainer.querySelectorAll('.summary-card')).map((card) => {
+                const title = card.querySelector('h3')?.innerText || "Sin título";
+                const value = card.querySelector('p')?.innerText || "Sin datos";
+                return { title, value };
             });
 
-            // Incluir los detalles de los documentos de cada sección
-            const sections = reportContainer.querySelectorAll('.report-section');
-            sections.forEach(section => {
-                const header = section.querySelector('h2').textContent;
-                doc.text(header, 10, y);
+            summaryData.forEach(({ title, value }) => {
+                doc.setFont("Helvetica", "bold");
+                doc.text(title, margin, y);
                 y += 10;
 
-                const items = section.querySelectorAll('li');
-                items.forEach(item => {
-                    if (y > 280) { // Si el contenido supera el tamaño de la página, añadir una nueva página
+                doc.setFont("Helvetica", "normal");
+                const textLines = doc.splitTextToSize(value, pageWidth);
+                textLines.forEach((line) => {
+                    if (y + 10 > pageHeight) {
                         doc.addPage();
-                        y = 10;
+                        y = margin;
                     }
-                    doc.text(item.textContent, 10, y);
-                    y += 10;
+                    doc.text(line, margin, y);
+                    y += 4;
                 });
-            });
-            // Incluir gráficos en el PDF si existen
-            const chartCanvases = document.querySelectorAll('.graph-container canvas');
-            for (const canvas of chartCanvases) {
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 180;  // Ajuste de ancho en el PDF
-                const imgHeight = (canvas.height / canvas.width) * imgWidth;
 
-                if (y + imgHeight > 280) {  // Crear una nueva página si es necesario
+                y += 10;
+            });
+        }
+
+        // ** Título del listado de documentos **
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("LISTADO DE DOCUMENTOS", pageWidth / 2 + margin, y, { align: "center" });
+        y += 15;
+
+        // ** Listado del report-container **
+        const sections = reportContainer.querySelectorAll("section");
+        sections.forEach((section) => {
+            const title = section.querySelector("h2, h3")?.innerText || "Sin título";
+            const items = Array.from(section.querySelectorAll("li"));
+
+            doc.setFontSize(14);
+            doc.setFont("Helvetica", "bold");
+            if (y + 10 > pageHeight) {
+                doc.addPage();
+                y = margin;
+            }
+            doc.text(title, margin, y);
+            y += 10;
+
+            doc.setFontSize(11);
+            doc.setFont("Helvetica", "normal");
+            items.forEach((item, index) => {
+                const number = `${index + 1}.`;
+                const text = item.innerText || item.textContent || "";
+
+                if (y + 10 > pageHeight) {
                     doc.addPage();
-                    y = 10;
+                    y = margin;
                 }
 
-                doc.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
-                y += imgHeight + 10;
-            }
+                doc.setFont("Helvetica", "bold");
+                doc.text(number, margin, y);
+                doc.setFont("Helvetica", "normal");
+                doc.text(text, margin + 10, y);
+                y += 10;
+            });
 
-            alert("Se generó exitosamente el PDF");
-
-            // Descargar el PDF
-            doc.save('reporte.pdf');
+            y += 10;
         });
 
+        // ** Crear una nueva página para los gráficos y las imágenes de las tarjetas **
+        doc.addPage();
+        y = margin;
 
+        // ** Título para las tarjetas y gráficos **
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("GRÁFICOS Y TARJETAS", pageWidth / 2 + margin, y, { align: "center" });
+        y += 15;
 
+        // ** Añadir imágenes de las tarjetas y gráficos (de la primera función) **
+        const cardContainers = document.querySelectorAll('.card-container');
+        const categories = {};
+
+        // Agrupar card-containers por categoría
+        cardContainers.forEach(card => {
+            const category = card.getAttribute('data-category') || "Sin categoría";
+            if (!categories[category]) {
+                categories[category] = { cards: [], canvases: [] };
+            }
+            categories[category].cards.push(card);
+        });
+
+        // Agrupar canvases por categoría
+        const canvases = chartContainer.querySelectorAll('canvas');
+        canvases.forEach(canvas => {
+            const category = canvas.getAttribute('data-category') || "Sin categoría";
+            if (!categories[category]) {
+                categories[category] = { cards: [], canvases: [] };
+            }
+            categories[category].canvases.push(canvas);
+        });
+
+        for (const category in categories) {
+            // ** Título de la categoría **
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(12);
+            if (y + 10 > pageHeight) {
+                doc.addPage();
+                y = margin;
+            }
+            doc.text(`Categoría: ${category}`, margin, y);
+            y += 5; // Reducido espacio entre el título de la categoría y las tarjetas/gráficos
+
+            // ** Imprimir las card-containers (tarjetas) de esta categoría **
+            const { cards, canvases } = categories[category];
+
+            // Procesar las tarjetas
+            for (let i = 0; i < cards.length; i++) {
+                const card = cards[i];
+                const cardImage = await html2canvas(card, {
+                    scale: 2, // Mejor calidad
+                    useCORS: true, // Permitir recursos externos
+                });
+
+                const imgData = cardImage.toDataURL("image/png");
+                const imgWidth = pageWidth - 2 * margin; // Ancho ajustado al ancho de la página
+                const imgHeight = (cardImage.height / cardImage.width) * imgWidth; // Mantener proporción
+
+                if (y + imgHeight > pageHeight) {
+                    doc.addPage();
+                    y = margin;
+                }
+
+                doc.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
+                y += imgHeight; // Ajustar la posición sin espacio extra
+            }
+
+            // ** Imprimir los canvases (gráficos) de esta categoría **
+            for (let i = 0; i < canvases.length; i++) {
+                const canvas = canvases[i];
+                if (canvas.getAttribute('data-category') === category) {
+                    const canvasImage = await html2canvas(canvas, {
+                        scale: 2, // Mejor calidad
+                        useCORS: true, // Permitir recursos externos
+                    });
+
+                    const imgData = canvasImage.toDataURL("image/png");
+                    const imgWidth = 180; // Ancho ajustado
+                    const imgHeight = (canvasImage.height / canvasImage.width) * imgWidth; // Mantener proporción
+
+                    if (y + imgHeight > pageHeight) {
+                        doc.addPage();
+                        y = margin;
+                    }
+
+                    doc.addImage(imgData, "PNG", margin, y, imgWidth, imgHeight);
+                    y += imgHeight; // Ajustar la posición sin espacio extra
+                }
+            }
+
+            // Añadir un pequeño espacio después de cada categoría para separar el contenido
+            y += 10;
+        }
+
+            // Descargar el PDF
+            doc.save('reporte_completo.pdf');
+            Sweetalert2.fire("El PDF se generó exitosamente.");
+        } catch (error) {
+            console.error("Error al generar el PDF:", error);
+            Sweetalert2.fire("Hubo un error al generar el PDF.");
+        }
+    });
 
     </script>
 </body>

@@ -1,4 +1,6 @@
 
+import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
+
 //GESTION DE USUARIOS
 import { getAllUsers, createUser, estadoUsuario, fetchDeletedFiles, restoreFile } from '../services/user_services.js';
 function getCookieValue(name) {
@@ -52,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch (error) {
             console.error('Error al obtener los usuarios:', error);
-            alert('No se pudieron cargar los usuarios. Por favor, intente más tarde.');
+            Sweetalert2.fire('No se pudieron cargar los usuarios. Por favor, intente más tarde.');
         }
     }
     
@@ -66,13 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const updatedUser = await estadoUsuario(userId);
 
                 // Mostrar mensaje de confirmación
-                alert(`Estado de ${updatedUser.usuario} actualizado a ${updatedUser.activo ? 'Activo' : 'Inactivo'}.`);
+                Sweetalert2.fire(`Estado de ${updatedUser.usuario} actualizado a ${updatedUser.activo ? 'Activo' : 'Inactivo'}.`);
 
                 // Volver a renderizar la tabla para reflejar los cambios
                 renderUsers();
             } catch (error) {
                 console.error('Error al cambiar el estado del usuario:', error);
-                alert('Error al actualizar el estado del usuario. Intente nuevamente.');
+                Sweetalert2.fire('Error al actualizar el estado del usuario. Intente nuevamente.');
             }
         }
     });
@@ -139,12 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
             try {
                 const createdUser = await createUser(newUser);
-                alert(`Usuario ${createdUser.usuario} creado exitosamente.`);
+                Sweetalert2.fire(`Usuario ${createdUser.usuario} creado exitosamente.`);
                 closeModal();
                 renderUsers();
             } catch (error) {
-                // Mostrar el mensaje de error específico en la alerta
-                alert(error.message || 'Error al crear el usuario. Por favor, intente nuevamente.');
+                Sweetalert2.fire('Error al crear el usuario. Por favor, intente nuevamente.');
             }
         }
     });
@@ -193,7 +194,7 @@ document.addEventListener("click", function (event) {
 
     // Verificar si el ID de usuario existe
     if (!usuarioId) {
-        alert('No se encontró el ID del usuario en las cookies. Asegúrate de haber iniciado sesión.');
+        Sweetalert2.fire('No se encontró el ID del usuario en las cookies. Asegúrate de haber iniciado sesión.');
         return;
     }
 
@@ -234,11 +235,11 @@ document.addEventListener("click", function (event) {
                 restoreButton.addEventListener('click', async () => {
                     try {
                         const result = await restoreFile(fileType,file._id, usuarioId); // Restaurar archivo
-                        alert(`Archivo "${file.titulo}" restaurado con éxito.`);
+                        Sweetalert2.fire(`Archivo "${file.titulo}" restaurado con éxito.`);
                         renderFiles(fileType); // Actualizar la tabla después de restaurar
                     } catch (error) {
                         console.error('Error al restaurar el archivo:', error);
-                        alert('No se pudo restaurar el archivo. Intente nuevamente.');
+                        Sweetalert2.fire('No se pudo restaurar el archivo. Intente nuevamente.');
                     }
                 });
 

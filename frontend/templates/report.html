@@ -749,21 +749,46 @@
 
             doc.setFontSize(11);
             doc.setFont("Helvetica", "normal");
+
             items.forEach((item, index) => {
                 const number = `${index + 1}.`;
                 const text = item.innerText || item.textContent || "";
 
-                if (y + 10 > pageHeight) {
+                // Verificar si hay espacio para el número
+                if (y + 6 > pageHeight) {
                     doc.addPage();
                     y = margin;
                 }
 
+                // Imprimir número (en negrita)
                 doc.setFont("Helvetica", "bold");
                 doc.text(number, margin, y);
+
+                // Dividir el texto
                 doc.setFont("Helvetica", "normal");
-                doc.text(text, margin + 10, y);
-                y += 10;
+                // Resto ~20 mm para dar algo de espacio a la derecha (ajusta según necesites)
+                const textLines = doc.splitTextToSize(text, pageWidth - 20);
+
+                // Imprimir cada línea resultante
+                let lineHeight = 6; // altura de línea
+                // Ajustamos la X para que el texto no se sobreponga con el número
+                let currentX = margin + 10; 
+
+                textLines.forEach((line) => {
+                    // Antes de imprimir la línea, verificamos si cabe
+                    if (y + lineHeight > pageHeight) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                    
+                    doc.text(line, currentX, y);
+                    y += lineHeight; 
+                });
+
+                // Separación adicional entre un ítem y el siguiente
+                y += 4; 
             });
+
 
             y += 10;
         });

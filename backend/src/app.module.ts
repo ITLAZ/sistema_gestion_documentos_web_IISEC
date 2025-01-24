@@ -39,7 +39,7 @@ import { FileHandlerController } from './controllers/file-handler.controller';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReportsService } from './services/reports/reports.service';
 import { LogsModuleModule } from './modules/logs-module/logs-module.module';
-import { MyElasticsearchModule } from './modules/my-elasticsearch/my-elasticsearch.module';
+import { MyElasticsearchService } from './services/my-elasticsearch/my-elasticsearch.service';
 
 @Module({
   imports: [
@@ -81,7 +81,7 @@ import { MyElasticsearchModule } from './modules/my-elasticsearch/my-elasticsear
     }),
 
     //Modulo elasticsearch
-    MyElasticsearchModule,
+    //MyElasticsearchModule,
 
     // Modulos de funcionalidades
     UsuariosModule,
@@ -122,7 +122,8 @@ import { MyElasticsearchModule } from './modules/my-elasticsearch/my-elasticsear
     AllTypesService,
     SearchService,
     ReportsService,
-    LogsService
+    LogsService,
+    MyElasticsearchService,
   ],
 })
 export class AppModule {}

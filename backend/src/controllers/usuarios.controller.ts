@@ -83,7 +83,7 @@ export class UsuariosController {
 
             // Registrar la acción de login en la colección de logs
             await this.logsService.createLog({
-                id_usuario: idUsuario,  // Usamos el ID del usuario retornado
+                id_usuario: usuario,  // Usamos el ID del usuario retornado
                 accion: 'login',
                 fecha: fecha,
             });

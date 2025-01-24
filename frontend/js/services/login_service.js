@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result && result.id_usuario) {
           // Guardar el token en una cookie
           document.cookie = `id_usuario=${result.id_usuario}; path=/; max-age=86400`; // Expira en 1 día
+          document.cookie = `usuario=${usuario}; path=/; max-age=86400`; // Expira en 1 día
   
           // Obtener los datos del usuario
           const userData = result.id_usuario;

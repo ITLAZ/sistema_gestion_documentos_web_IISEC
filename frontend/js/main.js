@@ -6,12 +6,9 @@ import {
   searchDocuments,
 } from "./services/api_service.js";
 import { loadNavbar } from "./services/navbar_service.js";
-import { API_URL } from '../../config.js';
+import { API_URL } from "../../config.js";
 
-
-import * as Swal from '/node_modules/sweetalert2/dist/sweetalert2.js';
-
-
+import * as Swal from "/node_modules/sweetalert2/dist/sweetalert2.js";
 
 // Verificar si el usuario está autenticado
 (function verificarAutenticacion() {
@@ -37,8 +34,8 @@ loadNavbar();
 let currentPage = 1; // Número de página actual
 const itemsPerPage = 10; // Cantidad de elementos por página
 let selectedType = "";
-let sortBy = "anio_publicacion"; 
-let sortOrder = "asc"; 
+let sortBy = "anio_publicacion";
+let sortOrder = "asc";
 let isSearchMode = false;
 
 const searchButton = document.getElementById("search-button");
@@ -50,13 +47,16 @@ const dateOrderButton = document.getElementById("date-order");
 
 const keywordsInput = document.getElementById("keywords");
 const authorInput = document.getElementById("author");
+const startYearInput = document.getElementById("date-start");
+const endYearInput = document.getElementById("date-end");
 const publicationDateInput = document.getElementById("publication-date");
 
 //FUNCION PARA CAMBIAR NOMBRE DE ASC/DESC
 function toggleSortOrder() {
   sortOrder = sortOrder === "asc" ? "desc" : "asc";
-  document.getElementById("date-order").innerText = sortOrder === "asc" ? "Ascendente" : "Descendente";
-  console.log("ACTUALIZA POR ORDEN EL NOMBRE",sortOrder);
+  document.getElementById("date-order").innerText =
+    sortOrder === "asc" ? "Ascendente" : "Descendente";
+  console.log("ACTUALIZA POR ORDEN EL NOMBRE", sortOrder);
 
   if (isSearchMode) {
     executeSearch(
@@ -72,7 +72,7 @@ function toggleSortOrder() {
 
 // FUNCION PARA CONTROLAR ESTADOS DE LSO BOTONES
 function handleSortButtonClick(field) {
-  sortBy = field; 
+  sortBy = field;
   if (isSearchMode) {
     executeSearch(
       typeSelector.value,
@@ -93,30 +93,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     isSearchMode = false;
     await fetchAndRenderDocuments();
   }
-  
+
   // Manejar el cambio de selección del tipo de documento.
   typeSelector.addEventListener("change", async () => {
     selectedType = typeSelector.value;
     console.log("Tipo seleccionado:", selectedType);
 
-    keywordsInput.value = ""; 
-    authorInput.value = ""; 
-    publicationDateInput.value = ""; 
+    keywordsInput.value = "";
+    authorInput.value = "";
+    startYearInput.value = "";
+    endYearInput.value = "";
+    publicationDateInput.value = "";
 
     isSearchMode = false;
-    currentPage = 1; 
+    currentPage = 1;
     await fetchAndRenderDocuments();
   });
 
   // Configurar los eventos de los botones de ordenamiento
-  document.getElementById("sort-title").addEventListener("click", () => handleSortButtonClick("titulo"));
-  document.getElementById("sort-author").addEventListener("click", () => handleSortButtonClick("autores"));
-  document.getElementById("sort-year").addEventListener("click", () => handleSortButtonClick("anio_publicacion"));
+  document
+    .getElementById("sort-title")
+    .addEventListener("click", () => handleSortButtonClick("titulo"));
+  document
+    .getElementById("sort-author")
+    .addEventListener("click", () => handleSortButtonClick("autores"));
+  document
+    .getElementById("sort-year")
+    .addEventListener("click", () => handleSortButtonClick("anio_publicacion"));
 
   // Configurar el evento del botón de orden ascendente/descendente
   document.getElementById("date-order").addEventListener("click", () => {
-      toggleSortOrder();
-      console.log("ACTUALIZA POR ORDEN SE LLAMA A LA FUNCION");
+    toggleSortOrder();
+    console.log("ACTUALIZA POR ORDEN SE LLAMA A LA FUNCION");
   });
 
   // Configurar los eventos de los botones de paginación.
@@ -132,8 +140,8 @@ export async function fetchAndRenderDocuments() {
     itemsPerPage,
     selectedType,
     sortBy,
-    sortOrder
-});
+    sortOrder,
+  });
   try {
     console.log(`Obteniendo documentos en orden ${sortOrder}`);
     let documentsData;
@@ -144,7 +152,7 @@ export async function fetchAndRenderDocuments() {
         selectedType,
         currentPage,
         itemsPerPage,
-        sortBy, 
+        sortBy,
         sortOrder
       );
     }
@@ -189,7 +197,7 @@ export async function fetchAndRenderDocuments() {
 // Función para ir a la página siguiente
 function nextPage() {
   currentPage++;
-  let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ''; // Verifica y ajusta el valor
+  let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ""; // Verifica y ajusta el valor
   if (isSearchMode) {
     executeSearch(
       typeSelector.value,
@@ -206,7 +214,7 @@ function nextPage() {
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
-    let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ''; // Verifica y ajusta el valor
+    let keywords = keywordsInput.value.trim() ? keywordsInput.value.trim() : ""; // Verifica y ajusta el valor
     if (isSearchMode) {
       executeSearch(
         typeSelector.value,
@@ -276,7 +284,6 @@ function displayDocumentDetails(data, documentType) {
     "#descripcion",
     "#observacion",
     "#msj_clave",
-
   ].forEach((selector) => {
     const element = document.querySelector(selector);
     if (element) {
@@ -538,7 +545,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 });
 
-
 // Función para renderizar los resultados
 function renderResults(data, documentType) {
   const cardsContainer = document.getElementById("cards-container");
@@ -559,7 +565,8 @@ function renderResults(data, documentType) {
     document.getElementById("pagination-controls").style.display = "block";
 
     // Mostrar u ocultar el botón "Siguiente"
-    nextPageButton.style.display = data.length < itemsPerPage ? "none" : "inline-block";
+    nextPageButton.style.display =
+      data.length < itemsPerPage ? "none" : "inline-block";
 
     // Mostrar u ocultar el botón "Anterior"
     prevPageButton.style.display = currentPage === 1 ? "none" : "inline-block";
@@ -570,44 +577,53 @@ function renderResults(data, documentType) {
     console.log("No se encontraron resultados para la búsqueda.");
 
     // Mostrar mensaje de que no se encontraron resultados
-    cardsContainer.innerHTML = "<p>No se encontraron resultados para la búsqueda.</p>";
+    cardsContainer.innerHTML =
+      "<p>No se encontraron resultados para la búsqueda.</p>";
 
     // Ocultar los controles de paginación
     document.getElementById("pagination-controls").style.display = "none";
   }
 }
 
-
-  
 //FUNCION DE BUSQUEDA
-async function executeSearch(documentType, query, anio_publicacion, author) {
+async function executeSearch(
+  query,
+  anio_inicio,
+  anio_fin,
+  autores,
+  tipo_documento
+) {
   isSearchMode = true;
+
   console.log("Ejecutando búsqueda con los siguientes parámetros:", {
-    documentType,
     query,
     currentPage,
     itemsPerPage,
-    anio_publicacion,
-    author,
+    anio_inicio,
+    anio_fin,
+    autores,
+    tipo_documento,
     sortBy,
-    sortOrder
-});
+    sortOrder,
+  });
+
   try {
     const data = await searchDocuments(
-      documentType,
       query,
       currentPage,
       itemsPerPage,
-      anio_publicacion,
-      author,
+      anio_inicio,
+      anio_fin,
+      autores,
+      tipo_documento,
       sortBy,
       sortOrder
     );
 
     console.log("Datos recibidos del backend:", data);
 
-   // Renderizar los resultados obtenidos
-    renderResults(data, documentType);
+    // Renderizar los resultados obtenidos
+    renderResults(data, tipo_documento);
   } catch (error) {
     console.error("Error al realizar la búsqueda:", error);
     alert(
@@ -626,10 +642,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const sortYearButton = document.getElementById("sort-year");
   const dateOrderButton = document.getElementById("date-order");
 
-  console.log("ORDENAMINETO POR FECHA",dateOrderButton); 
-  console.log("ORDENAMINETO POR TITULO",sortTitleButton);
-  console.log("ORDENAMINETO POR AUTOR",sortAuthorButton);
-  console.log("ORDENAMINETO POR AÑO",sortYearButton);
+  console.log("ORDENAMINETO POR FECHA", dateOrderButton);
+  console.log("ORDENAMINETO POR TITULO", sortTitleButton);
+  console.log("ORDENAMINETO POR AUTOR", sortAuthorButton);
+  console.log("ORDENAMINETO POR AÑO", sortYearButton);
 
   if (!dateOrderButton) {
     console.error("El botón dateOrderButton no existe en el DOM.");
@@ -640,95 +656,100 @@ document.addEventListener("DOMContentLoaded", () => {
     const documentType = typeSelector.value;
     let query = ""; // Palabra clave (obligatoria)
     const author = authorInput.value.trim();
-    const anio_publicacion = publicationDateInput.value;
+    const anio_inicio = startYearInput.value.trim();
+    const anio_fin = endYearInput.value.trim();
 
-    console.log("valor keyword: "+keywordsInput.value);
+    console.log("valor keyword: " + keywordsInput.value);
 
-    if(keywordsInput.value != ""){
-      query = keywordsInput.value.trim(); 
+    if (keywordsInput.value != "") {
+      query = keywordsInput.value.trim();
     }
 
-    isSearchMode = true; 
-    sortBy = "anio_publicacion"; 
+    isSearchMode = true;
+    sortBy = "anio_publicacion";
 
     // Validar que se ingrese una palabra clave
     if (!query) {
-      Sweetalert2.fire("Por favor, ingrese una palabra clave para realizar la búsqueda.");
+      Sweetalert2.fire(
+        "Por favor, ingrese una palabra clave para realizar la búsqueda."
+      );
       return;
     }
 
-    if (anio_publicacion) {
-      if (
-        isNaN(anio_publicacion) ||
-        anio_publicacion < 1900 ||
-        anio_publicacion > currentYear
-      ) {
-        Sweetalert2.fire(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
-        publicationDateInput.value = "";
-        return;
-      }
+    //if (anio_publicacion) {
+    //  if (
+    //    isNaN(anio_publicacion) ||
+    //    anio_publicacion < 1900 ||
+    //    anio_publicacion > currentYear
+    //  ) {
+    //    Sweetalert2.fire(`Por favor, ingrese un año entre 1900 y ${currentYear}.`);
+    //    publicationDateInput.value = "";
+    //    return;
+    //  }
+    //}
+
+    if (
+      anio_inicio &&
+      (isNaN(anio_inicio) || anio_inicio < 1900 || anio_inicio > currentYear)
+    ) {
+      Sweetalert2.fire(
+        `Por favor, ingrese un año de inicio entre 1900 y ${currentYear}.`
+      );
+      startYearInput.value = "";
+      return;
+    }
+
+    if (
+      anio_fin &&
+      (isNaN(anio_fin) || anio_fin < 1900 || anio_fin > currentYear)
+    ) {
+      Sweetalert2.fire(
+        `Por favor, ingrese un año de fin entre 1900 y ${currentYear}.`
+      );
+      endYearInput.value = "";
+      return;
+    }
+
+    if (anio_inicio && anio_fin && anio_inicio > anio_fin) {
+      Sweetalert2.fire(
+        "El año de inicio no puede ser mayor que el año de fin."
+      );
+      return;
     }
 
     currentPage = 1;
-    await executeSearch(documentType, query, anio_publicacion, author);
+    await executeSearch(query, anio_inicio, anio_fin, author, documentType);
   });
 
   // Función para ejecutar la búsqueda
-  async function executeSearch(documentType, query, anio_publicacion, author) {
-    try {
-      const data = await searchDocuments(
-        documentType,
-        query,
-        currentPage,
-        itemsPerPage,
-        anio_publicacion,
-        author,
-        sortBy,
-        sortOrder
-      );
+  
 
-      console.log("Datos recibidos del backend:", data);
+  dateOrderButton.innerHTML = "Cambiar Orden";
 
-      // Renderizar los resultados obtenidos
-      renderResults(data, documentType);
-    } catch (error) {
-      console.error("Error al realizar la búsqueda:", error);
-      Sweetalert2.fire(
-        "Hubo un error al realizar la búsqueda. Por favor, inténtelo de nuevo."
-      );
-    }
-  }
-
-
-dateOrderButton.innerHTML = "Cambiar Orden" 
-
-
-// Al seleccionar una nueva opción en el combobox, se muestran todos los botones
-typeSelector.addEventListener("change", () => {
+  // Al seleccionar una nueva opción en el combobox, se muestran todos los botones
+  typeSelector.addEventListener("change", () => {
     sortYearButton.style.display = "none"; // Mantener oculto el botón de año
     dateOrderButton.style.display = "inline-block"; // Mostrar solo el botón de orden ascendente/descendente
     isSearchMode = false;
   });
-
 });
-
 
 document.addEventListener("DOMContentLoaded", () => {
-    const button = document.getElementById("date-order");
-    button.addEventListener("click", function () {
-        button.textContent = button.textContent === "Ascendente" ? "Descendente" : "Ascendente";
-    });
+  const button = document.getElementById("date-order");
+  button.addEventListener("click", function () {
+    button.textContent =
+      button.textContent === "Ascendente" ? "Descendente" : "Ascendente";
+  });
 });
-
 
 //FUNCION PARA REALIZAR EL ORDENAMIENTO
 document.addEventListener("DOMContentLoaded", () => {
   // Función para mostrar todos los botones de ordenamiento
   function showAllSortButtons() {
-      sortTitleButton.style.display = "inline-block";
-      sortAuthorButton.style.display = "inline-block";
-      sortYearButton.style.display = "inline-block";
-      dateOrderButton.style.display = "inline-block";
+    sortTitleButton.style.display = "inline-block";
+    sortAuthorButton.style.display = "inline-block";
+    sortYearButton.style.display = "inline-block";
+    dateOrderButton.style.display = "inline-block";
   }
 
   // Evento para el botón de búsqueda
@@ -741,9 +762,8 @@ document.addEventListener("DOMContentLoaded", () => {
 //Función para Obtener id_usuario de la Cookie
 export async function getCookieValue(name) {
   const cookieString = document.cookie
-      .split('; ')
-      .find(row => row.startsWith(name + '='));
-  
-  return cookieString ? cookieString.split('=')[1] : null;
-}
+    .split("; ")
+    .find((row) => row.startsWith(name + "="));
 
+  return cookieString ? cookieString.split("=")[1] : null;
+}

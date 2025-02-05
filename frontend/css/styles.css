@@ -44,6 +44,13 @@ button, .toggle-theme-btn {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+
+.center-button {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 /* Reglas Generales */
 * {
   margin: 0;
@@ -599,6 +606,10 @@ aside .advanced-search{
 .order{
   display: grid;
   grid-template-columns: 1fr 1fr;
+}
+
+.order button {
+  grid-column: 1 / 3;
 }
 
 .order h3{

@@ -673,12 +673,12 @@ document.addEventListener("DOMContentLoaded", () => {
     sortBy = "anio_publicacion";
 
     // Validar que se ingrese una palabra clave
-    if (!query) {
+    /*if (!query) {
       Sweetalert2.fire(
         "Por favor, ingrese una palabra clave para realizar la búsqueda."
       );
       return;
-    }
+    }*/
 
     //if (anio_publicacion) {
     //  if (
@@ -751,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Función para mostrar todos los botones de ordenamiento
   function showAllSortButtons() {
     sortTitleButton.style.display = "inline-block";
-    sortAuthorButton.style.display = "inline-block";
+    sortAuthorButton.style.display = "none";
     sortYearButton.style.display = "inline-block";
     dateOrderButton.style.display = "inline-block";
   }

@@ -51,10 +51,15 @@
                     <input type="text" name="author" id="author" placeholder="Ingrese nombre de autor..."
                         pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*">
                 </div>
-                <div class="input-group">
+                <!-- <div class="input-group">
+                    <h3>Año de Publicación:</h3>
+                    <input type="number" step="1" name="publication-date" id="publication-date">
+                </div>  -->
+                <div class="input-group" style="display: none;">
                     <h3>Año de Publicación:</h3>
                     <input type="number" step="1" name="publication-date" id="publication-date">
                 </div>
+                
                 <div class="input-group date-range">
                     <h3>Rango de Años de Publicación:</h3>
                     <input type="number" step="1" name="date-start" id="date-start" placeholder="Año Inicial">
@@ -68,7 +73,7 @@
                 <div class="input-group order">
                     <h3>Ordenar por:</h3>
                     <button type="button" id="sort-title">Título</button>
-                    <button type="button" id="sort-author">Autor</button>
+                    <button type="button" id="sort-author" style="display: none;">Autor</button> 
                     <button type="button" id="sort-year">Año de Publicación</button>
                     <button type="button" id="date-order">Cambiar Orden</button>
                 </div>

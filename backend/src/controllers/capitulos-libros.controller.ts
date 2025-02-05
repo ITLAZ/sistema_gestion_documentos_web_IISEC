@@ -282,6 +282,10 @@ export class CapitulosLibrosController {
         fecha: fecha,
       });
 
+      await this.elasticsearchService.update('capitulos-libros', id, {
+        doc: { eliminado: false, recuperadoPor: usuarioId, fechaRecuperacion: fecha },
+      });
+
       return capituloRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {

@@ -250,6 +250,10 @@ export class IdeasReflexionesController {
         fecha: fecha,
       });
 
+      await this.elasticsearchService.update('ideas-reflexiones', id, {
+        doc: { eliminado: false, recuperadoPor: usuarioId, fechaRecuperacion: fecha },
+      });
+
       return documentoRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {

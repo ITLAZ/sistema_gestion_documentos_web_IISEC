@@ -427,6 +427,10 @@ export class PoliciesBriefsController {
         fecha: fecha,
       });
 
+      await this.elasticsearchService.update('policies-briefs', id, {
+        doc: { eliminado: false, recuperadoPor: usuarioId, fechaRecuperacion: fecha },
+      });
+
       return documentoRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {

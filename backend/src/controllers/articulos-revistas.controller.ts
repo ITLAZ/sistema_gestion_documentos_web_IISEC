@@ -282,6 +282,10 @@ export class ArticulosRevistasController {
         fecha: fecha,
       });
 
+      await this.elasticsearchService.update('articulos-revistas', id, {
+        doc: { eliminado: false, recuperadoPor: usuarioId, fechaRecuperacion: fecha },
+      });
+
       return articuloRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {

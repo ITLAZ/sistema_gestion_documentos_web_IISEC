@@ -283,6 +283,10 @@ export class DocumentosTrabajoController {
         fecha: fecha,
       });
 
+      await this.elasticsearchService.update('documentos-trabajo', id, {
+        doc: { eliminado: false, recuperadoPor: usuarioId, fechaRecuperacion: fecha },
+      });
+
       return documentoRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {

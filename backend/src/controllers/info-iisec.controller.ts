@@ -248,6 +248,10 @@ export class InfoIisecController {
         fecha: fecha,
       });
 
+      await this.elasticsearchService.update('info-iisec', id, {
+        doc: { eliminado: false, recuperadoPor: usuarioId, fechaRecuperacion: fecha },
+      });
+
       return documentoRestaurado;
     } catch (error) {
       if (error instanceof BadRequestException) {

@@ -211,6 +211,7 @@ export class LibrosController {
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
         accion: 'Actualización de documento',
+        tipo: 'libros',
         fecha: fecha,
       });
 
@@ -248,6 +249,7 @@ export class LibrosController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Eliminación lógica de documento',
+        tipo: 'libros',
         fecha: fecha,
       });
 
@@ -297,6 +299,7 @@ export class LibrosController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Restauración documento',
+        tipo: 'libros',
         fecha: fecha,
       });
 
@@ -393,6 +396,7 @@ export class LibrosController {
           id_usuario: usuarioId,
           id_documento:  libroCreado.id, // Usamos el ID del usuario retornado
           accion: 'Creacion documento',
+          tipo: 'libros',
           fecha: fecha,
       });
       
@@ -443,6 +447,7 @@ export class LibrosController {
           id_usuario: usuarioId,
           id_documento:  libroCreado.id, // Usamos el ID del usuario retornado
           accion: 'Creacion documento',
+          tipo: 'libros',
           fecha: fecha,
       });
       

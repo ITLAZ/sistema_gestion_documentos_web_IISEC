@@ -199,6 +199,7 @@ export class IdeasReflexionesController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Eliminación lógica de documento',
+        tipo: 'ideas-reflexiones',
         fecha: fecha,
       });
 
@@ -247,6 +248,7 @@ export class IdeasReflexionesController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Restauración documento',
+        tipo: 'ideas-reflexiones',
         fecha: fecha,
       });
 
@@ -289,6 +291,7 @@ export class IdeasReflexionesController {
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
         accion: 'Actualización de documento',
+        tipo: 'ideas-reflexiones',
         fecha: fecha,
       });
 
@@ -373,6 +376,7 @@ export class IdeasReflexionesController {
         id_usuario: usuarioId,
         id_documento:  ideaReflexionCreada.id,
         accion: 'Creacion documento',
+        tipo: 'ideas-reflexiones',
         fecha: fecha,
       });
 
@@ -418,6 +422,7 @@ export class IdeasReflexionesController {
         id_usuario: usuarioId,
         id_documento:  ideaReflexionCreada.id,
         accion: 'Creacion documento',
+        tipo: 'ideas-reflexiones',
         fecha: fecha,
       });
 

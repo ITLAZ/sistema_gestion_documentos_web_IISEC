@@ -194,6 +194,7 @@ export class DocumentosTrabajoController {
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
         accion: 'Actualización de documento',
+        tipo: 'documentos-trabajo',
         fecha: fecha,
       });
 
@@ -232,6 +233,7 @@ export class DocumentosTrabajoController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Eliminación lógica de documento',
+        tipo: 'documentos-trabajo',
         fecha: fecha,
       });
 
@@ -280,6 +282,7 @@ export class DocumentosTrabajoController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Restauración documento',
+        tipo: 'documentos-trabajo',
         fecha: fecha,
       });
 
@@ -373,6 +376,7 @@ export class DocumentosTrabajoController {
         id_usuario: usuarioId,
         id_documento:  documentoCreado.id, // Usamos el ID del usuario retornado
         accion: 'Creacion documento',
+        tipo: 'documentos-trabajo',
         fecha: fecha,
       });
 
@@ -418,6 +422,7 @@ export class DocumentosTrabajoController {
         id_usuario: usuarioId,
         id_documento:  documentoCreado.id, // Usamos el ID del usuario retornado
         accion: 'Creacion documento',
+        tipo: 'documentos-trabajo',
         fecha: fecha,
       });
 

@@ -197,6 +197,7 @@ export class InfoIisecController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Eliminación lógica de documento',
+        tipo: 'info-iisec',
         fecha: fecha,
       });
 
@@ -245,6 +246,7 @@ export class InfoIisecController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Restauración documento',
+        tipo: 'info-iisec',
         fecha: fecha,
       });
 
@@ -286,6 +288,7 @@ export class InfoIisecController {
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
         accion: 'Actualización de documento',
+        tipo: 'info-iisec',
         fecha: fecha,
       });
 
@@ -370,6 +373,7 @@ export class InfoIisecController {
           id_usuario: usuarioId,
           id_documento:  infoCreado.id, // Usamos el ID del usuario retornado
           accion: 'Creacion documento',
+          tipo: 'info-iisec',
           fecha: fecha,
       });
       
@@ -415,6 +419,7 @@ export class InfoIisecController {
           id_usuario: usuarioId,
           id_documento:  infoCreado.id, // Usamos el ID del usuario retornado
           accion: 'Creacion documento',
+          tipo: 'info-iisec',
           fecha: fecha,
       });
       

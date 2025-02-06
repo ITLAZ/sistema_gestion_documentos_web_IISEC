@@ -14,6 +14,9 @@ export class Log extends Document {
 
   @Prop({ required: true, default: Date.now })
   fecha: Date; // Fecha y hora en que se realizó la acción
+
+  @Prop({ required: false })
+  tipo: string; // Tipo de archivo en edicion, agregado, eliminacion o recuperacion
 }
 
 export const LogSchema = SchemaFactory.createForClass(Log);

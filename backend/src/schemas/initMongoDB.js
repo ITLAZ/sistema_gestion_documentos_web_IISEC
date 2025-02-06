@@ -216,7 +216,8 @@ async function initDatabase() {
             id_usuario: { bsonType: "string", description: "ID del usuario que realizó la acción" },
             id_documento: { bsonType: "string", description: "ID del documento afectado" },
             accion: { bsonType: "string", description: "Descripción de la acción" },
-            fecha: { bsonType: "date", description: "Fecha y hora de la acción" }
+            fecha: { bsonType: "date", description: "Fecha y hora de la acción" },
+            tipo: { bsonType: "string", description: "Tipo de archivo en la edicion de documentos" },
           },
         },
       },
@@ -655,7 +656,11 @@ db.createCollection("Logs", {
         fecha: {
           bsonType: "date",
           description: "Fecha y hora en que se realizó la acción"
-        }
+        },
+        tipo: {
+          bsonType: "string",
+          description: "Tipo de archivo en la edicion, creacion, eliminacion o recuperacion de documentos"
+        },
       }
     }
   }

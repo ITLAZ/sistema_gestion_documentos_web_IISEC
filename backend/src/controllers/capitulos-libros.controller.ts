@@ -194,6 +194,7 @@ export class CapitulosLibrosController {
         id_usuario: usuarioId,
         id_documento: id,  // Usamos el ID del libro que se está actualizando
         accion: 'Actualización de documento',
+        tipo: 'capitulos-libros',
         fecha: fecha,
       });
 
@@ -231,6 +232,7 @@ export class CapitulosLibrosController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Eliminación lógica de documento',
+        tipo: 'capitulos-libros',
         fecha: fecha,
       });
 
@@ -279,6 +281,7 @@ export class CapitulosLibrosController {
         id_usuario: usuarioId,
         id_documento: id,
         accion: 'Restauración documento',
+        tipo: 'capitulos-libros',
         fecha: fecha,
       });
 
@@ -382,6 +385,7 @@ export class CapitulosLibrosController {
         id_usuario: usuarioId,
         id_documento:  capituloCreado.id, // Usamos el ID del usuario retornado
         accion: 'Creacion documento',
+        tipo: 'capitulos-libros',
         fecha: fecha,
       });
 
@@ -431,6 +435,7 @@ export class CapitulosLibrosController {
         id_usuario: usuarioId,
         id_documento:  capituloCreado.id, // Usamos el ID del usuario retornado
         accion: 'Creacion documento',
+        tipo: 'capitulos-libros',
         fecha: fecha,
       });
 

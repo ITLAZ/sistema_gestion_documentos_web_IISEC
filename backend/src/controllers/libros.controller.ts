@@ -206,6 +206,19 @@ export class LibrosController {
       // Actualizar el libro
       const libroActualizado = await this.librosService.update(id, libro);
 
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'libros',  // Índice en Elasticsearch
+        id,
+        {
+          titulo: libroActualizado.titulo,
+          autores: libroActualizado.autores,
+          anio_publicacion: libroActualizado.anio_publicacion,
+          abstract: libroActualizado.abstract,
+          eliminado: libroActualizado.eliminado ?? false,
+        }
+      );
+
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
@@ -387,11 +400,24 @@ export class LibrosController {
         link_pdf: libroData.link_pdf,
         direccion_archivo: procesado.path,
       };
-      
+
+      // Guardar en MongoDB
       const libroCreado = await this.librosService.create(nuevoLibro as Libro);
 
-      // Registrar el log de la acción
+      // Indexar en Elasticsearch
+      await this.searchService.indexDocument(
+        'libros',  // Índice en Elasticsearch
+        libroCreado._id.toString(),
+        {
+          titulo: libroCreado.titulo,
+          autores: libroCreado.autores,
+          anio_publicacion: libroCreado.anio_publicacion,
+          abstract: libroCreado.abstract,
+          eliminado: false,
+        }
+      );
 
+      // Registrar el log de la acción
       await this.logsService.createLogDocument({
           id_usuario: usuarioId,
           id_documento:  libroCreado.id, // Usamos el ID del usuario retornado
@@ -441,8 +467,24 @@ export class LibrosController {
         abstract: libroData.abstract,
         link_pdf: libroData.link_pdf,
       };
+
+      //Guardar en mongoDB
       const libroCreado = await this.librosService.create(nuevoLibro as Libro);
 
+      // Indexar en Elasticsearch
+      await this.searchService.indexDocument(
+        'libros',  // Índice en Elasticsearch
+        libroCreado._id.toString(),
+        {
+          titulo: libroCreado.titulo,
+          autores: libroCreado.autores,
+          anio_publicacion: libroCreado.anio_publicacion,
+          abstract: libroCreado.abstract,
+          eliminado: false,
+        }
+      );
+
+      // Registrar el log de la acción
       await this.logsService.createLogDocument({
           id_usuario: usuarioId,
           id_documento:  libroCreado.id, // Usamos el ID del usuario retornado

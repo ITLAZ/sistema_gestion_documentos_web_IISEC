@@ -189,6 +189,19 @@ export class DocumentosTrabajoController {
       // Actualizar el libro
       const documentoActualizado = await this.documentosTrabajoService.update(id, documento);
 
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'documentos-trabajo',    // Índice en Elasticsearch
+        id,
+        {
+          titulo: documentoActualizado.titulo,              // Campo para búsquedas
+          autores: documentoActualizado.autores,            // Campo para búsquedas
+          anio_publicacion: documentoActualizado.anio_publicacion, // Campo para filtros o búsquedas
+          abstract: documentoActualizado.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: documentoActualizado.eliminado,
+        }
+      );
+
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
@@ -199,7 +212,7 @@ export class DocumentosTrabajoController {
       });
 
       return documentoActualizado;
-      return 
+
     } catch (error) {
       console.error('Error al crear el libro:', error.message);
       throw new InternalServerErrorException('Error al actualizar el documento.');
@@ -372,6 +385,18 @@ export class DocumentosTrabajoController {
 
       const documentoCreado = await this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
 
+      await this.searchService.indexDocument(
+        'documentos-trabajo',    // Índice en Elasticsearch
+        documentoCreado._id.toString(),
+        {
+          titulo: documentoCreado.titulo,              // Campo para búsquedas
+          autores: documentoCreado.autores,            // Campo para búsquedas
+          anio_publicacion: documentoCreado.anio_publicacion, // Campo para filtros o búsquedas
+          abstract: documentoCreado.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: documentoCreado.eliminado,
+        }
+      );
+
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento:  documentoCreado.id, // Usamos el ID del usuario retornado
@@ -417,6 +442,18 @@ export class DocumentosTrabajoController {
         link_pdf: documentoData.link_pdf,
       };
       const documentoCreado = await this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
+
+      await this.searchService.indexDocument(
+        'documentos-trabajo',    // Índice en Elasticsearch
+        documentoCreado._id.toString(),
+        {
+          titulo: documentoCreado.titulo,              // Campo para búsquedas
+          autores: documentoCreado.autores,            // Campo para búsquedas
+          anio_publicacion: documentoCreado.anio_publicacion, // Campo para filtros o búsquedas
+          abstract: documentoCreado.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: documentoCreado.eliminado,
+        }
+      );
 
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,

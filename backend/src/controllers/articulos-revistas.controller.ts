@@ -189,6 +189,20 @@ export class ArticulosRevistasController {
       // Actualizar el libro
       const articuloActualizado = await this.articulosRevistasService.update(id, articulo);
 
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'articulos-revistas',    // Índice en Elasticsearch
+        id,
+        {
+          titulo: articuloActualizado.titulo,    // Campo para búsquedas          
+          autores: articuloActualizado.autores,    // Campo para búsquedas
+          nombre_revista: articuloActualizado.nombre_revista,    // Campo para búsquedas          
+          anio_revista: articuloActualizado.anio_revista, // Campo para filtros o búsquedas
+          abstract: articuloActualizado.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: articuloActualizado.eliminado,
+        }
+      );
+
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
@@ -378,6 +392,19 @@ export class ArticulosRevistasController {
 
       const articuloCreado = await this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista)
 
+      await this.searchService.indexDocument(
+        'articulos-revistas',    // Índice en Elasticsearch
+        articuloCreado._id.toString(),
+        {
+          titulo: articuloCreado.titulo,    // Campo para búsquedas          
+          autores: articuloCreado.autores,    // Campo para búsquedas
+          nombre_revista: articuloCreado.nombre_revista,    // Campo para búsquedas          
+          anio_revista: articuloCreado.anio_revista, // Campo para filtros o búsquedas
+          abstract: articuloCreado.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: articuloCreado.eliminado,
+        }
+      );
+
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento:  articuloCreado.id, // Usamos el ID del usuario retornado
@@ -426,6 +453,19 @@ export class ArticulosRevistasController {
       };
 
       const articuloCreado = await this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista)
+
+      await this.searchService.indexDocument(
+        'articulos-revistas',    // Índice en Elasticsearch
+        articuloCreado._id.toString(),
+        {
+          titulo: articuloCreado.titulo,    // Campo para búsquedas          
+          autores: articuloCreado.autores,    // Campo para búsquedas
+          nombre_revista: articuloCreado.nombre_revista,    // Campo para búsquedas          
+          anio_revista: articuloCreado.anio_revista, // Campo para filtros o búsquedas
+          abstract: articuloCreado.abstract,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: articuloCreado.eliminado,
+        }
+      );
 
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,

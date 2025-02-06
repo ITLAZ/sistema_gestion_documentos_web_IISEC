@@ -189,6 +189,21 @@ export class CapitulosLibrosController {
       // Actualizar el libro
       const capituloActualizado = await this.capitulosLibrosService.update(id, capitulo);
 
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'capitulos-libros',    // Índice en Elasticsearch
+        id,
+        {
+          titulo_capitulo: capituloActualizado.titulo_capitulo,    // Campo para búsquedas          
+          autores: capituloActualizado.autores,    // Campo para búsquedas
+          titulo_libro: capituloActualizado.titulo_libro,    // Campo para búsquedas          
+          anio_publicacion: capituloActualizado.anio_publicacion, // Campo para filtros o búsquedas
+          editorial: capituloActualizado.editorial,  
+          editores: capituloActualizado.editores,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: capituloActualizado.eliminado,
+        }
+      );
+
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
@@ -381,6 +396,20 @@ export class CapitulosLibrosController {
 
       const capituloCreado = await this.capitulosLibrosService.create(nuevoCapitulo as CapituloLibro);
 
+      await this.searchService.indexDocument(
+        'capitulos-libros',    // Índice en Elasticsearch
+        capituloCreado._id.toString(),
+        {
+          titulo_capitulo: capituloCreado.titulo_capitulo,    // Campo para búsquedas          
+          autores: capituloCreado.autores,    // Campo para búsquedas
+          titulo_libro: capituloCreado.titulo_libro,    // Campo para búsquedas          
+          anio_publicacion: capituloCreado.anio_publicacion, // Campo para filtros o búsquedas
+          editorial: capituloCreado.editorial,  
+          editores: capituloCreado.editores,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: capituloCreado.eliminado,
+        }
+      );
+
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento:  capituloCreado.id, // Usamos el ID del usuario retornado
@@ -430,6 +459,20 @@ export class CapitulosLibrosController {
       };
 
       const capituloCreado = await this.capitulosLibrosService.create(nuevoCapitulo as CapituloLibro);
+
+      await this.searchService.indexDocument(
+        'capitulos-libros',    // Índice en Elasticsearch
+        capituloCreado._id.toString(),
+        {
+          titulo_capitulo: capituloCreado.titulo_capitulo,    // Campo para búsquedas          
+          autores: capituloCreado.autores,    // Campo para búsquedas
+          titulo_libro: capituloCreado.titulo_libro,    // Campo para búsquedas          
+          anio_publicacion: capituloCreado.anio_publicacion, // Campo para filtros o búsquedas
+          editorial: capituloCreado.editorial,  
+          editores: capituloCreado.editores,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: capituloCreado.eliminado,
+        }
+      );
 
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,

@@ -280,8 +280,22 @@ export class InfoIisecController {
     try {
 
       const fecha = new Date();
+      
       // Actualizar el libro
       const infoIISECActualizado = await this.infoIisecService.update(id, infoIISEC);
+
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'info-iisec',
+        id,
+        {
+          titulo: infoIISECActualizado.titulo,              // Campo para búsquedas
+          autores: infoIISECActualizado.autores,            // Campo para búsquedas
+          anio_publicacion: infoIISECActualizado.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: infoIISECActualizado.observaciones,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: infoIISECActualizado.eliminado,
+        }
+      );
 
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
@@ -369,6 +383,19 @@ export class InfoIisecController {
 
       const infoCreado = await this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
       
+      
+      await this.searchService.indexDocument(
+        'info-iisec',    // Índice en Elasticsearch
+        infoCreado._id.toString(),
+        {
+          titulo: infoCreado.titulo,              // Campo para búsquedas
+          autores: infoCreado.autores,            // Campo para búsquedas
+          anio_publicacion: infoCreado.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: infoCreado.observaciones,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: infoCreado.eliminado,
+        }
+      );
+
       await this.logsService.createLogDocument({
           id_usuario: usuarioId,
           id_documento:  infoCreado.id, // Usamos el ID del usuario retornado
@@ -414,6 +441,18 @@ export class InfoIisecController {
       };
 
       const infoCreado = await this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
+
+      await this.searchService.indexDocument(
+        'info-iisec',    // Índice en Elasticsearch
+        infoCreado._id.toString(),
+        {
+          titulo: infoCreado.titulo,              // Campo para búsquedas
+          autores: infoCreado.autores,            // Campo para búsquedas
+          anio_publicacion: infoCreado.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: infoCreado.observaciones,           // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: infoCreado.eliminado,
+        }
+      );
 
       await this.logsService.createLogDocument({
           id_usuario: usuarioId,

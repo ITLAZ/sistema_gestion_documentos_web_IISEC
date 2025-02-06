@@ -234,6 +234,19 @@ export class PoliciesBriefsController {
       // Actualizar el libro
       const policyActualizado = await this.policiesBriefsService.update(id, policyBrief);
 
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'policies-briefs',    // Índice en Elasticsearch
+        id,
+        {
+          titulo: policyActualizado.titulo,              // Campo para búsquedas
+          autores: policyActualizado.autores,            // Campo para búsquedas
+          anio_publicacion: policyActualizado.anio_publicacion, // Campo para filtros o búsquedas
+          mensaje_clave: policyActualizado.mensaje_clave,
+          eliminado: policyActualizado.eliminado,         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
@@ -322,6 +335,18 @@ export class PoliciesBriefsController {
       
       const creadoPolicyBrief = await this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
 
+      await this.searchService.indexDocument(
+        'policies-briefs',    // Índice en Elasticsearch
+        creadoPolicyBrief._id.toString(),
+        {
+          titulo: creadoPolicyBrief.titulo,              // Campo para búsquedas
+          autores: creadoPolicyBrief.autores,            // Campo para búsquedas
+          anio_publicacion: creadoPolicyBrief.anio_publicacion, // Campo para filtros o búsquedas
+          mensaje_clave: creadoPolicyBrief.mensaje_clave,
+          eliminado: creadoPolicyBrief.eliminado,         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
+
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento:  creadoPolicyBrief.id, // Usamos el ID del usuario retornado
@@ -368,6 +393,18 @@ export class PoliciesBriefsController {
       };
       
       const creadoPolicyBrief = await this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
+
+      await this.searchService.indexDocument(
+        'policies-briefs',    // Índice en Elasticsearch
+        creadoPolicyBrief._id.toString(),
+        {
+          titulo: creadoPolicyBrief.titulo,              // Campo para búsquedas
+          autores: creadoPolicyBrief.autores,            // Campo para búsquedas
+          anio_publicacion: creadoPolicyBrief.anio_publicacion, // Campo para filtros o búsquedas
+          mensaje_clave: creadoPolicyBrief.mensaje_clave,
+          eliminado: creadoPolicyBrief.eliminado,         // Campo opcional para mejorar el resultado de búsqueda
+        }
+      );
 
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,

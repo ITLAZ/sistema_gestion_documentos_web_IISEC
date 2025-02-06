@@ -286,6 +286,19 @@ export class IdeasReflexionesController {
       // Actualizar el libro
       const ideaActualizado = await this.ideaReflexionesService.update(id, ideaReflexion);
 
+      // Actualizar la indexación en Elasticsearch
+      await this.searchService.indexDocument(
+        'ideas-reflexiones',    // Índice en Elasticsearch
+        id,
+        {
+          titulo: ideaActualizado.titulo,              // Campo para búsquedas
+          autores: ideaActualizado.autores,            // Campo para búsquedas
+          anio_publicacion: ideaActualizado.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: ideaActualizado.observaciones,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: ideaActualizado.eliminado,
+        }
+      );
+
       // Registrar el log de la acción
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
@@ -372,6 +385,18 @@ export class IdeasReflexionesController {
 
       const ideaReflexionCreada = await this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
 
+      await this.searchService.indexDocument(
+        'ideas-reflexiones',    // Índice en Elasticsearch
+        ideaReflexionCreada._id.toString(),
+        {
+          titulo: ideaReflexionCreada.titulo,              // Campo para búsquedas
+          autores: ideaReflexionCreada.autores,            // Campo para búsquedas
+          anio_publicacion: ideaReflexionCreada.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: ideaReflexionCreada.observaciones,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: ideaReflexionCreada.eliminado,
+        }
+      );
+
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,
         id_documento:  ideaReflexionCreada.id,
@@ -417,6 +442,18 @@ export class IdeasReflexionesController {
       };
 
       const ideaReflexionCreada = await this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
+
+      await this.searchService.indexDocument(
+        'ideas-reflexiones',    // Índice en Elasticsearch
+        ideaReflexionCreada._id.toString(),
+        {
+          titulo: ideaReflexionCreada.titulo,              // Campo para búsquedas
+          autores: ideaReflexionCreada.autores,            // Campo para búsquedas
+          anio_publicacion: ideaReflexionCreada.anio_publicacion, // Campo para filtros o búsquedas
+          observaciones: ideaReflexionCreada.observaciones,         // Campo opcional para mejorar el resultado de búsqueda
+          eliminado: ideaReflexionCreada.eliminado,
+        }
+      );
 
       await this.logsService.createLogDocument({
         id_usuario: usuarioId,

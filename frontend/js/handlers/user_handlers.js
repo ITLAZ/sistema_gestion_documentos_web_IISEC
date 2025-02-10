@@ -189,7 +189,7 @@ document.addEventListener("click", function (event) {
     const typeSelector = document.getElementById('type-selector');
 
     // Obtener el ID de usuario desde la cookie
-    const usuarioId = getCookieValue('id_usuario');
+    const usuarioId = getCookieValue('usuario');
     console.log('ID de usuario:', usuarioId);
 
     // Verificar si el ID de usuario existe

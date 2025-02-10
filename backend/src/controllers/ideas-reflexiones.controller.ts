@@ -381,6 +381,7 @@ export class IdeasReflexionesController {
         observaciones: ideaReflexionData.observaciones,
         link_pdf: ideaReflexionData.link_pdf,
         direccion_archivo: procesado.path,
+        eliminado: false,
       };
 
       const ideaReflexionCreada = await this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);
@@ -438,7 +439,8 @@ export class IdeasReflexionesController {
         anio_publicacion: parseInt(ideaReflexionData.anio_publicacion, 10),
         autores: autoresArray,
         observaciones: ideaReflexionData.observaciones,
-        link_pdf: ideaReflexionData.link_pdf
+        link_pdf: ideaReflexionData.link_pdf,
+        eliminado: false,
       };
 
       const ideaReflexionCreada = await this.ideaReflexionesService.create(nuevoIdeaReflexion as IdeaReflexion);

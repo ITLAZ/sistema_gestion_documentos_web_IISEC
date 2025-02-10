@@ -331,6 +331,7 @@ export class PoliciesBriefsController {
         mensaje_clave: policyBriefData.mensaje_clave,
         link_pdf: policyBriefData.link_pdf,
         direccion_archivo: procesado.path,
+        eliminado: false,
       };
       
       const creadoPolicyBrief = await this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);
@@ -389,7 +390,8 @@ export class PoliciesBriefsController {
           anio_publicacion: parseInt(policyBriefData.anio_publicacion, 10),
           autores: autoresArray,
           mensaje_clave: policyBriefData.mensaje_clave,
-          link_pdf: policyBriefData.link_pdf
+          link_pdf: policyBriefData.link_pdf,
+          eliminado: false,
       };
       
       const creadoPolicyBrief = await this.policiesBriefsService.create(nuevoPolicyBrief as PolicyBrief);

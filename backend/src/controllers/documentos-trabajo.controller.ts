@@ -381,6 +381,7 @@ export class DocumentosTrabajoController {
         abstract: documentoData.abstract,
         link_pdf: documentoData.link_pdf,
         direccion_archivo: procesado.path,
+        eliminado: false,
       };
 
       const documentoCreado = await this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
@@ -440,6 +441,7 @@ export class DocumentosTrabajoController {
         autores: autoresArray,
         abstract: documentoData.abstract,
         link_pdf: documentoData.link_pdf,
+        eliminado: false,
       };
       const documentoCreado = await this.documentosTrabajoService.create(nuevoDocumento as DocumentoTrabajo);
 

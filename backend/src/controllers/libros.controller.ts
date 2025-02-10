@@ -399,6 +399,7 @@ export class LibrosController {
         abstract: libroData.abstract,
         link_pdf: libroData.link_pdf,
         direccion_archivo: procesado.path,
+        eliminado: false,
       };
 
       // Guardar en MongoDB
@@ -466,6 +467,7 @@ export class LibrosController {
         editorial: libroData.editorial,
         abstract: libroData.abstract,
         link_pdf: libroData.link_pdf,
+        eliminado: false,
       };
 
       //Guardar en mongoDB

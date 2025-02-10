@@ -388,6 +388,7 @@ export class ArticulosRevistasController {
         abstract: articuloData.abstract,
         link_pdf: articuloData.link_pdf,
         direccion_archivo: procesado.path,
+        eliminado: false,
       };
 
       const articuloCreado = await this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista)
@@ -450,6 +451,7 @@ export class ArticulosRevistasController {
         editorial: articuloData.editorial,
         abstract: articuloData.abstract,
         link_pdf: articuloData.link_pdf,
+        eliminado: false,
       };
 
       const articuloCreado = await this.articulosRevistasService.create(nuevoArticulo as ArticuloRevista)

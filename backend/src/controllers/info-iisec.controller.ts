@@ -379,6 +379,7 @@ export class InfoIisecController {
         observaciones: infoIISECData.observaciones,
         link_pdf: infoIISECData.link_pdf,
         direccion_archivo: procesado.path,
+        eliminado: false,
       };
 
       const infoCreado = await this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);
@@ -437,7 +438,8 @@ export class InfoIisecController {
           anio_publicacion: parseInt(infoIISECData.anio_publicacion, 10),
           autores: autoresArray,
           observaciones: infoIISECData.observaciones,
-          link_pdf: infoIISECData.link_pdf
+          link_pdf: infoIISECData.link_pdf,
+          eliminado: false,
       };
 
       const infoCreado = await this.infoIisecService.create(nuevoInfoIISEC as InfoIISEC);

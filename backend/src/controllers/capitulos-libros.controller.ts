@@ -406,7 +406,7 @@ export class CapitulosLibrosController {
           anio_publicacion: capituloCreado.anio_publicacion, // Campo para filtros o búsquedas
           editorial: capituloCreado.editorial,  
           editores: capituloCreado.editores,         // Campo opcional para mejorar el resultado de búsqueda
-          eliminado: capituloCreado.eliminado,
+          eliminado: false,
         }
       );
 
@@ -470,7 +470,7 @@ export class CapitulosLibrosController {
           anio_publicacion: capituloCreado.anio_publicacion, // Campo para filtros o búsquedas
           editorial: capituloCreado.editorial,  
           editores: capituloCreado.editores,         // Campo opcional para mejorar el resultado de búsqueda
-          eliminado: capituloCreado.eliminado,
+          eliminado: false,
         }
       );
 

@@ -431,7 +431,7 @@ function displayDocumentDetails(data, documentType) {
     pdfIframe.style.display = "block";
   } else if (documentData.direccion_archivo) {
     const nombreArchivo = documentData.direccion_archivo.split("\\").pop();
-    const archivoUrl = `${API_URL}/file-handler/file/${nombreArchivo}`;
+    const archivoUrl = `${API_URL}/file-handler/file${nombreArchivo}`;
     pdfIframe.src = archivoUrl;
     pdfDownloadLink.href = archivoUrl;
     pdfIframe.style.display = "block";

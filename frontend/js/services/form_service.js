@@ -52,69 +52,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Definir los campos obligatorios por tipo de documento
     const requiredFieldsByType = {
-        'libros': ['title','authors','published'],
-        'articulos-revistas': ['title','authors','revista', 'published'],
-        'capitulos-libros': ['authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
-        'documentos-trabajo': ['title', 'authors', 'published'],
-        'ideas-reflexiones': ['title', 'authors', 'published'],
-        'info-iisec': ['title', 'authors', 'published'],
-        'policies-briefs': ['title', 'authors', 'published']
+        'libros': ['title-add','authors-add','published-add'],
+        'articulos-revistas': ['title-add','authors-add','revista-add', 'published-add'],
+        'capitulos-libros': ['authors-add','titulo_capitulo-add', 'titulo_libro-add', 'editores-add', 'published-add'],
+        'documentos-trabajo': ['title-add', 'authors-add', 'published-add'],
+        'ideas-reflexiones': ['title-add', 'authors-add', 'published-add'],
+        'info-iisec': ['title-add', 'authors-add', 'published-add'],
+        'policies-briefs': ['title-add', 'authors-add', 'published-add']
     };
 
 
     // Definir los campos y los grupos de formularios
     const fields = {
-        'cover-group': document.getElementById('cover-group'),
-        'title-group': document.getElementById('title-group'),
-        'authors-group': document.getElementById('authors').parentElement,
-        'editorial-group': document.getElementById('editorial-group'),
-        'published-group': document.getElementById('published').parentElement,
-        'abstract-group': document.getElementById('abstract-group'),
-        'numero_articulo-group': document.getElementById('numero_articulo-group'),
-        'nombre_revista-group': document.getElementById('nombre_revista-group'),
-        'numero_identificacion-group': document.getElementById('numero_identificacion-group'),
-        'titulo_capitulo-group': document.getElementById('titulo_capitulo-group'),
-        'titulo_libro-group': document.getElementById('titulo_libro-group'),
-        'editores-group': document.getElementById('editores-group'),
-        'observacion-group': document.getElementById('observacion-group'),
-        'msj_clave-group': document.getElementById('msj_clave-group'),
-        'linkpdf-group': document.getElementById('linkpdf').parentElement,
-        'pdf-upload-group': document.getElementById('pdf-upload').parentElement,
+        'cover-group-add': document.getElementById('cover-group-add'),
+        'title-group-add': document.getElementById('title-group-add'),
+        'authors-group-add': document.getElementById('authors-add').parentElement,
+        'editorial-group-add': document.getElementById('editorial-group-add'),
+        'published-group-add': document.getElementById('published-add').parentElement,
+        'abstract-group-add': document.getElementById('abstract-group-add'),
+        'numero_articulo-group-add': document.getElementById('numero_articulo-group-add'),
+        'nombre_revista-group-add': document.getElementById('nombre_revista-group-add'),
+        'numero_identificacion-group-add': document.getElementById('numero_identificacion-group-add'),
+        'titulo_capitulo-group-add': document.getElementById('titulo_capitulo-group-add'),
+        'titulo_libro-group-add': document.getElementById('titulo_libro-group-add'),
+        'editores-group-add': document.getElementById('editores-group-add'),
+        'observacion-group-add': document.getElementById('observacion-group-add'),
+        'msj_clave-group-add': document.getElementById('msj_clave-group-add'),
+        'linkpdf-group-add': document.getElementById('linkpdf-add').parentElement,
+        'pdf-upload-group-add': document.getElementById('pdf-upload-add').parentElement,
     };
     
     // Definir el orden de los campos por tipo de documento
     const orderByType = {
         'libros': [
-            'cover-group', 'title-group', 'authors-group', 'editorial-group', 
-            'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'title-group-add', 'authors-group-add', 'editorial-group-add', 
+            'published-group-add', 'abstract-group-add', 'linkpdf-group-add', 'pdf-upload-group-add'
         ],
         'articulos-revistas': [
-            'cover-group','numero_identificacion-group','numero_articulo-group', 'title-group', 'authors-group', 'nombre_revista-group', 
-            'published-group', 'editorial-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'numero_identificacion-group-add', 'numero_articulo-group-add', 'title-group-add', 
+            'authors-group-add', 'nombre_revista-group-add', 'published-group-add', 'editorial-group-add', 
+            'abstract-group-add', 'linkpdf-group-add', 'pdf-upload-group-add'
         ],
         'capitulos-libros': [
-            'cover-group','numero_identificacion-group', 'titulo_libro-group', 'titulo_capitulo-group', 'authors-group', 
-            'editores-group', 'editorial-group', 'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'numero_identificacion-group-add', 'titulo_libro-group-add', 'titulo_capitulo-group-add', 
+            'authors-group-add', 'editores-group-add', 'editorial-group-add', 'published-group-add', 
+            'abstract-group-add', 'linkpdf-group-add', 'pdf-upload-group-add'
         ],
         'documentos-trabajo': [
-            'cover-group','numero_identificacion-group', 'title-group', 'authors-group', 
-            'published-group', 'abstract-group', 'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'numero_identificacion-group-add', 'title-group-add', 'authors-group-add', 
+            'published-group-add', 'abstract-group-add', 'linkpdf-group-add', 'pdf-upload-group-add'
         ],
         'ideas-reflexiones': [
-            'cover-group','title-group', 'authors-group', 'published-group', 'observacion-group', 
-            'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'title-group-add', 'authors-group-add', 'published-group-add', 'observacion-group-add', 
+            'linkpdf-group-add', 'pdf-upload-group-add'
         ],
         'info-iisec': [
-            'cover-group','title-group', 'authors-group', 'published-group', 'observacion-group', 
-            'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'title-group-add', 'authors-group-add', 'published-group-add', 'observacion-group-add', 
+            'linkpdf-group-add', 'pdf-upload-group-add'
         ],
         'policies-briefs': [
-            'cover-group','title-group', 'authors-group', 'published-group', 'msj_clave-group', 
-            'linkpdf-group', 'pdf-upload-group'
+            'cover-group-add', 'title-group-add', 'authors-group-add', 'published-group-add', 'msj_clave-group-add', 
+            'linkpdf-group-add', 'pdf-upload-group-add'
         ]
     };
-
-
+  
 
     // Función para limpiar los campos del formulario
     const clearFields = () => {
@@ -150,8 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
     // Obtener los campos del formulario
-    const authorsField = document.getElementById('authors');
-    const editorsField = document.getElementById('editores');
+    const authorsField = document.getElementById('authors-add');
+    const editorsField = document.getElementById('editores-add');
     
     // Añadir el evento input a ambos campos
     authorsField.addEventListener('input', validarCaracteresPermitidos);
@@ -188,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     typeSelector.dispatchEvent(new Event('change'));
 
 
-    const fileInput = document.getElementById('pdf-upload');
+    const fileInput = document.getElementById('pdf-upload-add');
 
     // Verificar el archivo seleccionado para asegurar que sea un PDF
     fileInput.addEventListener('change', function () {
@@ -218,20 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        // Validar año de publicación
-        const publishedField = document.getElementById('published');
-        if (publishedField) {
-            const year = parseInt(publishedField.value, 10);
-            const currentYear = new Date().getFullYear();
-            if (year < 1900 || year > currentYear) {
-                Sweetalert2.fire(`El año de publicación debe estar entre 1900 y ${currentYear}.`);
-                return false;
-            }
-        }
-
         // Validar que al menos se suba un link PDF o un archivo PDF
-        const linkPdfField = document.getElementById('linkpdf');
-        const fileInput = document.getElementById('pdf-upload');
+        const linkPdfField = document.getElementById('linkpdf-add');
+        const fileInput = document.getElementById('pdf-upload-add');
 
         if (!linkPdfField.value.trim() && (!fileInput.files || fileInput.files.length === 0)) {
             Sweetalert2.fire('Debe proporcionar un link PDF o subir un archivo PDF.');
@@ -256,13 +246,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'libros') {
             // Recoger los datos del formulario para libros
             const libroData = {
-                portada: document.getElementById('cover').value,
-                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                titulo: document.getElementById('title').value,
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                editorial: document.getElementById('editorial').value,
-                abstract: document.getElementById('abstract').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                anio_publicacion: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                titulo: document.getElementById('title-add').value,
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                editorial: document.getElementById('editorial-add').value,
+                abstract: document.getElementById('abstract-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
 
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
@@ -291,16 +281,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'articulos-revistas') {
             // Recoger los datos del formulario para artículos de revista
             const artData = {
-                portada: document.getElementById('cover').value,
-                numero_identificacion: document.getElementById('numero_identificacion').value,
-                numero_articulo: document.getElementById('article-number').value,
-                titulo: document.getElementById('title').value,
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                anio_revista: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                nombre_revista: document.getElementById('revista').value,
-                editorial: document.getElementById('editorial').value,
-                abstract: document.getElementById('abstract').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                numero_identificacion: document.getElementById('numero_identificacion-add').value,
+                numero_articulo: document.getElementById('article-number-add').value,
+                titulo: document.getElementById('title-add').value,
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                anio_revista: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                nombre_revista: document.getElementById('revista-add').value,
+                editorial: document.getElementById('editorial-add').value,
+                abstract: document.getElementById('abstract-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
     
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
@@ -328,15 +318,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'capitulos-libros') {
             // Recoger los datos del formulario para capítulos de libros
             const capituloData = {
-                portada: document.getElementById('cover').value,
-                numero_identificacion: document.getElementById('numero_identificacion').value,
-                titulo_libro: document.getElementById('titulo_libro').value,
-                titulo_capitulo: document.getElementById('titulo_capitulo').value,
-                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                editores: document.getElementById('editores').value.split(',').map(editor => editor.trim()), // Convertir editores a un array y eliminar espacios
-                editorial: document.getElementById('editorial').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                numero_identificacion: document.getElementById('numero_identificacion-add').value,
+                titulo_libro: document.getElementById('titulo_libro-add').value,
+                titulo_capitulo: document.getElementById('titulo_capitulo-add').value,
+                anio_publicacion: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                editores: document.getElementById('editores-add').value.split(',').map(editor => editor.trim()), // Convertir editores a un array y eliminar espacios
+                editorial: document.getElementById('editorial-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
         
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
@@ -363,13 +353,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'documentos-trabajo') {
             // Recoger los datos del formulario para documentos de trabajo
             const docData = {
-                portada: document.getElementById('cover').value,
-                numero_identificacion: document.getElementById('numero_identificacion').value,
-                titulo: document.getElementById('title').value,
-                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                abstract: document.getElementById('abstract').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                numero_identificacion: document.getElementById('numero_identificacion-add').value,
+                titulo: document.getElementById('title-add').value,
+                anio_publicacion: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                abstract: document.getElementById('abstract-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
         
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
@@ -396,12 +386,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'ideas-reflexiones') {
             // Recoger los datos del formulario para ideas y reflexiones
             const ideaData = {
-                portada: document.getElementById('cover').value,
-                titulo: document.getElementById('title').value,
-                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                observaciones: document.getElementById('observation').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                titulo: document.getElementById('title-add').value,
+                anio_publicacion: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                observaciones: document.getElementById('observation-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
         
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
@@ -428,12 +418,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'info-iisec') {
             // Recoger los datos del formulario para Info IISEC
             const infoData = {
-                portada: document.getElementById('cover').value,
-                titulo: document.getElementById('title').value,
-                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                observaciones: document.getElementById('observation').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                titulo: document.getElementById('title-add').value,
+                anio_publicacion: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                observaciones: document.getElementById('observation-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
         
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo
@@ -460,12 +450,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (type === 'policies-briefs') {
             // Recoger los datos del formulario para Policy Briefs
             const policyData = {
-                portada: document.getElementById('cover').value,
-                titulo: document.getElementById('title').value,
-                anio_publicacion: parseInt(document.getElementById('published').value, 10), // Convertir a número entero
-                autores: document.getElementById('authors').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
-                mensaje_clave: document.getElementById('msj_claves').value,
-                link_pdf: document.getElementById('linkpdf').value
+                portada: document.getElementById('cover-add').value,
+                titulo: document.getElementById('title-add').value,
+                anio_publicacion: parseInt(document.getElementById('published-add').value, 10), // Convertir a número entero
+                autores: document.getElementById('authors-add').value.split(',').map(autor => autor.trim()), // Convertir autores a un array y eliminar espacios
+                mensaje_clave: document.getElementById('msj_claves-add').value,
+                link_pdf: document.getElementById('linkpdf-add').value
             };
         
             const file = fileInput.files.length > 0 ? fileInput.files[0] : null; // Verificar si hay un archivo

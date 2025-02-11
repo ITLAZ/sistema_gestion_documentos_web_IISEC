@@ -44,13 +44,10 @@ export async function handleDocumentDeletion(documentType, documentId, cardEleme
     }
 }
 
-let originalData = {};
 export async function loadDocumentData(documentType, documentId) {
     try {
         // Obtener los detalles del documento desde el backend.
         const data = await getDocumentById(documentType, documentId);
-
-        originalData = { ...data };
 
         // Imprimir los datos recibidos para depuración.
         console.log('Datos recibidos del documento:', data);
@@ -187,166 +184,127 @@ function displayFieldsByType(type) {
 
     // Asegurar que el contenedor de botones esté al final del formulario.
     form.appendChild(buttonsContainer);
-}
 
-export async function handleDocumentUpdate(documentType, documentId, usuarioId) {
-
-    try {
-        // Obtener los valores de los campos del formulario.
-        const currentYear = new Date().getFullYear();
-
-        const title = document.getElementById('title').value;
-        const authors = document.getElementById('authors').value.split(',').map(author => author.trim());
-        const published = document.getElementById('published').value;
-        const cover = document.getElementById('cover') ? document.getElementById('cover').value : '';
-        const editorial = document.getElementById('editorial') ? document.getElementById('editorial').value : '';
-        const abstract = document.getElementById('abstract') ? document.getElementById('abstract').value : '';
-        const articleNumber = document.getElementById('article-number') ? document.getElementById('article-number').value : '';
-        const revista = document.getElementById('revista') ? document.getElementById('revista').value : '';
-        const numeroIdentificacion = document.getElementById('numero_identificacion') ? document.getElementById('numero_identificacion').value : '';
-        const tituloCapitulo = document.getElementById('titulo_capitulo') ? document.getElementById('titulo_capitulo').value : '';
-        const tituloLibro = document.getElementById('titulo_libro') ? document.getElementById('titulo_libro').value : '';
-        const editores = document.getElementById('editores') ? document.getElementById('editores').value.split(',').map(editor => editor.trim()) : [];
-        const observation = document.getElementById('observation') ? document.getElementById('observation').value : '';
-        const msjClaves = document.getElementById('msj_claves') ? document.getElementById('msj_claves').value : '';
-        const linkPdf = document.getElementById('linkpdf').value;
-
-
-    // Validar los campos obligatorios
-    const errors = [];
-    if (!title) errors.push('El campo "Título" es obligatorio.');
-    if (!authors.length || authors.some(author => author === '')) {
-        errors.push('Debe proporcionar al menos un autor.');
     }
 
-    if (!published) {
-        errors.push('El campo "Año de Publicación" es obligatorio.');
-    } else if (isNaN(published) || published < 1900 || published > currentYear) {
-        errors.push(`El campo "Año de Publicación" debe ser un número entre 1900 y ${currentYear}.`);
-    }
-
-    if ((documentType === 'libros' || documentType === 'capitulos-libros') && !cover) {
-        errors.push('El campo "Portada" es obligatorio para libros y capítulos de libros.');
-    }
-    if (documentType === 'articulos-revistas' && !revista) {
-        errors.push('El campo "Nombre de la Revista" es obligatorio para artículos de revistas.');
-    }
-    if (documentType === 'capitulos-libros' && (!tituloCapitulo || !tituloLibro)) {
-        errors.push('Los campos "Título del Capítulo" y "Título del Libro" son obligatorios para capítulos de libros.');
-    }
-    if (documentType === 'capitulos-libros' && !editores.length) {
-        errors.push('Debe proporcionar al menos un editor para los capítulos de libros.');
-    }
-
-    // Si hay errores, mostrar un mensaje y detener el proceso.
-    if (errors.length > 0) {
-        Sweetalert2.fire(errors.join('\n'));
-        return;
-    }
-
-        // Crear un objeto para almacenar solo los datos que han sido modificados.
-        const updatedData = {};
-
-        // Comparar y almacenar solo los datos que han cambiado.
-        if (cover && cover !== originalData.portada) {
-            updatedData.portada = cover;
-        }
-
-        if (title && title !== originalData.titulo) {
-            updatedData.titulo = title;
-        }
-
-        if (authors && authors.join(', ') !== originalData.autores.join(', ')) {
-            updatedData.autores = authors;
-        }
-
-        if (published && published !== (originalData.anio_publicacion || originalData.anio_revista).toString()) {
+    export async function handleDocumentUpdate(documentType, documentId, usuarioId) {
+        try {
+            // Obtener los valores de los campos del formulario.
+            const title = document.getElementById('title').value;
+            const authors = document.getElementById('authors').value.split(',').map(author => author.trim());
+            const published = document.getElementById('published').value;
+            const cover = document.getElementById('cover') ? document.getElementById('cover').value : '';
+            const editorial = document.getElementById('editorial') ? document.getElementById('editorial').value : '';
+            const abstract = document.getElementById('abstract') ? document.getElementById('abstract').value : '';
+            const articleNumber = document.getElementById('article-number') ? document.getElementById('article-number').value : '';
+            const revista = document.getElementById('revista') ? document.getElementById('revista').value : '';
+            const numeroIdentificacion = document.getElementById('numero_identificacion') ? document.getElementById('numero_identificacion').value : '';
+            const tituloCapitulo = document.getElementById('titulo_capitulo') ? document.getElementById('titulo_capitulo').value : '';
+            const tituloLibro = document.getElementById('titulo_libro') ? document.getElementById('titulo_libro').value : '';
+            const editores = document.getElementById('editores') ? document.getElementById('editores').value.split(',').map(editor => editor.trim()) : [];
+            const observation = document.getElementById('observation') ? document.getElementById('observation').value : '';
+            const msjClaves = document.getElementById('msj_claves') ? document.getElementById('msj_claves').value : '';
+            const linkPdf = document.getElementById('linkpdf').value;
+    
+            // Función para validar caracteres permitidos en ciertos campos
+            function validarCaracteresPermitidos(event) {
+                const pattern = /^[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*$/;
+                const input = event.target.value;
+                if (!pattern.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+            }
+    
+            // Aplicar validación en autores y editores
+            document.getElementById('authors').addEventListener('input', validarCaracteresPermitidos);
+            if (document.getElementById('editores')) {
+                document.getElementById('editores').addEventListener('input', validarCaracteresPermitidos);
+            }
+    
+            // Lista de campos obligatorios por tipo de documento
+            const requiredFieldsByType = {
+                'libros': ['title','authors','published'],
+                'articulos-revistas': ['title','authors','revista', 'published'],
+                'capitulos-libros': ['authors','titulo_capitulo', 'titulo_libro', 'editores', 'published'],
+                'documentos-trabajo': ['title', 'authors', 'published'],
+                'ideas-reflexiones': ['title', 'authors', 'published'],
+                'info-iisec': ['title', 'authors', 'published'],
+                'policies-briefs': ['title', 'authors', 'published']
+            };
+    
+            // Validación de campos obligatorios
+            const missingFields = [];
+            const requiredFields = requiredFieldsByType[documentType] || [];
+    
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && !field.value.trim()) {
+                    missingFields.push(field.previousElementSibling.textContent);
+                }
+            });
+    
+            if (missingFields.length > 0) {
+                Sweetalert2.fire(`Por favor, completa los siguientes campos: \n${missingFields.join('\n')}`);
+                return;
+            }
+    
+            // Crear un objeto con todos los datos a enviar
+            const updatedData = {
+                titulo: title,
+                autores: authors,
+                portada: cover,
+                link_pdf: linkPdf
+            };
+    
+            // Agregar campos específicos según el tipo de documento
             if (documentType === 'libros' || documentType === 'capitulos-libros' || documentType === 'documentos-trabajo') {
                 updatedData.anio_publicacion = parseInt(published);
             } else if (documentType === 'articulos-revistas') {
                 updatedData.anio_revista = parseInt(published);
             }
-        }
-
-        // Comparar y almacenar datos específicos para cada tipo de documento.
-        if (documentType === 'libros') {
-            if (editorial && editorial !== originalData.editorial) {
+    
+            if (documentType === 'libros') {
                 updatedData.editorial = editorial;
-            }
-            if (abstract && abstract !== originalData.abstract) {
                 updatedData.abstract = abstract;
             }
-        }
-
-        if (documentType === 'articulos-revistas') {
-            if (numeroIdentificacion && numeroIdentificacion !== originalData.numero_identificacion) {
+    
+            if (documentType === 'articulos-revistas') {
                 updatedData.numero_identificacion = numeroIdentificacion;
-            }
-            if (articleNumber && articleNumber !== originalData.numero_articulo) {
                 updatedData.numero_articulo = articleNumber;
-            }
-            if (revista && revista !== originalData.nombre_revista) {
                 updatedData.nombre_revista = revista;
-            }
-            if (editorial && editorial !== originalData.editorial) {
                 updatedData.editorial = editorial;
-            }
-            if (abstract && abstract !== originalData.abstract) {
                 updatedData.abstract = abstract;
             }
-        }
-
-        if (documentType === 'capitulos-libros') {
-            if (numeroIdentificacion && numeroIdentificacion !== originalData.numero_identificacion) {
+    
+            if (documentType === 'capitulos-libros') {
                 updatedData.numero_identificacion = numeroIdentificacion;
-            }
-            if (tituloLibro && tituloLibro !== originalData.titulo_libro) {
                 updatedData.titulo_libro = tituloLibro;
-            }
-            if (tituloCapitulo && tituloCapitulo !== originalData.titulo_capitulo) {
                 updatedData.titulo_capitulo = tituloCapitulo;
-            }
-            if (editores && editores.join(', ') !== originalData.editores.join(', ')) {
                 updatedData.editores = editores;
-            }
-            if (editorial && editorial !== originalData.editorial) {
                 updatedData.editorial = editorial;
             }
-        }
-
-        if (documentType === 'documentos-trabajo') {
-            if (numeroIdentificacion && numeroIdentificacion !== originalData.numero_identificacion) {
+    
+            if (documentType === 'documentos-trabajo') {
                 updatedData.numero_identificacion = numeroIdentificacion;
-            }
-            if (abstract && abstract !== originalData.abstract) {
                 updatedData.abstract = abstract;
             }
-        }
-
-        if (documentType === 'ideas-reflexiones' || documentType === 'info-iisec') {
-            if (observation && observation !== originalData.observaciones) {
+    
+            if (documentType === 'ideas-reflexiones' || documentType === 'info-iisec') {
                 updatedData.observaciones = observation;
             }
-        }
-
-        if (documentType === 'policies-briefs') {
-            if (msjClaves && msjClaves !== originalData.mensaje_clave) {
+    
+            if (documentType === 'policies-briefs') {
                 updatedData.mensaje_clave = msjClaves;
             }
-        }
-
-        if (linkPdf && linkPdf !== originalData.link_pdf) {
-            updatedData.link_pdf = linkPdf;
-        }
-
-        // Enviar la solicitud de actualización solo si hay datos modificados.
-        if (Object.keys(updatedData).length > 0) {
+    
+            // Enviar la solicitud de actualización
             await updateDocumentById(documentType, documentId, updatedData, usuarioId);
             Sweetalert2.fire('Documento actualizado exitosamente.');
-        } else {
-            Sweetalert2.fire('No se detectaron cambios para actualizar.');
+    
+        } catch (error) {
+            Sweetalert2.fire('Error al actualizar el documento:', error);
         }
-    } catch (error) {
-        Sweetalert2.fire('Error al actualizar el documento:', error);
     }
-}
+
+
+    

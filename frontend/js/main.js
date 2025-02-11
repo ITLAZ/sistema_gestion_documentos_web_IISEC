@@ -366,6 +366,10 @@ function displayDocumentDetails(data, documentType) {
       document.getElementById("descripcion").style.display = "block";
       document.getElementById("description").textContent =
         documentData.abstract || "Descripción no disponible";
+      document.getElementById("numero_identificacion").style.display = "block";
+      document.getElementById("numero_identificacion_value").textContent =
+          documentData.numero_identificacion || "Número de identificación no disponible";
+
       break;
 
     case "capitulos-libros":

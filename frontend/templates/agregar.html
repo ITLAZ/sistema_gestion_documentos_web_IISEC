@@ -42,109 +42,109 @@
             </div>
 
             <!-- Campo Título (Igual para todos los documentos, excepto capítulos de libros) -->
-            <div class="form-group" id="title-group">
+            <div class="form-group" id="title-group-add">
                 <label for="title"><strong>Título:</strong></label>
-                <input type="text" id="title" name="title" class="form-control" placeholder="Título del Documento">
+                <input type="text" id="title-add" name="title-add" class="form-control" placeholder="Título del Documento">
             </div>
 
             <!-- Campo Autor(es) -->
-            <div class="form-group">
+            <div class="form-group" id="authors-group-add">
                 <label for="authors"><strong>Autor(es) (separados por comas):</strong></label>
-                <input type="text" id="authors" name="authors" class="form-control" placeholder="Autor(es)"
+                <input type="text" id="authors-add" name="authors-add" class="form-control" placeholder="Autor(es)"
                     pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*" required>
             </div>
 
             <!-- Campo Año de Publicación -->
-            <div class="form-group">
+            <div class="form-group" id="published-group-add">
                 <label for="published"><strong>Año de Publicación:</strong></label>
-                <input type="number" id="published" name="published" class="form-control"
+                <input type="number" id="published-add" name="published-add" class="form-control"
                     placeholder="Año de Publicación" required>
             </div>
 
             <!-- Campo Portada (Solo para Libros, ingreso de URL) -->
-            <div class="form-group" id="cover-group" style="display: none;">
+            <div class="form-group" id="cover-group-add" style="display: none;">
                 <label for="cover"><strong>Portada (URL):</strong></label>
-                <input type="url" id="cover" name="cover" class="form-control" placeholder="URL de la Portada">
+                <input type="url" id="cover-add" name="cover-add" class="form-control" placeholder="URL de la Portada">
             </div>
 
             <!-- Campo Editorial (Para Libros, Artículos de Revistas y Capítulos de Libros) -->
-            <div class="form-group" id="editorial-group" style="display: none;">
+            <div class="form-group" id="editorial-group-add" style="display: none;">
                 <label for="editorial"><strong>Editorial:</strong></label>
-                <input type="text" id="editorial" name="editorial" class="form-control" placeholder="Editorial">
+                <input type="text" id="editorial-add" name="editorial-add" class="form-control" placeholder="Editorial">
             </div>
 
 
             <!-- Campo Editor(es) -->
-            <div class="form-group" id="editores-group" style="display: none;">
+            <div class="form-group" id="editores-group-add" style="display: none;">
                 <label for="editores"><strong>Editor(es) (separados por comas):</strong></label>
-                <input type="text" id="editores" name="editores" class="form-control"
+                <input type="text" id="editores-add" name="editores-add" class="form-control"
                     pattern="[A-Za-zÀ-ÿáéíóúÁÉÍÓÚñÑ.&,\- ]*" placeholder="Editor(es)">
             </div>
 
             <!-- Campo Número de Artículo (Para Artículos de Revistas) -->
-            <div class="form-group" id="numero_articulo-group" style="display: none;">
+            <div class="form-group" id="numero_articulo-group-add" style="display: none;">
                 <label for="article-number"><strong>Número de Artículo:</strong></label>
-                <input type="text" id="article-number" name="article-number" class="form-control"
+                <input type="text" id="article-number-add" name="article-number-add" class="form-control"
                     placeholder="Número del Artículo">
             </div>
 
             <!-- Campo Nombre de la Revista (Para Artículos de Revistas) -->
-            <div class="form-group" id="nombre_revista-group" style="display: none;">
+            <div class="form-group" id="nombre_revista-group-add" style="display: none;">
                 <label for="revista"><strong>Nombre de la Revista:</strong></label>
-                <input type="text" id="revista" name="revista" class="form-control" placeholder="Nombre de la Revista">
+                <input type="text" id="revista-add" name="revista-add" class="form-control" placeholder="Nombre de la Revista">
             </div>
 
             <!-- Campos para Capítulos de Libros -->
-            <div class="form-group" id="numero_identificacion-group" style="display: none;">
+            <div class="form-group" id="numero_identificacion-group-add" style="display: none;">
                 <label for="numero_identificacion"><strong>Número de Identificación:</strong></label>
-                <input type="text" id="numero_identificacion" name="numero_identificacion" class="form-control"
+                <input type="text" id="numero_identificacion-add" name="numero_identificacion-add" class="form-control"
                     placeholder="Número de Identificación">
             </div>
 
-            <div class="form-group" id="titulo_capitulo-group" style="display: none;">
+            <div class="form-group" id="titulo_capitulo-group-add" style="display: none;">
                 <label for="titulo_capitulo"><strong>Título del Capítulo:</strong></label>
-                <input type="text" id="titulo_capitulo" name="titulo_capitulo" class="form-control"
+                <input type="text" id="titulo_capitulo-add" name="titulo_capitulo-add" class="form-control"
                     placeholder="Título del Capítulo">
             </div>
 
             <!-- Campo Título del Libro (Para Capítulos de Libros) -->
-            <div class="form-group" id="titulo_libro-group" style="display: none;">
+            <div class="form-group" id="titulo_libro-group-add" style="display: none;">
                 <label for="titulo_libro"><strong>Título del Libro:</strong></label>
-                <input type="text" id="titulo_libro" name="titulo_libro" class="form-control"
+                <input type="text" id="titulo_libro-add" name="titulo_libro-add" class="form-control"
                     placeholder="Título del Libro">
             </div>
 
             <!-- Campo Abstract (Para Documentos de Trabajo, Artículos de Libros y Libros) -->
-            <div class="form-group" id="abstract-group" style="display: none;">
+            <div class="form-group" id="abstract-group-add" style="display: none;">
                 <label for="abstract"><strong>Abstract:</strong></label>
-                <textarea id="abstract" name="abstract" class="form-control"
+                <textarea id="abstract-add" name="abstract-add" class="form-control"
                     placeholder="Abstract del documento"></textarea>
             </div>
 
             <!-- Campo Observación (Para Ideas y Reflexiones y Info IISEC) -->
-            <div class="form-group" id="observacion-group" style="display: none;">
+            <div class="form-group" id="observacion-group-add" style="display: none;">
                 <label for="observation"><strong>Observaciones:</strong></label>
-                <textarea id="observation" name="observation" class="form-control"
+                <textarea id="observation-add" name="observation-add" class="form-control"
                     placeholder="Observaciones del documento"></textarea>
             </div>
 
             <!-- Campo Mensaje Clave (Para Policy and Briefs) -->
-            <div class="form-group" id="msj_clave-group" style="display: none;">
+            <div class="form-group" id="msj_clave-group-add" style="display: none;">
                 <label for="msj_claves"><strong>Mensaje Clave:</strong></label>
-                <textarea id="msj_claves" name="msj_claves" class="form-control"
+                <textarea id="msj_claves-add" name="msj_claves-add" class="form-control"
                     placeholder="Mensaje Clave del documento"></textarea>
             </div>
 
             <!-- Campo Link PDF (Igual para todos los documentos) -->
-            <div class="form-group">
+            <div class="form-group" id="linkpdf-group-add">
                 <label for="linkpdf"><strong>Link PDF:</strong></label>
-                <input type="url" id="linkpdf" name="linkpdf" class="form-control" placeholder="Link PDF">
+                <input type="url" id="linkpdf-add" name="linkpdf-add" class="form-control" placeholder="Link PDF">
             </div>
 
             <!-- Campo para Subir Documento PDF -->
             <div class="form-group">
                 <label for="pdf-upload"><strong>Subir Documento (solo PDF):</strong></label>
-                <input type="file" id="pdf-upload" name="pdf-upload" class="form-control" accept=".pdf">
+                <input type="file" id="pdf-upload-add" name="pdf-upload-add" class="form-control" accept=".pdf">
             </div>
 
             <button type="submit" class="btn btn-primary">Guardar Documento</button>

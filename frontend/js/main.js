@@ -426,35 +426,34 @@ function displayDocumentDetails(data, documentType) {
   const pdfIframe = document.getElementById("pdf-frame");
   const pdfDownloadLink = document.getElementById("pdf-download-link");
 
-  if (
-    documentData.link_pdf &&
-    documentData.link_pdf.trim().toLowerCase().endsWith(".pdf")
-  ) {
-    pdfIframe.src = documentData.link_pdf;
-    pdfDownloadLink.href = documentData.link_pdf;
-    pdfIframe.style.display = "block";
-  } else if (documentData.direccion_archivo) {
+  if (documentData.direccion_archivo) {
     const nombreArchivo = documentData.direccion_archivo.split("\\").pop();
     const archivoUrl = `${API_URL}/file-handler/file/${nombreArchivo}`;
     pdfIframe.src = archivoUrl;
     pdfDownloadLink.href = archivoUrl;
     pdfIframe.style.display = "block";
-  } else {
+} else {
     pdfIframe.style.display = "none";
     const pdfPreviewContainer = document.querySelector(".pdf-preview");
+    pdfPreviewContainer.innerHTML = ""; // Limpia el contenedor para evitar duplicados
 
     const messageContainer = document.createElement("div");
-    messageContainer.innerHTML = `
-            <p>Lo sentimos, el documento no se encuentra actualmente disponible.</p>
-            <p>Puede ingresar al siguiente link para encontrarlo: <a href="${
-              documentData.link_pdf || "#"
-            }" target="_blank">${
-      documentData.link_pdf || "No disponible"
-    }</a></p>
+
+    if (documentData.link_pdf) {
+        messageContainer.innerHTML = `
+            <p>Lo sentimos, el documento no se encuentra actualmente disponible para previsualización.</p>
+            <p>Puede acceder al documento desde el siguiente enlace: 
+            <a href="${documentData.link_pdf}" target="_blank">Ver documento</a></p>
         `;
+    } else {
+        messageContainer.innerHTML = `
+            <p>No se tiene acceso a este documento.</p>
+        `;
+    }
 
     pdfPreviewContainer.appendChild(messageContainer);
-  }
+}
+
 }
 
 // Manejo de eventos globales para los dropdowns

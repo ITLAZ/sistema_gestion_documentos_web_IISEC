@@ -331,7 +331,7 @@ function displayDocumentDetails(data, documentType) {
     documentData.titulo_capitulo ||
     "Título no disponible";
   document.getElementById("cover").src =
-    documentData.portada || "https://placehold.com/600x400";
+    documentData.portada || "https://placehold.co/600x400?text=Portada+No+Disponible";
   document.getElementById("type").textContent =
     tipodoc || "Tipo de documento no disponible";
   document.getElementById("authors").textContent = documentData.autores

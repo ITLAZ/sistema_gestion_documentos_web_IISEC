@@ -51,6 +51,7 @@ function updateCardData(cardElement, data, documentType, isSearchResult = false)
     const title = data.titulo || data.titulo_capitulo || 'Título no disponible';
     const authors = data.autores ? data.autores.join(', ') : 'Autores no disponibles';
     const published = data.anio_publicacion || data.anio_revista || 'Fecha no disponible';
+    const portada = data.portada || "https://placehold.co/600x400?text=Portada+No+Disponible"; // Usar una imagen de marcador de posición si no hay portada
 
     // Asignar los valores comunes
     const fields = [
@@ -68,6 +69,14 @@ function updateCardData(cardElement, data, documentType, isSearchResult = false)
             console.error(`El elemento con id "${field.id}" no se encontró en card.html`);
         }
     });
+
+    // Asignar la portada a la imagen
+    const coverElement = cardElement.querySelector('#cover');
+    if (coverElement) {
+        coverElement.src = portada;
+    } else {
+        console.error('El elemento con id "cover" no se encontró en card.html');
+    }
 
     // Si `isSearchResult` es true, mostramos solo información básica y salimos.
     if (isSearchResult) {
